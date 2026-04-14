@@ -26,14 +26,29 @@
     vim
     wget
     curl
-	kitty
+    kitty
   ];
 
-  # programs.sway.enable = true;
-  services.xserver.enable = true;
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
+  # Sway
+  programs.sway.enable = true;
   programs.zsh.enable = true;
+
+  # GNOMEの代わりにgreetd
+  services.greetd = {
+    enable = true;
+    settings = {
+      default_session = {
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --cmd sway";
+        user = "treo";
+      };
+    };
+  };
+
+  # Wayland環境変数
+  environment.sessionVariables = {
+    WLR_NO_HARDWARE_CURSORS = "1";
+    NIXOS_OZONE_WL = "1";
+  };
 
   fonts.packages = with pkgs; [
     noto-fonts
