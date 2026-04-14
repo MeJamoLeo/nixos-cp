@@ -55,10 +55,4 @@
     #   signByDefault = true;
     # };
   };
-
-  programs.delta = {
-    enable = true;
-    enableGitIntegration = true;
-    options.features = "side-by-side";
-  };
 }
