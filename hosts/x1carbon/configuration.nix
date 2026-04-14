@@ -26,6 +26,7 @@
     vim
     wget
     curl
+	kitty
   ];
 
   # programs.sway.enable = true;

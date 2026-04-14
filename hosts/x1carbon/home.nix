@@ -5,6 +5,7 @@
 		../../home/shell.nix
 		../../home/git.nix
 		../../home/starship.nix
+		../../modules/sway.nix
 	];
 
 	home.username = "treo";
