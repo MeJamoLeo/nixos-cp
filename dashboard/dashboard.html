@@ -29,7 +29,39 @@
 	--red:     #dd5555;
 	--blue:    #5a8add;
 	--bar-bg:  #0e2020;
+
+	/* DEBUG: grid背景色 (本番時は全てvar(--bg)に戻す) */
+	--dbg-body:       var(--bg);
+	--dbg-hud:        var(--panel);
+	--dbg-player:     var(--panel);
+	--dbg-waqueue:    var(--panel);
+	--dbg-difflog:    var(--panel);
+	--dbg-tagpeer:    var(--panel);
+	--dbg-skillgraph: var(--panel);
+	--dbg-streak:     var(--panel);
+	--dbg-speed:      var(--panel);
+	--dbg-bottom:     var(--bg);
+	--dbg-main:       var(--bg);
+	--dbg-colright2:  var(--bg);
 }
+
+/* デバッグモード: この行のコメントを外すと各グリッドが色分けされる */
+
+:root {
+	--dbg-body:       #1a0000;
+	--dbg-hud:        #2a1010;
+	--dbg-player:     #102a10;
+	--dbg-waqueue:    #10102a;
+	--dbg-difflog:    #2a2a10;
+	--dbg-tagpeer:    #2a102a;
+	--dbg-skillgraph: #10202a;
+	--dbg-streak:     #201a10;
+	--dbg-speed:      #101a20;
+	--dbg-bottom:     #1a1a00;
+	--dbg-main:       #001a00;
+	--dbg-colright2:  #00001a;
+}
+
 
 /* ============================================================
    LAYOUT
@@ -49,14 +81,14 @@ body {
 	padding: 3px;
 	min-width: 0;
 	min-height: 0;
-	background: #1a0000; /* DEBUG: body grid = 暗赤 */
+	background: var(--dbg-body);
 }
 
 .main {
 	display: grid;
 	grid-template-columns: 17% 1fr 29%;
 	grid-template-rows: 3fr 2fr;
-	background: #001a00; /* DEBUG: main grid = 暗緑 */
+	background: var(--dbg-main);
 	gap: 3px;
 	min-height: 0;
 	overflow: hidden;
@@ -64,7 +96,7 @@ body {
 
 .col-left  { grid-row: 1/3; display: flex; flex-direction: column; gap: 3px; min-height: 0; overflow: hidden; }
 .col-right { grid-row: 1/3; display: flex; flex-direction: column; gap: 3px; min-height: 0; overflow: hidden; }
-.bottom    { display: grid; grid-template-columns: repeat(3,1fr) 1.4fr; gap: 3px; background: #1a1a00; /* DEBUG: bottom grid = 暗黄 */ }
+.bottom    { display: grid; grid-template-columns: repeat(3,1fr) 1.4fr; gap: 3px; background: var(--dbg-bottom); }
 
 /* ============================================================
    COMPONENTS — panel
@@ -192,7 +224,7 @@ function renderHUD(d) {
 	function s(l,v,sub,c) {
 		return '<div class="hud-section"><div class="hud-label">'+l+'</div><div class="hud-value" style="color:'+c+'">'+v+'</div>'+(sub?'<div class="hud-sub">'+sub+'</div>':'')+'</div>';
 	}
-	return '<div class="hud">'
+	return '<div class="hud" style="background:var(--dbg-hud)">'
 		+s('system','[ CP // ONLINE ]','','#1a5a2a')
 		+s('rating',h.rating+' <span style="color:var(--dim)">'+(h.rank_label||'')+'</span>','','var(--amber)')
 		+s('streak','🔥 '+(h.streak_days||0)+'日','','#ff8030')
@@ -209,7 +241,7 @@ function renderHUD(d) {
 function renderPlayerStatus(d) {
 	const ps = d.player_status||{}, pct=((ps.rating_progress||0)*100).toFixed(1);
 	const acs = (ps.today_acs||[]).map(a=>'<span class="badge badge-green">'+a.problem_id+' +'+a.xp+'</span>').join(' ');
-	return '<div class="panel accent-amber" data-label="PLAYER STATUS"><div class="panel-inner">'
+	return '<div class="panel accent-amber" data-label="PLAYER STATUS" style="background:var(--dbg-player)"><div class="panel-inner">'
 		+'<div style="display:flex;justify-content:space-between;align-items:flex-end"><div><div style="font-size:var(--fs-2xs);color:var(--muted)">RATING</div><div class="ps-rating">'+(ps.rating||0)+'</div></div><div style="text-align:right"><div style="font-size:var(--fs-2xs);color:var(--muted)">LEVEL</div><div class="ps-level">'+(ps.level||0)+'</div></div></div>'
 		+'<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%;background:var(--amber)"></div></div>'
 		+'<div style="display:flex;justify-content:space-between;font-size:var(--fs-xs);color:var(--muted)"><span>'+(ps.rating_min||0)+'</span><span style="color:var(--amber)">'+(ps.rating||0)+'</span><span style="color:var(--green)">'+(ps.rating_max||0)+'</span></div>'
@@ -224,11 +256,11 @@ function renderWAQueue(d) {
 		const c = w.wa_count>=3?'#cc4444':w.wa_count>=2?'var(--amber)':'#333';
 		items += '<div class="wa-item"><div class="wa-indicator" style="background:'+c+'"></div><span class="wa-badge">×'+w.wa_count+'</span><span class="wa-name">'+w.problem_id+'</span><span class="wa-tag">'+w.tag+'</span><span class="wa-diff">'+w.difficulty+'</span></div>';
 	});
-	return '<div class="panel" data-label="WA QUEUE" style="flex:1"><div class="panel-inner"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><span style="font-size:var(--fs-xs);color:var(--dim)">復習待ち '+wq.length+'問</span><span class="badge badge-amber">優先順</span></div>'+items+'</div></div>';
+	return '<div class="panel" data-label="WA QUEUE" style="flex:1;background:var(--dbg-waqueue)"><div class="panel-inner"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><span style="font-size:var(--fs-xs);color:var(--dim)">復習待ち '+wq.length+'問</span><span class="badge badge-amber">優先順</span></div>'+items+'</div></div>';
 }
 function renderDifficultyLog(d) {
 	const dl=d.difficulty_log||{}, pts=dl.points||[], avg=dl.seven_day_avg||[], cr=dl.current_rating||0;
-	if(!pts.length) return '<div class="panel" data-label="DIFFICULTY LOG" style="grid-column:2;grid-row:1"><div class="panel-inner"></div></div>';
+	if(!pts.length) return '<div class="panel" data-label="DIFFICULTY LOG" style="grid-column:2;grid-row:1;background:var(--dbg-difflog)"><div class="panel-inner"></div></div>';
 	const M=1200,xL=44,xR=550,yT=12,yB=130,mE=pts[0].epoch,xE=pts[pts.length-1].epoch,R=xE-mE||1;
 	const X=e=>xL+(e-mE)/R*(xR-xL), Y=v=>yB-(v/M)*(yB-yT);
 	let s='<svg width="100%" height="100%" viewBox="0 0 560 140" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">';
@@ -238,7 +270,7 @@ function renderDifficultyLog(d) {
 	if(avg.length>1)s+='<polyline points="'+avg.map(a=>X(a.epoch).toFixed(1)+','+Y(a.avg).toFixed(1)).join(' ')+'" fill="none" stroke="var(--cyan)" stroke-width="1.5" stroke-linejoin="round"/>';
 	s+='<text x="'+xL+'" y="136" fill="#0c1e1e" font-size="7" text-anchor="start" font-family="monospace">'+(new Date(pts[0].epoch*1000).getMonth()+1)+'月</text>';
 	s+='<text x="'+xR+'" y="136" fill="var(--cyan)" font-size="7" text-anchor="end" font-family="monospace">今</text></svg>';
-	return '<div class="panel" data-label="DIFFICULTY LOG" style="grid-column:2;grid-row:1"><div class="panel-inner">'
+	return '<div class="panel" data-label="DIFFICULTY LOG" style="grid-column:2;grid-row:1;background:var(--dbg-difflog)"><div class="panel-inner">'
 		+'<div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:3px"><span style="font-size:var(--fs-2xs);color:#335577">● AC</span><span style="font-size:var(--fs-2xs);color:var(--cyan)">— 7日avg</span><span style="font-size:var(--fs-2xs);color:var(--amber)">-- rate</span></div>'
 		+'<div style="flex:1;min-height:0">'+s+'</div></div></div>';
 }
@@ -299,19 +331,19 @@ function hydrate() {
 	if (!d) return;
 	const vp = window.__VP || {w:1080, h:675};
 	// bodyを直接gridコンテナとして使用（mainブランチと同じ構造）
-	document.body.innerHTML = '<div class="hud" style="background:#2a1010">'+renderHUD(d).replace('<div class="hud">','')
+	document.body.innerHTML = renderHUD(d)
 		+'<div class="main">'
 		+'<div class="col-left">'
-			+'<div style="background:#102a10">'+renderPlayerStatus(d)+'</div>'
-			+'<div style="background:#10102a">'+renderWAQueue(d)+'</div>'
+			+renderPlayerStatus(d)
+			+renderWAQueue(d)
 		+'</div>'
-		+'<div style="background:#2a2a10">'+renderDifficultyLog(d)+'</div>'
-		+'<div style="background:#2a102a;grid-column:2;grid-row:2"><div class="panel-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div>'+renderTagACRate(d)+'</div><div>'+renderPeerTable(d)+'</div></div></div>'
+		+renderDifficultyLog(d)
+		+'<div class="panel accent-green" data-label="TAG AC RATE / PEER" style="grid-column:2;grid-row:2;background:var(--dbg-tagpeer)"><div class="panel-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div>'+renderTagACRate(d)+'</div><div>'+renderPeerTable(d)+'</div></div></div>'
 		+'<div class="col-right">'
-			+'<div style="background:#10202a;flex:1.7;overflow:hidden"><div class="panel-inner"><div style="text-align:center;color:var(--dim);padding-top:20px">Skill Graph</div></div></div>'
-			+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;flex:1;background:#00001a">'
-				+'<div style="background:#201a10"><div class="panel-inner">'+renderStreakCalendar(d)+renderQualityBar(d)+'</div></div>'
-				+'<div style="background:#101a20"><div class="panel-inner" style="gap:3px">'+renderSpeedBars(d)+'<div style="border-top:0.5px solid var(--border);padding-top:3px">'+renderContestList(d)+'</div></div></div>'
+			+'<div class="panel" data-label="SKILL GRAPH" style="flex:1.7;overflow:hidden;background:var(--dbg-skillgraph)"><div class="panel-inner"><div style="text-align:center;color:var(--dim);padding-top:20px">Skill Graph</div></div></div>'
+			+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;flex:1;background:var(--dbg-colright2)">'
+				+'<div class="panel accent-amber" data-label="STREAK / DIFF COLOR" style="background:var(--dbg-streak)"><div class="panel-inner">'+renderStreakCalendar(d)+renderQualityBar(d)+'</div></div>'
+				+'<div class="panel accent-cyan" data-label="SPEED / CONTEST" style="background:var(--dbg-speed)"><div class="panel-inner" style="gap:3px">'+renderSpeedBars(d)+'<div style="border-top:0.5px solid var(--border);padding-top:3px">'+renderContestList(d)+'</div></div></div>'
 			+'</div>'
 		+'</div>'
 		+'</div>'
