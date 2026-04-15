@@ -8,19 +8,28 @@ gi.require_version('WebKit2', '4.1')
 gi.require_version('GtkLayerShell', '0.1')
 from gi.repository import Gtk, Gdk, GLib, WebKit2, GtkLayerShell
 
-DASHBOARD_HTML = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)),
-        'dashboard.html'
-        )
+DASHBOARD_DIR = os.path.dirname(os.path.abspath(__file__))
+DASHBOARD_HTML = os.path.join(DASHBOARD_DIR, 'dashboard.html')
+DUMMY_STATS_JSON = os.path.join(DASHBOARD_DIR, 'dummy_stats.json')
 STATS_JSON = os.path.expanduser('~/.cache/cp-dashboard/stats.json')
+
+
+def _resolve_stats_path() -> str | None:
+    """Return the stats JSON path, preferring dummy data if it exists."""
+    if os.path.exists(DUMMY_STATS_JSON):
+        return DUMMY_STATS_JSON
+    if os.path.exists(STATS_JSON):
+        return STATS_JSON
+    return None
 
 
 def _inject_data(webview: WebKit2.WebView) -> None:
     """Read stats.json and inject into the webview."""
-    if not os.path.exists(STATS_JSON):
+    path = _resolve_stats_path()
+    if path is None:
         return
     try:
-        with open(STATS_JSON) as f:
+        with open(path) as f:
             data = f.read()
         js = f'try {{ window.__CP_DATA = {data}; hydrate(); }} catch(e) {{}}'
         webview.run_javascript(js, None, None, None)
