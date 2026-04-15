@@ -30,6 +30,7 @@ def _inject(webview: WebKit2.WebView) -> None:
     alloc = webview.get_allocation()
     w, h = alloc.width, alloc.height
 
+    print(f'[dashboard] viewport: {w}x{h}')
     parts = [f'window.__VP = {{w:{w}, h:{h}}};']
 
     path = _resolve_stats_path()
