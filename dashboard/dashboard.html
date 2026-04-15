@@ -140,13 +140,13 @@ body {
 /* ============================================================
    COMPONENTS — HUD
    ============================================================ */
-.hud { background: var(--panel); border: 0.5px solid var(--border); display: flex; align-items: stretch; overflow: hidden; }
-.hud-section { display: flex; flex-direction: column; justify-content: center; padding: 0 6px; border-right: 0.5px solid var(--border); min-width: 0; flex-shrink: 0; }
+.hud { background: var(--panel); border: 0.5px solid var(--border); display: flex; align-items: stretch; overflow: hidden; justify-content: space-between; }
+.hud-section { display: flex; flex-direction: column; justify-content: center; padding: 0 8px; border-right: 0.5px solid var(--border); min-width: 0; flex: 1; text-align: center; }
 .hud-label { font-size: var(--fs-xs); color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
 .hud-value { font-size: var(--fs-lg); font-weight: 500; line-height: 1.1; white-space: nowrap; }
 .hud-sub { font-size: var(--fs-sm); color: var(--dim); }
 .hud-spacer { flex: 1; }
-.hud-boss { display: flex; align-items: center; gap: 8px; padding: 0 10px; background: #060800; border-left: 0.5px solid #2a1800; }
+.hud-boss { display: flex; align-items: center; gap: 8px; padding: 0 12px; background: #060800; border-left: 0.5px solid #2a1800; flex-shrink: 0; }
 .hud-boss-timer { font-size: var(--fs-xl); font-weight: 500; color: #ffb030; }
 
 /* ============================================================
@@ -268,7 +268,7 @@ function renderHUD(d) {
 		+s('A問題速度',spd,'','var(--cyan)')
 		+s('早朝AC',h.first_ac_today||'--:--','avg '+(h.avg_first_ac||'--:--'),'#ffcc00')
 		+s('緑まで',cn*7+'日 / '+cn+'戦','','#4a6a4a')
-		+'<div class="hud-spacer"></div>'
+		+''
 		+(fc?'<div class="hud-boss"><div><div style="font-size:var(--fs-2xs);color:#3a2a00;letter-spacing:.12em;text-transform:uppercase">BOSS FIGHT</div><div style="font-size:var(--fs-md);color:var(--amber);font-weight:500" id="boss-name">'+fc.type+' '+fc.id.replace(/[a-z]+/,'')+'</div></div><div class="hud-boss-timer" id="boss-timer">--:--:--</div></div>':'')
 		+'</div>';
 }
