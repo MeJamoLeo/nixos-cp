@@ -503,7 +503,7 @@ def build_player_status(
         if pid in seen:
             continue
         seen.add(pid)
-        diff = difficulties.get(pid, {}).get("difficulty", 0)
+        diff = difficulties.get(pid, {}).get("difficulty") or 0
         if diff < 0:
             diff = 0
         today_acs.append({
@@ -542,7 +542,7 @@ def build_wa_queue(
         has_ac = any(s.get("result") == "AC" for s in subs)
         wa_count = sum(1 for s in subs if s.get("result") == "WA")
         if wa_count > 0 and not has_ac:
-            diff = difficulties.get(pid, {}).get("difficulty", 0)
+            diff = difficulties.get(pid, {}).get("difficulty") or 0
             if diff < 0:
                 diff = 0
             cid = problems_map.get(pid, {}).get("contest_id", "")
@@ -617,7 +617,7 @@ def build_tag_ac_rate(
     for s in submissions:
         pid = s.get("problem_id", "")
         cid = problems_map.get(pid, {}).get("contest_id", "")
-        diff = difficulties.get(pid, {}).get("difficulty", 0)
+        diff = difficulties.get(pid, {}).get("difficulty") or 0
         if diff < 0:
             diff = 0
         tag = tag_overrides.get(pid, _guess_tag(pid, cid, diff))
@@ -657,7 +657,7 @@ def build_streak_calendar(
         d = _epoch_to_jst_date(s.get("epoch_second", 0))
         pid = s.get("problem_id", "")
         by_date.setdefault(d, set()).add(pid)
-        diff = difficulties.get(pid, {}).get("difficulty", 0)
+        diff = difficulties.get(pid, {}).get("difficulty") or 0
         if diff < 0:
             diff = 0
         diff_by_date[d] = max(diff_by_date.get(d, 0), diff)
