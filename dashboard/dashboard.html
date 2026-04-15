@@ -85,7 +85,7 @@ body {
 	font-family: monospace;
 	color: var(--text);
 	display: grid;
-	grid-template-rows: 7% 83% 10%;
+	grid-template-rows: 7% 93%;
 	gap: 3px;
 	padding: 3px;
 	min-width: 0;
@@ -408,6 +408,7 @@ function hydrate() {
 			+renderPlayerStatus(d)
 			+renderWAQueue(d)
 			+'<div class="panel accent-cyan" data-label="RECOMMEND" style="flex:1;background:var(--dbg-recommend)"><div class="panel-inner">'+renderRecommend(d)+'</div></div>'
+			+renderInsight(d)
 		+'</div>'
 		+renderDifficultyLog(d)
 		+'<div class="panel" data-label="TAG AC RATE / 成長" style="grid-column:2;grid-row:2;background:var(--dbg-tagrate)"><div class="panel-inner" style="display:grid;grid-template-columns:3fr 2fr;gap:8px"><div>'+renderTagACRate(d)+'</div><div style="background:var(--dbg-compare)">'+renderCompare(d)+'</div></div></div>'
@@ -418,8 +419,7 @@ function hydrate() {
 				+'<div class="panel accent-cyan" data-label="SPEED / CONTEST" style="background:var(--dbg-speed)"><div class="panel-inner" style="gap:3px">'+renderSpeedBars(d)+'<div style="border-top:0.5px solid var(--border);padding-top:3px">'+renderContestList(d)+'</div></div></div>'
 			+'</div>'
 		+'</div>'
-		+'</div>'
-		+'<div class="bottom">'+renderInsight(d)+renderAchievements(d)+'</div>';
+		+'</div>';
 
 	const fc=(d.contests||[])[0];
 	if(fc){const bt=document.getElementById('boss-timer');if(bt)setInterval(()=>{const diff=fc.start_epoch-Date.now()/1000;if(diff<=0){bt.textContent='LIVE';return;}bt.textContent=Math.floor(diff/3600)+':'+String(Math.floor((diff%3600)/60)).padStart(2,'0')+':'+String(Math.floor(diff%60)).padStart(2,'0');},1000);}
