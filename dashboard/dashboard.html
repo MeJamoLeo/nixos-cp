@@ -35,31 +35,41 @@
 	--dbg-hud:        var(--panel);
 	--dbg-player:     var(--panel);
 	--dbg-waqueue:    var(--panel);
+	--dbg-recommend:  var(--panel);
 	--dbg-difflog:    var(--panel);
-	--dbg-tagpeer:    var(--panel);
+	--dbg-tagrate:    var(--panel);
+	--dbg-compare:    var(--panel);
 	--dbg-skillgraph: var(--panel);
 	--dbg-streak:     var(--panel);
 	--dbg-speed:      var(--panel);
 	--dbg-bottom:     var(--bg);
+	--dbg-insight:    var(--panel);
+	--dbg-achieve:    var(--panel);
 	--dbg-main:       var(--bg);
 	--dbg-colright2:  var(--bg);
 }
 
-/* デバッグモード: コメントを外すと各グリッドが色分けされる
+/* デバッグモード: コメントを外すと各グリッドが色分けされる */
+
 :root {
 	--dbg-body:       #1a0000;
 	--dbg-hud:        #2a1010;
 	--dbg-player:     #102a10;
 	--dbg-waqueue:    #10102a;
+	--dbg-recommend:  #1a201a;
 	--dbg-difflog:    #2a2a10;
-	--dbg-tagpeer:    #2a102a;
+	--dbg-tagrate:    #2a102a;
+	--dbg-compare:    #102a2a;
 	--dbg-skillgraph: #10202a;
 	--dbg-streak:     #201a10;
 	--dbg-speed:      #101a20;
 	--dbg-bottom:     #1a1a00;
+	--dbg-insight:    #0a2a1a;
+	--dbg-achieve:    #2a0a1a;
 	--dbg-main:       #001a00;
 	--dbg-colright2:  #00001a;
 }
+
 */
 
 /* ============================================================
@@ -75,7 +85,7 @@ body {
 	font-family: monospace;
 	color: var(--text);
 	display: grid;
-	grid-template-rows: 7% 83% 10%;
+	grid-template-rows: 7% 93%;
 	gap: 3px;
 	padding: 3px;
 	min-width: 0;
@@ -85,17 +95,37 @@ body {
 
 .main {
 	display: grid;
-	grid-template-columns: 15% 1fr 30%;
-	grid-template-rows: 1fr 1fr;
+	grid-template-columns: 15% 1fr;
+	grid-template-rows: 1fr;
 	background: var(--dbg-main);
 	gap: 3px;
 	min-height: 0;
 	overflow: hidden;
 }
 
-.col-left  { grid-row: 1/3; display: flex; flex-direction: column; gap: 3px; min-height: 0; overflow: hidden; }
-.col-right { grid-row: 1/3; display: flex; flex-direction: column; gap: 3px; min-height: 0; overflow: hidden; }
-.bottom    { display: grid; grid-template-columns: repeat(3,1fr) 1.4fr; gap: 3px; background: var(--dbg-bottom); }
+.col-left { display: flex; flex-direction: column; gap: 3px; min-height: 0; overflow: hidden; }
+.col-right {
+	display: grid;
+	grid-template-rows: 3fr 2fr;
+	gap: 3px;
+	min-height: 0;
+	overflow: hidden;
+}
+.col-right-top {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 3px;
+	min-height: 0;
+	overflow: hidden;
+}
+.col-right-bottom {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+	gap: 3px;
+	min-height: 0;
+	overflow: hidden;
+}
+.bottom    { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; background: var(--dbg-bottom); }
 
 /* ============================================================
    COMPONENTS — panel
@@ -259,7 +289,7 @@ function renderWAQueue(d) {
 }
 function renderDifficultyLog(d) {
 	const dl=d.difficulty_log||{}, pts=dl.points||[], avg=dl.seven_day_avg||[], cr=dl.current_rating||0;
-	if(!pts.length) return '<div class="panel" data-label="DIFFICULTY LOG" style="grid-column:2;grid-row:1;background:var(--dbg-difflog)"><div class="panel-inner"></div></div>';
+	if(!pts.length) return '<div class="panel" data-label="DIFFICULTY LOG" style="background:var(--dbg-difflog)"><div class="panel-inner"></div></div>';
 	const M=1200,xL=44,xR=550,yT=12,yB=130,mE=pts[0].epoch,xE=pts[pts.length-1].epoch,R=xE-mE||1;
 	const X=e=>xL+(e-mE)/R*(xR-xL), Y=v=>yB-(v/M)*(yB-yT);
 	let s='<svg width="100%" height="100%" viewBox="0 0 560 140" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">';
@@ -269,7 +299,7 @@ function renderDifficultyLog(d) {
 	if(avg.length>1)s+='<polyline points="'+avg.map(a=>X(a.epoch).toFixed(1)+','+Y(a.avg).toFixed(1)).join(' ')+'" fill="none" stroke="var(--cyan)" stroke-width="1.5" stroke-linejoin="round"/>';
 	s+='<text x="'+xL+'" y="136" fill="#0c1e1e" font-size="7" text-anchor="start" font-family="monospace">'+(new Date(pts[0].epoch*1000).getMonth()+1)+'月</text>';
 	s+='<text x="'+xR+'" y="136" fill="var(--cyan)" font-size="7" text-anchor="end" font-family="monospace">今</text></svg>';
-	return '<div class="panel" data-label="DIFFICULTY LOG" style="grid-column:2;grid-row:1;background:var(--dbg-difflog)"><div class="panel-inner">'
+	return '<div class="panel" data-label="DIFFICULTY LOG" style="background:var(--dbg-difflog)"><div class="panel-inner">'
 		+'<div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:3px"><span style="font-size:var(--fs-2xs);color:#335577">● AC</span><span style="font-size:var(--fs-2xs);color:var(--cyan)">— 7日avg</span><span style="font-size:var(--fs-2xs);color:var(--amber)">-- rate</span></div>'
 		+'<div style="flex:1;min-height:0">'+s+'</div></div></div>';
 }
@@ -315,14 +345,76 @@ function renderContestList(d) {
 	h+='<div class="contest-item"><span class="contest-badge '+b+'">'+c.type+'</span><div style="flex:1;min-width:0"><div class="contest-name">'+t+'</div><div class="contest-time"'+(i===0?' style="color:var(--amber)"':'')+'>'+ds+(i===0?' BOSS':'')+'</div></div>'+r+'</div>';});
 	return h;
 }
-function renderBottomBar(d) {
-	let h='';
-	(d.quests||[]).forEach(q=>{const c=q.type==='review'?' review':q.type==='boss'?' boss':'',tc=q.type==='review'?'color:var(--green)':q.type==='boss'?'color:var(--amber)':'',xp=q.xp>0?'<span class="quest-xp">+'+q.xp+' XP</span>':'<span style="font-size:var(--fs-sm);color:var(--amber);font-weight:500">+レート</span>';
-	h+='<div class="quest-card'+c+'"><div style="flex:1;min-width:0"><div class="quest-title" style="'+tc+'">'+q.title+'</div><div class="quest-detail">'+q.detail+'</div></div>'+xp+'</div>';});
-	h+='<div style="display:grid;grid-template-rows:1fr 1fr;gap:3px">';
-	if(d.insight)h+='<div class="insight-box"><div style="display:flex;justify-content:space-between;font-size:var(--fs-2xs);color:#1a5a2a"><span>今日の洞察</span><span style="color:#1a3a2a">'+d.insight.tag+' · diff'+d.insight.difficulty+'</span></div><div class="insight-text">'+d.insight.text+'</div></div>';
-	if(d.achievements){const a=d.achievements;h+='<div class="achievement-bar"><span style="font-size:var(--fs-2xs);color:var(--muted);white-space:nowrap">実績 '+a.unlocked+'/'+a.total+'</span><div class="achievement-grid">';(a.list||[]).forEach(m=>{const c=m.status==='gold'?' gold':m.status==='new'?' fresh':m.status==='lock'?' locked':'';h+='<div class="achievement-item'+c+'"><div class="achievement-icon">'+m.icon+'</div><div class="achievement-label">'+m.label+'</div></div>';});h+='</div></div>';}
-	h+='</div>';return h;
+function renderRecommend(d) {
+	const rec = d.recommend || [];
+	let h = '<div class="section-label">おすすめ問題</div>';
+	if (!rec.length) {
+		h += '<div style="font-size:var(--fs-sm);color:var(--dim);padding:4px 0">データ取得中...</div>';
+		return h;
+	}
+	rec.forEach(r => {
+		const url = r.url || '#';
+		h += '<div class="wa-item">'
+			+ '<div class="wa-indicator" style="background:var(--cyan)"></div>'
+			+ '<a href="'+url+'" style="font-size:var(--fs-md);color:var(--cyan);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:none">'+r.problem_id+'</a>'
+			+ '<span class="wa-tag">'+r.tag+'</span>'
+			+ '<span class="wa-diff">'+r.difficulty+'</span></div>';
+	});
+	return h;
+}
+
+function renderCompare(d) {
+	const cmp = d.compare || {};
+	const rh = d.rating_history || [];
+	let h = '<div class="section-label">成長比較 + 直近コンテスト</div>';
+
+	// 過去の自分比較
+	h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:4px">';
+	h += '<div style="font-size:var(--fs-xs);color:var(--dim);text-align:center;padding:2px;background:#040c04;border:0.5px solid #0a2a0a">'
+		+ '<div>先月</div><div style="font-size:var(--fs-lg);color:var(--green)">'+(cmp.last_month_ac||0)+'<span style="font-size:var(--fs-xs)"> AC</span></div></div>';
+	h += '<div style="font-size:var(--fs-xs);color:var(--dim);text-align:center;padding:2px;background:#040c04;border:0.5px solid #0a2a0a">'
+		+ '<div>今月</div><div style="font-size:var(--fs-lg);color:var(--cyan)">'+(cmp.this_month_ac||0)+'<span style="font-size:var(--fs-xs)"> AC</span></div></div>';
+	h += '</div>';
+
+	// 直近コンテスト結果
+	const recent = rh.slice(-3).reverse();
+	if (recent.length) {
+		recent.forEach(r => {
+			const delta = r.new_rating - r.old_rating;
+			const color = delta >= 0 ? 'var(--green)' : 'var(--red)';
+			const sign = delta >= 0 ? '+' : '';
+			const name = (r.contest||'').replace(/AtCoder /,'').substring(0,20);
+			h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 0;border-bottom:0.5px solid var(--border);font-size:var(--fs-xs)">'
+				+ '<span style="color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">'+name+'</span>'
+				+ '<span style="color:'+color+';font-weight:500;min-width:40px;text-align:right">'+sign+delta+'</span></div>';
+		});
+	}
+	return h;
+}
+
+function renderInsight(d) {
+	let h = '';
+	if (d.insight) {
+		h += '<div class="insight-box" style="height:100%;background:var(--dbg-insight)">'
+			+ '<div style="display:flex;justify-content:space-between;font-size:var(--fs-2xs);color:#1a5a2a">'
+			+ '<span>最近の洞察</span><span style="color:#1a3a2a">'+(d.insight.tag||'')+' · diff'+(d.insight.difficulty||'')+'</span></div>'
+			+ '<div class="insight-text">'+d.insight.text+'</div></div>';
+	}
+	return h;
+}
+
+function renderAchievements(d) {
+	if (!d.achievements) return '';
+	const a = d.achievements;
+	let h = '<div class="achievement-bar" style="height:100%;background:var(--dbg-achieve)">'
+		+ '<span style="font-size:var(--fs-2xs);color:var(--muted);white-space:nowrap">実績 '+a.unlocked+'/'+a.total+'</span>'
+		+ '<div class="achievement-grid">';
+	(a.list||[]).forEach(m => {
+		const c = m.status==='gold'?' gold':m.status==='new'?' fresh':m.status==='lock'?' locked':'';
+		h += '<div class="achievement-item'+c+'"><div class="achievement-icon">'+m.icon+'</div><div class="achievement-label">'+m.label+'</div></div>';
+	});
+	h += '</div></div>';
+	return h;
 }
 
 function hydrate() {
@@ -335,18 +427,23 @@ function hydrate() {
 		+'<div class="col-left">'
 			+renderPlayerStatus(d)
 			+renderWAQueue(d)
+			+'<div class="panel accent-cyan" data-label="RECOMMEND" style="flex:1;background:var(--dbg-recommend)"><div class="panel-inner">'+renderRecommend(d)+'</div></div>'
+			+renderInsight(d)
 		+'</div>'
-		+renderDifficultyLog(d)
-		+'<div class="panel accent-green" data-label="TAG AC RATE / PEER" style="grid-column:2;grid-row:2;background:var(--dbg-tagpeer)"><div class="panel-inner" style="display:grid;grid-template-columns:3fr 2fr;gap:8px"><div>'+renderTagACRate(d)+'</div><div>'+renderPeerTable(d)+'</div></div></div>'
 		+'<div class="col-right">'
-			+'<div class="panel" data-label="SKILL GRAPH" style="flex:2;overflow:hidden;background:var(--dbg-skillgraph)"><div class="panel-inner"><div style="text-align:center;color:var(--dim);padding-top:20px">Skill Graph</div></div></div>'
-			+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;flex:1;background:var(--dbg-colright2)">'
-				+'<div class="panel accent-amber" data-label="STREAK / DIFF COLOR" style="background:var(--dbg-streak)"><div class="panel-inner">'+renderStreakCalendar(d)+renderQualityBar(d)+'</div></div>'
-				+'<div class="panel accent-cyan" data-label="SPEED / CONTEST" style="background:var(--dbg-speed)"><div class="panel-inner" style="gap:3px">'+renderSpeedBars(d)+'<div style="border-top:0.5px solid var(--border);padding-top:3px">'+renderContestList(d)+'</div></div></div>'
+			+'<div class="col-right-top">'
+				+renderDifficultyLog(d)
+				+'<div class="panel" data-label="SKILL GRAPH" style="overflow:hidden;background:var(--dbg-skillgraph)"><div class="panel-inner"><div style="text-align:center;color:var(--dim);padding-top:20px">Skill Graph</div></div></div>'
+			+'</div>'
+			+'<div class="col-right-bottom">'
+				+'<div class="panel" data-label="TAG AC RATE" style="background:var(--dbg-tagrate)"><div class="panel-inner">'+renderTagACRate(d)+'</div></div>'
+				+'<div class="panel" data-label="成長比較" style="background:var(--dbg-compare)"><div class="panel-inner">'+renderCompare(d)+'</div></div>'
+				+'<div class="panel accent-amber" data-label="STREAK" style="background:var(--dbg-streak)"><div class="panel-inner">'+renderStreakCalendar(d)+'</div></div>'
+				+'<div class="panel" data-label="SPEED" style="background:var(--dbg-speed)"><div class="panel-inner">'+renderSpeedBars(d)+'</div></div>'
+				+'<div class="panel accent-cyan" data-label="CONTEST" style="background:var(--dbg-speed)"><div class="panel-inner">'+renderContestList(d)+'</div></div>'
 			+'</div>'
 		+'</div>'
-		+'</div>'
-		+'<div class="bottom">'+renderBottomBar(d)+'</div>';
+		+'</div>';
 
 	const fc=(d.contests||[])[0];
 	if(fc){const bt=document.getElementById('boss-timer');if(bt)setInterval(()=>{const diff=fc.start_epoch-Date.now()/1000;if(diff<=0){bt.textContent='LIVE';return;}bt.textContent=Math.floor(diff/3600)+':'+String(Math.floor((diff%3600)/60)).padStart(2,'0')+':'+String(Math.floor(diff%60)).padStart(2,'0');},1000);}
