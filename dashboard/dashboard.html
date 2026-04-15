@@ -337,9 +337,9 @@ function hydrate() {
 			+renderWAQueue(d)
 		+'</div>'
 		+renderDifficultyLog(d)
-		+'<div class="panel accent-green" data-label="TAG AC RATE / PEER" style="grid-column:2;grid-row:2;background:var(--dbg-tagpeer)"><div class="panel-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div>'+renderTagACRate(d)+'</div><div>'+renderPeerTable(d)+'</div></div></div>'
+		+'<div class="panel accent-green" data-label="TAG AC RATE / PEER" style="grid-column:2;grid-row:2;background:var(--dbg-tagpeer)"><div class="panel-inner" style="display:grid;grid-template-columns:3fr 2fr;gap:8px"><div>'+renderTagACRate(d)+'</div><div>'+renderPeerTable(d)+'</div></div></div>'
 		+'<div class="col-right">'
-			+'<div class="panel" data-label="SKILL GRAPH" style="flex:1.7;overflow:hidden;background:var(--dbg-skillgraph)"><div class="panel-inner"><div style="text-align:center;color:var(--dim);padding-top:20px">Skill Graph</div></div></div>'
+			+'<div class="panel" data-label="SKILL GRAPH" style="flex:2;overflow:hidden;background:var(--dbg-skillgraph)"><div class="panel-inner"><div style="text-align:center;color:var(--dim);padding-top:20px">Skill Graph</div></div></div>'
 			+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;flex:1;background:var(--dbg-colright2)">'
 				+'<div class="panel accent-amber" data-label="STREAK / DIFF COLOR" style="background:var(--dbg-streak)"><div class="panel-inner">'+renderStreakCalendar(d)+renderQualityBar(d)+'</div></div>'
 				+'<div class="panel accent-cyan" data-label="SPEED / CONTEST" style="background:var(--dbg-speed)"><div class="panel-inner" style="gap:3px">'+renderSpeedBars(d)+'<div style="border-top:0.5px solid var(--border);padding-top:3px">'+renderContestList(d)+'</div></div></div>'
