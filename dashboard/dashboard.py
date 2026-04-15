@@ -52,20 +52,6 @@ def _on_load_changed(
 ) -> None:
     if event == WebKit2.LoadEvent.FINISHED:
         _inject_data(webview)
-        # hydrate後のDOMを/tmp/rendered.htmlに保存
-        def _save_dom(wv, result, _ud):
-            try:
-                r = wv.run_javascript_finish(result)
-                html = r.get_js_value().to_string()
-                with open('/tmp/rendered.html', 'w') as f:
-                    f.write(html)
-                print(f'[dashboard] DOM saved: {len(html)} bytes')
-            except Exception as e:
-                print(f'[dashboard] DOM save error: {e}')
-        GLib.timeout_add(500, lambda: webview.run_javascript(
-            'document.documentElement.outerHTML',
-            None, _save_dom, None
-        ) or False)
 
 
 def _refresh_data(webview: WebKit2.WebView) -> bool:
