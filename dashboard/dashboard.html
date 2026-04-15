@@ -36,9 +36,20 @@
    ============================================================ */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { background: var(--bg); width: 100%; height: 100%; }
-body { background: var(--bg); width: 100%; height: 100%; overflow: hidden; font-family: monospace; color: var(--text); }
-
-#root { display: grid; gap: 3px; padding: 3px; width: 100%; height: 100%; grid-template-rows: 44px 1fr 78px; }
+body {
+	background: var(--bg);
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	font-family: monospace;
+	color: var(--text);
+	display: grid;
+	grid-template-rows: 44px 1fr 78px;
+	gap: 3px;
+	padding: 3px;
+	min-width: 0;
+	min-height: 0;
+}
 
 .main {
 	display: grid;
@@ -167,7 +178,7 @@ body { background: var(--bg); width: 100%; height: 100%; overflow: hidden; font-
 </style>
 </head>
 <body>
-<div id="root"></div>
+<!-- hydrate()がbody.innerHTMLに全コンテンツを生成 -->
 <script>
 function renderHUD(d) {
 	const h = d.hud || {}, ps = d.player_status || {}, sp = d.speed || [];
@@ -285,11 +296,8 @@ function hydrate() {
 	const d = window.__CP_DATA;
 	if (!d) return;
 	const vp = window.__VP || {w:1080, h:675};
-	const root = document.getElementById('root');
-	if (!root) return;
-	// CSS側で#rootにwidth/height/grid-template-rowsを定義済み
-
-	root.innerHTML = renderHUD(d)
+	// bodyを直接gridコンテナとして使用（mainブランチと同じ構造）
+	document.body.innerHTML = renderHUD(d)
 		+'<div class="main"><div class="col-left">'+renderPlayerStatus(d)+renderWAQueue(d)+'</div>'
 		+renderDifficultyLog(d)
 		+'<div class="panel accent-green" data-label="TAG AC RATE / PEER" style="grid-column:2;grid-row:2"><div class="panel-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div>'+renderTagACRate(d)+'</div><div>'+renderPeerTable(d)+'</div></div></div>'
