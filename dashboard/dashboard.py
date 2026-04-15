@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import json
 import os
-from typing import Any
 
 import gi
 gi.require_version('Gtk', '3.0')
@@ -19,38 +18,14 @@ STATS_JSON = os.path.expanduser('~/.cache/cp-dashboard/stats.json')
 def _inject_data(webview: WebKit2.WebView) -> None:
     """Read stats.json and inject into the webview."""
     if not os.path.exists(STATS_JSON):
-        print('[dashboard] stats.json not found')
         return
     try:
         with open(STATS_JSON) as f:
             data = f.read()
-        print(f'[dashboard] injecting {len(data)} bytes of JSON')
-        # Test 1: simple JS to confirm execution works
-        webview.run_javascript(
-            'document.title = "TEST1";', None, None, None
-        )
-        # Test 2: inject data + hydrate
-        js = f'try {{ window.__CP_DATA = {data}; hydrate(); }} catch(e) {{ document.title = "JSERR:" + e.message; }}'
-        webview.run_javascript(js, None, _on_js_done, None)
-        print('[dashboard] injection called')
-    except Exception as e:
-        print(f'[dashboard] inject error: {e}')
-
-
-def _on_js_done(webview: WebKit2.WebView, result: Any, _user_data: Any) -> None:
-    try:
-        webview.run_javascript_finish(result)
-        print('[dashboard] JS executed OK')
-    except Exception as e:
-        print(f'[dashboard] JS error: {e}')
-    # Delay title check to give JS time
-    GLib.timeout_add(500, _check_title, webview)
-
-
-def _check_title(webview: WebKit2.WebView) -> bool:
-    title = webview.get_title() or ''
-    print(f'[dashboard] page title: "{title}"')
-    return False
+        js = f'try {{ window.__CP_DATA = {data}; hydrate(); }} catch(e) {{}}'
+        webview.run_javascript(js, None, None, None)
+    except (OSError, ValueError):
+        pass
 
 
 def _on_load_changed(

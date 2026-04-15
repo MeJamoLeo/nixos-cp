@@ -634,14 +634,10 @@ body {
 
 	<script>
 	function hydrate() {
-		try { _hydrate(); } catch(e) { document.title = 'ERR:' + e.message; }
-	}
-	function _hydrate() {
 		const d = window.__CP_DATA;
-		if (!d) { document.title = 'NO_DATA'; return; }
+		if (!d) return;
 
 		const $ = id => document.getElementById(id);
-		document.title = 'HYDRATING...';
 
 		// --- HUD ---
 		const h = d.hud;
@@ -746,7 +742,6 @@ body {
 			});
 			wq.innerHTML = html;
 		}
-		document.title = 'OK:rating=' + (d.hud ? d.hud.rating : '?');
 	}
 	</script>
 	</body>
