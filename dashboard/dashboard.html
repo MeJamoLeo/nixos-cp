@@ -16,7 +16,7 @@ body {
 	height: 100%;
 	overflow: hidden;
 	font-family: monospace;
-	zoom: 1.5;
+	zoom: 1.25;
 }
 
 :root {
@@ -232,11 +232,11 @@ body {
 				<div class="hv" style="color:var(--green);" id="hud-xp">2,840 <span style="font-size:9px;">↑最高</span></div>
 				<div class="hb" id="hud-level">Lv23 → 24 まで 1,160</div>
 			</div>
-			<div class="hs"><div class="hl">combo</div><div class="hv" style="color:var(--blue);">×3 <span style="font-size:9px;color:#2a2a5a;">XP×1.5</span></div></div>
-			<div class="hs gg"><div class="hl">初見AC</div><div class="hv" style="color:var(--green);">43% <span style="font-size:9px;">↑</span></div></div>
-			<div class="hs gc"><div class="hl">A問題速度</div><div class="hv" style="color:var(--cyan);">1:42 <span style="font-size:9px;">↓最速</span></div></div>
+			<div class="hs"><div class="hl">combo</div><div class="hv" style="color:var(--blue);" id="hud-combo">×3 <span style="font-size:9px;color:#2a2a5a;">XP×1.5</span></div></div>
+			<div class="hs gg"><div class="hl">初見AC</div><div class="hv" style="color:var(--green);" id="hud-first-ac-rate">43% <span style="font-size:9px;">↑</span></div></div>
+			<div class="hs gc"><div class="hl">A問題速度</div><div class="hv" style="color:var(--cyan);" id="hud-a-speed">1:42 <span style="font-size:9px;">↓最速</span></div></div>
 			<div class="hs ga"><div class="hl">早朝AC</div><div class="hv" style="color:#ffcc00;" id="hud-morning">7:05 <span style="font-size:9px;">★26分早</span></div><div class="hb" id="hud-morning-avg">avg 7:31</div></div>
-			<div class="hs"><div class="hl">緑まで</div><div class="hv" style="color:#4a6a4a;">74日 <span style="font-size:9px;color:#1a3a1a;">/14戦</span></div></div>
+			<div class="hs"><div class="hl">緑まで</div><div class="hv" style="color:#4a6a4a;" id="hud-next-color">74日 <span style="font-size:9px;color:#1a3a1a;">/14戦</span></div></div>
 			<div class="sp"></div>
 			<div class="boss-hud">
 				<div><div style="font-size:7px;color:#3a2a00;letter-spacing:.12em;text-transform:uppercase;">BOSS FIGHT</div><div style="font-size:12px;color:var(--amber);font-weight:500;" id="hud-boss-name">ABC 452</div></div>
@@ -345,10 +345,10 @@ body {
 						<div class="tr"><span class="tn">BFS/DFS</span><div class="tbw"><div class="tbf" style="width:40%;background:#885522;"></div></div><span class="tp" style="color:#885522;">40%</span></div>
 						<div class="tr"><span class="tn">数学</span><div class="tbw"><div class="tbf" style="width:33%;background:#554433;"></div></div><span class="tp" style="color:#554433;">33%</span></div>
 					</div>
-					<div>
+					<div id="peer-table">
 						<div class="sl">同レート帯 ±50</div>
 						<div class="pr" style="font-size:7px;color:var(--muted);border-bottom:0.5px solid var(--bb);padding-bottom:2px;margin-bottom:2px;"><span>user</span><span class="pn">rate</span><span class="pn">月AC</span></div>
-						<div class="pr"><span style="color:#5a7a7a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">user_4821</span><span class="pn" style="color:#4a4a4a;">488</span><span class="pn" style="color:#4a4a4a;">62</span></div>
+						<div class="pr"><span style="color:#5a7a7a;">user_4821</span><span class="pn" style="color:#4a4a4a;">488</span><span class="pn" style="color:#4a4a4a;">62</span></div>
 						<div class="pr"><span style="color:#5a7a7a;">k_solver</span><span class="pn" style="color:#4a4a4a;">471</span><span class="pn" style="color:#4a4a4a;">55</span></div>
 						<div class="pr py"><span style="color:var(--green);">← MeJamoLeo</span><span class="pn" style="color:var(--amber);">438</span><span class="pn bet">47</span></div>
 						<div class="pr"><span style="color:#5a7a7a;">cpp_study</span><span class="pn" style="color:#4a4a4a;">415</span><span class="pn wor">38</span></div>
@@ -544,7 +544,7 @@ body {
 									<div style="text-align:right;"><div style="font-size:7px;color:#3a2a00;">avg 7:31</div><div style="font-size:9px;color:var(--amber);">↑ 26分早 ★</div></div>
 								</div>
 							</div>
-							<div>
+							<div id="quality-bar-section">
 								<div style="font-size:7px;color:var(--muted);margin-bottom:3px;">解答の質</div>
 								<div class="qs-bar">
 									<div class="qsi" style="width:21%;background:var(--green);"></div>
@@ -597,7 +597,7 @@ body {
 
 
 		<!-- BOTTOM: quests + insights + achievements -->
-		<div class="bot">
+		<div class="bot" id="bottom-bar">
 			<div class="qc a">
 				<div style="font-size:10px;color:#2a6a2a;">①</div>
 				<div style="flex:1;"><div class="qm" style="color:var(--green);">abc385_e 復習</div><div class="qs2">WA×3 · BFS/DFS · diff1089</div></div>
@@ -886,6 +886,109 @@ body {
 					+ '<span class="spv"' + valStyle + '>' + displayTime + '</span></div>';
 			});
 			spd.innerHTML = html;
+		}
+
+		// --- HUD remaining ---
+		const hc = $('hud-combo');
+		if (hc && d.combo !== undefined) {
+			hc.innerHTML = '×' + d.combo + ' <span style="font-size:9px;color:#2a2a5a;">XP×' + (1 + d.combo * 0.5).toFixed(1) + '</span>';
+		}
+		const hfr = $('hud-first-ac-rate');
+		if (hfr && d.first_ac_rate !== undefined) {
+			hfr.innerHTML = Math.round(d.first_ac_rate * 100) + '%';
+		}
+		const has = $('hud-a-speed');
+		if (has && d.speed && d.speed.length > 0) {
+			const last = d.speed[d.speed.length - 1];
+			const m = Math.floor(last.avg_a_seconds / 60);
+			const s = String(last.avg_a_seconds % 60).padStart(2, '0');
+			has.innerHTML = m + ':' + s + ' <span style="font-size:9px;">↓最速</span>';
+		}
+		const hnc = $('hud-next-color');
+		if (hnc && d.player_status) {
+			const ps = d.player_status;
+			const remain = ps.rating_max - ps.rating;
+			const contestsNeeded = Math.ceil(remain / 30);
+			const daysNeeded = contestsNeeded * 7;
+			hnc.innerHTML = daysNeeded + '日 <span style="font-size:9px;color:#1a3a1a;">/' + contestsNeeded + '戦</span>';
+		}
+
+		// --- Peer Table ---
+		const pt = $('peer-table');
+		if (pt && d.peers && d.peers.length > 0) {
+			let html = '<div class="sl">同レート帯 ±50</div>';
+			html += '<div class="pr" style="font-size:7px;color:var(--muted);border-bottom:0.5px solid var(--bb);padding-bottom:2px;margin-bottom:2px;"><span>user</span><span class="pn">rate</span><span class="pn">月AC</span></div>';
+			d.peers.forEach(p => {
+				const cls = p.is_self ? ' py' : '';
+				const nameStyle = p.is_self ? 'color:var(--green);' : 'color:#5a7a7a;';
+				const name = p.is_self ? '← ' + p.user : p.user;
+				const rateStyle = p.is_self ? 'color:var(--amber);' : 'color:#4a4a4a;';
+				const acCls = p.is_self ? ' bet' : (p.monthly_ac < (d.hud ? d.hud.ac_count / 12 : 40) ? ' wor' : '');
+				html += '<div class="pr' + cls + '"><span style="' + nameStyle + '">' + name + '</span>'
+					+ '<span class="pn" style="' + rateStyle + '">' + p.rating + '</span>'
+					+ '<span class="pn' + acCls + '">' + p.monthly_ac + '</span></div>';
+			});
+			pt.innerHTML = html;
+		}
+
+		// --- Quality Bar ---
+		const qb = $('quality-bar-section');
+		if (qb && d.quality) {
+			const q = d.quality;
+			let html = '<div style="font-size:7px;color:var(--muted);margin-bottom:3px;">解答の質</div>';
+			html += '<div class="qs-bar">';
+			html += '<div class="qsi" style="width:' + q.first_sight + '%;background:var(--green);"></div>';
+			html += '<div class="qsi" style="width:' + q.self_solve + '%;background:#2a6a4a;"></div>';
+			html += '<div class="qsi" style="width:' + q.impl_fail + '%;background:var(--amber);"></div>';
+			html += '<div class="qsi" style="width:' + q.editorial + '%;background:#4a2a1a;"></div>';
+			html += '</div><div class="ql">';
+			html += '<div class="qli"><div class="qld" style="background:var(--green);"></div>初見 ' + q.first_sight + '%</div>';
+			html += '<div class="qli"><div class="qld" style="background:#2a6a4a;"></div>自力 ' + q.self_solve + '%</div>';
+			html += '<div class="qli"><div class="qld" style="background:var(--amber);"></div>実装× ' + q.impl_fail + '%</div>';
+			html += '<div class="qli"><div class="qld" style="background:#4a2a1a;"></div>解説 ' + q.editorial + '%</div>';
+			html += '</div>';
+			qb.innerHTML = html;
+		}
+
+		// --- Bottom Bar: Quests + Insight + Achievements ---
+		const bb = $('bottom-bar');
+		if (bb && d.quests) {
+			let html = '';
+			d.quests.forEach(q => {
+				const cls = q.type === 'review' ? ' a' : q.type === 'boss' ? ' b' : '';
+				const iconStyle = q.type === 'review' ? 'font-size:10px;color:#2a6a2a;' : q.type === 'boss' ? 'font-size:12px;' : 'font-size:10px;color:var(--dim);';
+				const titleStyle = q.type === 'review' ? 'color:var(--green);' : q.type === 'boss' ? 'color:var(--amber);' : '';
+				const detailStyle = q.type === 'boss' ? 'color:#3a2a00;' : '';
+				const xpHtml = q.xp > 0 ? '<span class="qx">+' + q.xp + ' XP</span>'
+					: '<span style="font-size:9px;color:var(--amber);font-weight:500;">+レート</span>';
+				html += '<div class="qc' + cls + '">'
+					+ '<div style="' + iconStyle + '">' + q.label + '</div>'
+					+ '<div style="flex:1;"><div class="qm" style="' + titleStyle + '">' + q.title + '</div><div class="qs2" style="' + detailStyle + '">' + q.detail + '</div></div>'
+					+ xpHtml + '</div>';
+			});
+			// Insight + Achievements
+			html += '<div style="display:grid;grid-template-rows:1fr 1fr;gap:5px;">';
+			if (d.insight) {
+				html += '<div class="insight-panel">'
+					+ '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">'
+					+ '<span style="font-size:7px;color:#1a5a2a;letter-spacing:.1em;text-transform:uppercase;">今日の洞察</span>'
+					+ '<span style="font-size:7px;color:#1a3a2a;">' + d.insight.tag + ' · diff' + d.insight.difficulty + '</span></div>'
+					+ '<div class="insight-today-mini">' + d.insight.text + '</div></div>';
+			}
+			if (d.achievements) {
+				const a = d.achievements;
+				html += '<div style="background:var(--panel);border:0.5px solid var(--b);padding:4px 10px;display:flex;align-items:center;gap:8px;">';
+				html += '<span style="font-size:7px;color:var(--muted);white-space:nowrap;">実績 ' + a.unlocked + '/' + a.total + '</span>';
+				html += '<div class="ag" style="flex:1;">';
+				a.list.forEach(m => {
+					const cls = m.status === 'gold' ? ' gold' : m.status === 'new' ? ' new' : m.status === 'lock' ? ' lock' : '';
+					const dot = m.status === 'new' ? '<div class="amn"></div>' : '';
+					html += '<div class="am' + cls + '"><div class="ami">' + m.icon + '</div><div class="aml">' + m.label + '</div>' + dot + '</div>';
+				});
+				html += '</div></div>';
+			}
+			html += '</div>';
+			bb.innerHTML = html;
 		}
 	}
 	</script>

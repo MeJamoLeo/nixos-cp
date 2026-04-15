@@ -249,5 +249,44 @@
     }
   ],
   "rating_history": [],
-  "skill_graph": {"nodes": []}
+  "skill_graph": {"nodes": []},
+  "peers": [
+    {"user": "user_4821", "rating": 488, "monthly_ac": 62},
+    {"user": "k_solver", "rating": 471, "monthly_ac": 55},
+    {"user": "MeJamoLeo", "rating": 438, "monthly_ac": 47, "is_self": true},
+    {"user": "cpp_study", "rating": 415, "monthly_ac": 38},
+    {"user": "algo_daily", "rating": 392, "monthly_ac": 31}
+  ],
+  "quality": {
+    "first_sight": 21,
+    "self_solve": 34,
+    "impl_fail": 28,
+    "editorial": 17
+  },
+  "quests": [
+    {"label": "①", "title": "abc385_e 復習", "detail": "WA×3 · BFS/DFS · diff1089", "xp": 800, "type": "review"},
+    {"label": "⚔️", "title": "ABC 452 本番", "detail": "今夜 21:00 · BOSS FIGHT", "xp": 0, "type": "boss"},
+    {"label": "②", "title": "EDPC-G を解く", "detail": "DP · diff推定 900", "xp": 650, "type": "normal"}
+  ],
+  "insight": {
+    "tag": "BFS/DFS",
+    "difficulty": 1089,
+    "text": "辺を「節点」に変換してBFSすると、連続使用制約を状態として自然に落とし込める"
+  },
+  "achievements": {
+    "unlocked": 18,
+    "total": 40,
+    "list": [
+      {"icon": "🏆", "label": "茶色昇格", "status": "gold"},
+      {"icon": "🔥", "label": "20日連続", "status": "done"},
+      {"icon": "⚡", "label": "A問題2分", "status": "done"},
+      {"icon": "🌅", "label": "早朝×5", "status": "new"},
+      {"icon": "💎", "label": "diff1000+", "status": "done"},
+      {"icon": "📚", "label": "EDPC 5問", "status": "done"},
+      {"icon": "🌿", "label": "緑昇格", "status": "lock"},
+      {"icon": "🚀", "label": "diff1200+", "status": "lock"}
+    ]
+  },
+  "first_ac_rate": 0.43,
+  "combo": 3
 }
