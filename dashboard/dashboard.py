@@ -70,6 +70,11 @@ def main() -> None:
     settings.set_property('hardware-acceleration-policy',
                           WebKit2.HardwareAccelerationPolicy.NEVER)
     webview.set_settings(settings)
+    # キャッシュ無効化
+    ctx = webview.get_context()
+    ctx.get_website_data_manager().clear(
+        WebKit2.WebsiteDataTypes.ALL, 0, None, None, None
+    )
     webview.load_uri(f'file://{DASHBOARD_HTML}')
     webview.set_background_color(Gdk.RGBA(red=0.008, green=0.016, blue=0.016, alpha=1.0))
 
