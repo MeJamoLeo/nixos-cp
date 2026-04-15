@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 import os
-os.environ['GDK_SCALE'] = '1'
-os.environ['GDK_DPI_SCALE'] = '1'
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('WebKit2', '4.1')
 gi.require_version('GtkLayerShell', '0.1')
-from gi.repository import Gtk, WebKit2, GtkLayerShell
+from gi.repository import Gtk, Gdk, WebKit2, GtkLayerShell
 
 DASHBOARD_HTML = os.path.join(
         os.path.dirname(os.path.abspath(__file__)),
@@ -28,12 +26,12 @@ def main():
 
     # HTMLをロード
     webview = WebKit2.WebView()
-    try:
-        with open(DASHBOARD_HTML, 'r') as f:
-            html = f.read()
-        webview.load_html(html, f'file://{os.path.dirname(DASHBOARD_HTML)}/')
-    except FileNotFoundError:
-        webview.load_html('<h1 style="color:white;background:black">HTML file not found</h1>', None)
+    settings = webview.get_settings()
+    settings.set_property('hardware-acceleration-policy',
+                          WebKit2.HardwareAccelerationPolicy.NEVER)
+    webview.set_settings(settings)
+    webview.load_uri(f'file://{DASHBOARD_HTML}')
+    webview.set_background_color(Gdk.RGBA(red=0.008, green=0.016, blue=0.016, alpha=1.0))
     win.add(webview)
 
     win.connect('destroy', Gtk.main_quit)
