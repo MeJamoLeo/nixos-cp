@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import os
+from typing import Any
 
 import gi
 gi.require_version('Gtk', '3.0')
@@ -25,10 +26,21 @@ def _inject_data(webview: WebKit2.WebView) -> None:
             data = f.read()
         print(f'[dashboard] injecting {len(data)} bytes of JSON')
         js = f'window.__CP_DATA = {data}; hydrate();'
-        webview.run_javascript(js, None, None, None)
-        print('[dashboard] injection done')
+        webview.run_javascript(js, None, _on_js_done, None)
+        print('[dashboard] injection called')
     except Exception as e:
         print(f'[dashboard] inject error: {e}')
+
+
+def _on_js_done(webview: WebKit2.WebView, result: Any, _user_data: Any) -> None:
+    try:
+        webview.run_javascript_finish(result)
+        print('[dashboard] JS executed OK')
+    except Exception as e:
+        print(f'[dashboard] JS error: {e}')
+    # Check title for hydrate status
+    title = webview.get_title() or ''
+    print(f'[dashboard] page title: {title}')
 
 
 def _on_load_changed(
