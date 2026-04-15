@@ -42,6 +42,7 @@ def _on_load_changed(
     event: WebKit2.LoadEvent,
 ) -> None:
     if event == WebKit2.LoadEvent.FINISHED:
+        webview.set_zoom_level(1.5)
         _inject_data(webview)
 
 
