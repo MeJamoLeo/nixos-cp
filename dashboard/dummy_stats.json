@@ -248,7 +248,11 @@
       "is_rated_for_user": true
     }
   ],
-  "rating_history": [],
+  "rating_history": [
+    {"epoch": 1734183600, "old_rating": 155, "new_rating": 178, "contest": "AtCoder Beginner Contest 384", "place": 8149, "performance": 53},
+    {"epoch": 1727530800, "old_rating": 171, "new_rating": 179, "contest": "AtCoder Beginner Contest 373", "place": 8327, "performance": 222},
+    {"epoch": 1726321200, "old_rating": 155, "new_rating": 171, "contest": "AtCoder Beginner Contest 371", "place": 7612, "performance": 333}
+  ],
   "skill_graph": {"nodes": []},
   "peers": [
     {"user": "user_4821", "rating": 488, "monthly_ac": 62},
@@ -288,5 +292,15 @@
     ]
   },
   "first_ac_rate": 0.43,
-  "combo": 3
+  "combo": 3,
+  "recommend": [
+    {"problem_id": "abc380_d", "tag": "DP", "difficulty": 520, "url": "https://atcoder.jp/contests/abc380/tasks/abc380_d"},
+    {"problem_id": "abc377_c", "tag": "実装", "difficulty": 480, "url": "https://atcoder.jp/contests/abc377/tasks/abc377_c"},
+    {"problem_id": "abc374_d", "tag": "二分探索", "difficulty": 560, "url": "https://atcoder.jp/contests/abc374/tasks/abc374_d"},
+    {"problem_id": "abc371_d", "tag": "累積和", "difficulty": 510, "url": "https://atcoder.jp/contests/abc371/tasks/abc371_d"}
+  ],
+  "compare": {
+    "last_month_ac": 38,
+    "this_month_ac": 47
+  }
 }
