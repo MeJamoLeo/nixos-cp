@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""CP Dashboard — WebKit2GTK renderer for Sway BACKGROUND layer."""
+
 import json
 import os
 
@@ -15,7 +17,6 @@ STATS_JSON = os.path.expanduser('~/.cache/cp-dashboard/stats.json')
 
 
 def _resolve_stats_path() -> str | None:
-    """Return the stats JSON path, preferring dummy data if it exists."""
     if os.path.exists(DUMMY_STATS_JSON):
         return DUMMY_STATS_JSON
     if os.path.exists(STATS_JSON):
@@ -23,18 +24,25 @@ def _resolve_stats_path() -> str | None:
     return None
 
 
-def _inject_data(webview: WebKit2.WebView) -> None:
-    """Read stats.json and inject into the webview."""
+def _inject(webview: WebKit2.WebView) -> None:
+    """Inject viewport size + stats data, then call hydrate()."""
+    # ウィンドウの実際のサイズを取得してJSに渡す
+    alloc = webview.get_allocation()
+    w, h = alloc.width, alloc.height
+
+    parts = [f'window.__VP = {{w:{w}, h:{h}}};']
+
     path = _resolve_stats_path()
-    if path is None:
-        return
-    try:
-        with open(path) as f:
-            data = f.read()
-        js = f'try {{ window.__CP_DATA = {data}; hydrate(); }} catch(e) {{}}'
-        webview.run_javascript(js, None, None, None)
-    except (OSError, ValueError):
-        pass
+    if path:
+        try:
+            with open(path) as f:
+                parts.append(f'window.__CP_DATA = {f.read()};')
+        except OSError:
+            pass
+
+    parts.append('hydrate();')
+    js = 'try {' + ''.join(parts) + '} catch(e) {}'
+    webview.run_javascript(js, None, None, None)
 
 
 def _on_load_changed(
@@ -42,20 +50,19 @@ def _on_load_changed(
     event: WebKit2.LoadEvent,
 ) -> None:
     if event == WebKit2.LoadEvent.FINISHED:
-        _inject_data(webview)
+        # 少し待ってからinject（ウィンドウサイズ確定後）
+        GLib.timeout_add(200, lambda: _inject(webview) or False)
 
 
-def _refresh_data(webview: WebKit2.WebView) -> bool:
-    """Periodic refresh callback (every 30 minutes)."""
-    _inject_data(webview)
-    return True  # keep the timer running
+def _refresh(webview: WebKit2.WebView) -> bool:
+    _inject(webview)
+    return True
 
 
 def main() -> None:
     win = Gtk.Window()
     win.set_title("dashboard")
 
-    # gtk-layer-shellでBACKGROUNDレイヤーに固定
     GtkLayerShell.init_for_window(win)
     GtkLayerShell.set_layer(win, GtkLayerShell.Layer.BACKGROUND)
     GtkLayerShell.set_anchor(win, GtkLayerShell.Edge.TOP,    True)
@@ -64,20 +71,20 @@ def main() -> None:
     GtkLayerShell.set_anchor(win, GtkLayerShell.Edge.RIGHT,  True)
     GtkLayerShell.set_exclusive_zone(win, -1)
 
-    # HTMLをロード
     webview = WebKit2.WebView()
     settings = webview.get_settings()
     settings.set_property('hardware-acceleration-policy',
                           WebKit2.HardwareAccelerationPolicy.NEVER)
-    settings.set_property('default-font-size', 24)
-    settings.set_property('default-monospace-font-size', 20)
+    settings.set_property('default-font-size', 16)
+    settings.set_property('default-monospace-font-size', 13)
     webview.set_settings(settings)
     webview.load_uri(f'file://{DASHBOARD_HTML}')
-    webview.set_background_color(Gdk.RGBA(red=0.008, green=0.016, blue=0.016, alpha=1.0))
+    webview.set_background_color(
+        Gdk.RGBA(red=0.008, green=0.016, blue=0.016, alpha=1.0)
+    )
 
-    # データ注入: ページロード完了時 + 30分ごと
     webview.connect('load-changed', _on_load_changed)
-    GLib.timeout_add_seconds(1800, _refresh_data, webview)
+    GLib.timeout_add_seconds(1800, _refresh, webview)
 
     win.add(webview)
     win.connect('destroy', Gtk.main_quit)
