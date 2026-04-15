@@ -25,7 +25,12 @@ def _inject_data(webview: WebKit2.WebView) -> None:
         with open(STATS_JSON) as f:
             data = f.read()
         print(f'[dashboard] injecting {len(data)} bytes of JSON')
-        js = f'window.__CP_DATA = {data}; hydrate();'
+        # Test 1: simple JS to confirm execution works
+        webview.run_javascript(
+            'document.title = "TEST1";', None, None, None
+        )
+        # Test 2: inject data + hydrate
+        js = f'try {{ window.__CP_DATA = {data}; hydrate(); }} catch(e) {{ document.title = "JSERR:" + e.message; }}'
         webview.run_javascript(js, None, _on_js_done, None)
         print('[dashboard] injection called')
     except Exception as e:
@@ -38,9 +43,14 @@ def _on_js_done(webview: WebKit2.WebView, result: Any, _user_data: Any) -> None:
         print('[dashboard] JS executed OK')
     except Exception as e:
         print(f'[dashboard] JS error: {e}')
-    # Check title for hydrate status
+    # Delay title check to give JS time
+    GLib.timeout_add(500, _check_title, webview)
+
+
+def _check_title(webview: WebKit2.WebView) -> bool:
     title = webview.get_title() or ''
-    print(f'[dashboard] page title: {title}')
+    print(f'[dashboard] page title: "{title}"')
+    return False
 
 
 def _on_load_changed(
