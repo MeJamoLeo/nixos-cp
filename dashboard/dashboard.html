@@ -253,13 +253,18 @@ function renderHUD(d) {
 	function s(l,v,sub,c) {
 		return '<div class="hud-section"><div class="hud-label">'+l+'</div><div class="hud-value" style="color:'+c+'">'+v+'</div>'+(sub?'<div class="hud-sub">'+sub+'</div>':'')+'</div>';
 	}
+	const todayAc = (ps.today_acs||[]).length;
+	const totalAc = h.ac_count || 0;
+	const cmp = d.compare || {};
+	const monthAc = cmp.this_month_ac || 0;
+
 	return '<div class="hud" style="background:var(--dbg-hud)">'
 		+s('system','[ CP // ONLINE ]','','#1a5a2a')
 		+s('rating',h.rating+' <span style="color:var(--dim)">'+(h.rank_label||'')+'</span>','','var(--amber)')
 		+s('streak','🔥 '+(h.streak_days||0)+'日','','#ff8030')
-		+s('today xp',(ps.today_xp||0).toLocaleString()+' XP','Lv'+(ps.level||0),'var(--green)')
-		+s('combo','×'+(d.combo||0),'','var(--blue)')
-		+s('初見AC',Math.round((d.first_ac_rate||0)*100)+'%','','var(--green)')
+		+s('today ac',todayAc+'問','total '+(totalAc),'var(--green)')
+		+s('月AC',monthAc+'問','','var(--blue)')
+		+s('合計AC',totalAc+'問','','var(--cyan)')
 		+s('A問題速度',spd,'','var(--cyan)')
 		+s('早朝AC',h.first_ac_today||'--:--','avg '+(h.avg_first_ac||'--:--'),'#ffcc00')
 		+s('緑まで',cn*7+'日 / '+cn+'戦','','#4a6a4a')
