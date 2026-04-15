@@ -10,6 +10,7 @@ Data sources:
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
 import os
 import re
@@ -118,10 +119,14 @@ def _fetch(url: str, retries: int = 1) -> bytes | None:
                         "Chrome/120.0.0.0 Safari/537.36"
                     ),
                     "Accept": "application/json, text/html, */*",
+                    "Accept-Encoding": "gzip",
                 },
             )
             with urllib.request.urlopen(req, timeout=30) as resp:
-                return resp.read()
+                data = resp.read()
+                if resp.headers.get("Content-Encoding") == "gzip":
+                    data = gzip.decompress(data)
+                return data
         except (urllib.error.URLError, OSError) as e:
             if attempt < retries:
                 time.sleep(3)
