@@ -299,15 +299,22 @@ function hydrate() {
 	if (!d) return;
 	const vp = window.__VP || {w:1080, h:675};
 	// bodyを直接gridコンテナとして使用（mainブランチと同じ構造）
-	document.body.innerHTML = renderHUD(d)
-		+'<div class="main"><div class="col-left">'+renderPlayerStatus(d)+renderWAQueue(d)+'</div>'
-		+renderDifficultyLog(d)
-		+'<div class="panel accent-green" data-label="TAG AC RATE / PEER" style="grid-column:2;grid-row:2"><div class="panel-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div>'+renderTagACRate(d)+'</div><div>'+renderPeerTable(d)+'</div></div></div>'
-		+'<div class="col-right"><div class="panel" data-label="SKILL GRAPH" style="flex:1.7;overflow:hidden"><div class="panel-inner"><div style="text-align:center;color:var(--dim);padding-top:20px">Skill Graph</div></div></div>'
-		+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;flex:1;background:#00001a">'
-		+'<div class="panel accent-amber" data-label="STREAK / DIFF COLOR"><div class="panel-inner">'+renderStreakCalendar(d)+renderQualityBar(d)+'</div></div>'
-		+'<div class="panel accent-cyan" data-label="SPEED / CONTEST"><div class="panel-inner" style="gap:3px">'+renderSpeedBars(d)+'<div style="border-top:0.5px solid var(--border);padding-top:3px">'+renderContestList(d)+'</div></div></div>'
-		+'</div></div></div>'
+	document.body.innerHTML = '<div class="hud" style="background:#2a1010">'+renderHUD(d).replace('<div class="hud">','')
+		+'<div class="main">'
+		+'<div class="col-left">'
+			+'<div style="background:#102a10">'+renderPlayerStatus(d)+'</div>'
+			+'<div style="background:#10102a">'+renderWAQueue(d)+'</div>'
+		+'</div>'
+		+'<div style="background:#2a2a10">'+renderDifficultyLog(d)+'</div>'
+		+'<div style="background:#2a102a;grid-column:2;grid-row:2"><div class="panel-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div>'+renderTagACRate(d)+'</div><div>'+renderPeerTable(d)+'</div></div></div>'
+		+'<div class="col-right">'
+			+'<div style="background:#10202a;flex:1.7;overflow:hidden"><div class="panel-inner"><div style="text-align:center;color:var(--dim);padding-top:20px">Skill Graph</div></div></div>'
+			+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;flex:1;background:#00001a">'
+				+'<div style="background:#201a10"><div class="panel-inner">'+renderStreakCalendar(d)+renderQualityBar(d)+'</div></div>'
+				+'<div style="background:#101a20"><div class="panel-inner" style="gap:3px">'+renderSpeedBars(d)+'<div style="border-top:0.5px solid var(--border);padding-top:3px">'+renderContestList(d)+'</div></div></div>'
+			+'</div>'
+		+'</div>'
+		+'</div>'
 		+'<div class="bottom">'+renderBottomBar(d)+'</div>';
 
 	const fc=(d.contests||[])[0];
