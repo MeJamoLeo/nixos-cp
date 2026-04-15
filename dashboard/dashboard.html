@@ -168,12 +168,12 @@ body {
 	gap: 2px;
 	border: 1px solid var(--amber);
 }
-.qc { background: var(--panel); border: 0.5px solid var(--b); padding: 5px 10px; display: flex; align-items: center; gap: 6px; }
+.qc { background: var(--panel); border: 0.5px solid var(--b); padding: 4px 6px; display: flex; align-items: center; gap: 4px; overflow: hidden; }
 .qc.a { border-color: #0a2a0a; background: #030a03; box-shadow: inset 2px 0 0 var(--green); }
 .qc.b { border-color: #2a1800; background: #060800; }
-.qm { font-size: 13px; color: #8ababa; }
-.qs2{ font-size: 12px; color: var(--dim); }
-.qx { font-size: 13px; color: var(--green); font-weight: 500; white-space: nowrap; }
+.qm { font-size: 10px; color: #8ababa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qs2{ font-size: 8px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qx { font-size: 10px; color: var(--green); font-weight: 500; white-space: nowrap; }
 
 /* Insights in bottom bar */
 .insight-panel {
@@ -203,8 +203,8 @@ body {
 .am.gold { background: #080600; border-color: #1a1000; }
 .am.new  { border-color: var(--green) !important; }
 .am.lock { opacity: 0.2; }
-.ami { font-size: 16px; line-height: 1; }
-.aml { font-size: 9px; text-align: center; color: var(--muted); line-height: 1.2; }
+.ami { font-size: 12px; line-height: 1; }
+.aml { font-size: 7px; text-align: center; color: var(--muted); line-height: 1.1; }
 .am.gold .aml { color: #3a2a00; }
 .am.new  .aml { color: var(--green); }
 .amn { position: absolute; top: -2px; right: -2px; width: 5px; height: 5px; border-radius: 50%; background: var(--red); }
