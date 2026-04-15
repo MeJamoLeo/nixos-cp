@@ -31,7 +31,16 @@ def _inject_data(webview: WebKit2.WebView) -> None:
     try:
         with open(path) as f:
             data = f.read()
-        js = f'try {{ window.__CP_DATA = {data}; hydrate(); }} catch(e) {{}}'
+        scale_js = """
+        document.querySelectorAll('*').forEach(function(el) {
+            var fs = el.style.fontSize;
+            if (fs && fs.endsWith('px')) {
+                var val = parseFloat(fs);
+                if (val > 0) el.style.fontSize = (val * 1.5) + 'px';
+            }
+        });
+        """
+        js = f'try {{ window.__CP_DATA = {data}; hydrate(); {scale_js} }} catch(e) {{}}'
         webview.run_javascript(js, None, None, None)
     except (OSError, ValueError):
         pass
@@ -69,6 +78,8 @@ def main() -> None:
     settings = webview.get_settings()
     settings.set_property('hardware-acceleration-policy',
                           WebKit2.HardwareAccelerationPolicy.NEVER)
+    settings.set_property('default-font-size', 24)
+    settings.set_property('default-monospace-font-size', 20)
     webview.set_settings(settings)
     webview.load_uri(f'file://{DASHBOARD_HTML}')
     webview.set_background_color(Gdk.RGBA(red=0.008, green=0.016, blue=0.016, alpha=1.0))
