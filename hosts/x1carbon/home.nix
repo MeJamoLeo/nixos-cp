@@ -15,6 +15,30 @@
 		htop
 	];
 
+	systemd.user.services.fetch-stats = {
+		Unit = {
+			Description = "Fetch AtCoder stats for dashboard";
+		};
+		Service = {
+			Type = "oneshot";
+			ExecStart = "${pkgs.nix}/bin/nix-shell /home/treo/nixos-cp/dashboard/shell.nix --run 'python3 /home/treo/nixos-cp/dashboard/fetch_stats.py'";
+		};
+	};
+
+	systemd.user.timers.fetch-stats = {
+		Unit = {
+			Description = "Fetch AtCoder stats every 30 minutes";
+		};
+		Timer = {
+			OnBootSec = "30s";
+			OnUnitActiveSec = "30m";
+			Unit = "fetch-stats.service";
+		};
+		Install = {
+			WantedBy = [ "timers.target" ];
+		};
+	};
+
 	programs.home-manager.enable = true;
 
 	home.stateVersion = "24.11";
