@@ -16,19 +16,12 @@ body {
 	height: 100%;
 	overflow: hidden;
 	font-family: monospace;
-}
-#root {
-	width: 720px;
-	height: 450px;
-	transform: scale(1.5);
-	transform-origin: top left;
 	display: grid;
-	grid-template-rows: 28px 1fr 40px;
-	gap: 2px;
-	padding: 2px;
+	grid-template-rows: 44px 1fr 64px;
+	gap: 4px;
+	padding: 4px;
 	min-width: 0;
 	min-height: 0;
-	overflow: hidden;
 }
 
 :root {
@@ -220,7 +213,6 @@ body {
 		</style>
 	</head>
 	<body>
-	<div id="root">
 
 		<!-- HUD -->
 		<div class="hud">
@@ -650,7 +642,6 @@ body {
 			</div>
 		</div>
 
-	</div><!-- end root -->
 	<script>
 	function hydrate() {
 		const d = window.__CP_DATA;
