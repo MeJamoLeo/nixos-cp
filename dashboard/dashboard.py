@@ -42,7 +42,6 @@ def _on_load_changed(
     event: WebKit2.LoadEvent,
 ) -> None:
     if event == WebKit2.LoadEvent.FINISHED:
-        webview.set_zoom_level(1.5)
         _inject_data(webview)
 
 
@@ -73,7 +72,6 @@ def main() -> None:
     webview.set_settings(settings)
     webview.load_uri(f'file://{DASHBOARD_HTML}')
     webview.set_background_color(Gdk.RGBA(red=0.008, green=0.016, blue=0.016, alpha=1.0))
-    webview.set_zoom_level(1.5)
 
     # データ注入: ページロード完了時 + 30分ごと
     webview.connect('load-changed', _on_load_changed)
