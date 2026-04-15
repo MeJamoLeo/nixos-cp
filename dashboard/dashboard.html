@@ -95,16 +95,36 @@ body {
 
 .main {
 	display: grid;
-	grid-template-columns: 15% 1fr 30%;
-	grid-template-rows: 1fr 1fr;
+	grid-template-columns: 15% 1fr;
+	grid-template-rows: 1fr;
 	background: var(--dbg-main);
 	gap: 3px;
 	min-height: 0;
 	overflow: hidden;
 }
 
-.col-left  { grid-row: 1/3; display: flex; flex-direction: column; gap: 3px; min-height: 0; overflow: hidden; }
-.col-right { grid-row: 1/3; display: flex; flex-direction: column; gap: 3px; min-height: 0; overflow: hidden; }
+.col-left { display: flex; flex-direction: column; gap: 3px; min-height: 0; overflow: hidden; }
+.col-right {
+	display: grid;
+	grid-template-rows: 3fr 2fr;
+	gap: 3px;
+	min-height: 0;
+	overflow: hidden;
+}
+.col-right-top {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 3px;
+	min-height: 0;
+	overflow: hidden;
+}
+.col-right-bottom {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+	gap: 3px;
+	min-height: 0;
+	overflow: hidden;
+}
 .bottom    { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; background: var(--dbg-bottom); }
 
 /* ============================================================
@@ -269,7 +289,7 @@ function renderWAQueue(d) {
 }
 function renderDifficultyLog(d) {
 	const dl=d.difficulty_log||{}, pts=dl.points||[], avg=dl.seven_day_avg||[], cr=dl.current_rating||0;
-	if(!pts.length) return '<div class="panel" data-label="DIFFICULTY LOG" style="grid-column:2;grid-row:1;background:var(--dbg-difflog)"><div class="panel-inner"></div></div>';
+	if(!pts.length) return '<div class="panel" data-label="DIFFICULTY LOG" style="background:var(--dbg-difflog)"><div class="panel-inner"></div></div>';
 	const M=1200,xL=44,xR=550,yT=12,yB=130,mE=pts[0].epoch,xE=pts[pts.length-1].epoch,R=xE-mE||1;
 	const X=e=>xL+(e-mE)/R*(xR-xL), Y=v=>yB-(v/M)*(yB-yT);
 	let s='<svg width="100%" height="100%" viewBox="0 0 560 140" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">';
@@ -279,7 +299,7 @@ function renderDifficultyLog(d) {
 	if(avg.length>1)s+='<polyline points="'+avg.map(a=>X(a.epoch).toFixed(1)+','+Y(a.avg).toFixed(1)).join(' ')+'" fill="none" stroke="var(--cyan)" stroke-width="1.5" stroke-linejoin="round"/>';
 	s+='<text x="'+xL+'" y="136" fill="#0c1e1e" font-size="7" text-anchor="start" font-family="monospace">'+(new Date(pts[0].epoch*1000).getMonth()+1)+'月</text>';
 	s+='<text x="'+xR+'" y="136" fill="var(--cyan)" font-size="7" text-anchor="end" font-family="monospace">今</text></svg>';
-	return '<div class="panel" data-label="DIFFICULTY LOG" style="grid-column:2;grid-row:1;background:var(--dbg-difflog)"><div class="panel-inner">'
+	return '<div class="panel" data-label="DIFFICULTY LOG" style="background:var(--dbg-difflog)"><div class="panel-inner">'
 		+'<div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:3px"><span style="font-size:var(--fs-2xs);color:#335577">● AC</span><span style="font-size:var(--fs-2xs);color:var(--cyan)">— 7日avg</span><span style="font-size:var(--fs-2xs);color:var(--amber)">-- rate</span></div>'
 		+'<div style="flex:1;min-height:0">'+s+'</div></div></div>';
 }
@@ -410,13 +430,17 @@ function hydrate() {
 			+'<div class="panel accent-cyan" data-label="RECOMMEND" style="flex:1;background:var(--dbg-recommend)"><div class="panel-inner">'+renderRecommend(d)+'</div></div>'
 			+renderInsight(d)
 		+'</div>'
-		+renderDifficultyLog(d)
-		+'<div class="panel" data-label="TAG AC RATE / 成長" style="grid-column:2;grid-row:2;background:var(--dbg-tagrate)"><div class="panel-inner" style="display:grid;grid-template-columns:3fr 2fr;gap:8px"><div>'+renderTagACRate(d)+'</div><div style="background:var(--dbg-compare)">'+renderCompare(d)+'</div></div></div>'
 		+'<div class="col-right">'
-			+'<div class="panel" data-label="SKILL GRAPH" style="flex:2;overflow:hidden;background:var(--dbg-skillgraph)"><div class="panel-inner"><div style="text-align:center;color:var(--dim);padding-top:20px">Skill Graph</div></div></div>'
-			+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;flex:1;background:var(--dbg-colright2)">'
-				+'<div class="panel accent-amber" data-label="STREAK" style="background:var(--dbg-streak)"><div class="panel-inner">'+renderStreakCalendar(d)+renderQualityBar(d)+'</div></div>'
-				+'<div class="panel accent-cyan" data-label="SPEED / CONTEST" style="background:var(--dbg-speed)"><div class="panel-inner" style="gap:3px">'+renderSpeedBars(d)+'<div style="border-top:0.5px solid var(--border);padding-top:3px">'+renderContestList(d)+'</div></div></div>'
+			+'<div class="col-right-top">'
+				+renderDifficultyLog(d)
+				+'<div class="panel" data-label="SKILL GRAPH" style="overflow:hidden;background:var(--dbg-skillgraph)"><div class="panel-inner"><div style="text-align:center;color:var(--dim);padding-top:20px">Skill Graph</div></div></div>'
+			+'</div>'
+			+'<div class="col-right-bottom">'
+				+'<div class="panel" data-label="TAG AC RATE" style="background:var(--dbg-tagrate)"><div class="panel-inner">'+renderTagACRate(d)+'</div></div>'
+				+'<div class="panel" data-label="成長比較" style="background:var(--dbg-compare)"><div class="panel-inner">'+renderCompare(d)+'</div></div>'
+				+'<div class="panel accent-amber" data-label="STREAK" style="background:var(--dbg-streak)"><div class="panel-inner">'+renderStreakCalendar(d)+'</div></div>'
+				+'<div class="panel" data-label="SPEED" style="background:var(--dbg-speed)"><div class="panel-inner">'+renderSpeedBars(d)+'</div></div>'
+				+'<div class="panel accent-cyan" data-label="CONTEST" style="background:var(--dbg-speed)"><div class="panel-inner">'+renderContestList(d)+'</div></div>'
 			+'</div>'
 		+'</div>'
 		+'</div>';
