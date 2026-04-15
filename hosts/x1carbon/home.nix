@@ -12,10 +12,7 @@
 	home.homeDirectory = "/home/treo";
 
 	home.packages = with pkgs; [
-		git
-			htop
-			wget
-			curl
+		htop
 	];
 
 	programs.home-manager.enable = true;

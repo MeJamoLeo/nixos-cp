@@ -83,6 +83,8 @@
 				outer = 12;
 			};
 
+			output."eDP-1".scale = "2";
+
 			terminal = "kitty";
 
 			bars = [];
@@ -97,7 +99,7 @@
 			};
 
 			startup = [
-			# { command = "python3 /home/treo/nixos-cp/dashboard/dashboard.py"; }
+				{ command = "WAYLAND_DISPLAY=wayland-1 nix-shell /home/treo/nixos-cp/dashboard/shell.nix --run 'python3 /home/treo/nixos-cp/dashboard/dashboard.py'"; }
 			];
 		};
 	};

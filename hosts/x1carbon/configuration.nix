@@ -29,6 +29,9 @@
     kitty
   ];
 
+  # SSH
+  services.openssh.enable = true;
+
   # Sway
   programs.sway.enable = true;
   programs.zsh.enable = true;
@@ -55,6 +58,8 @@
     noto-fonts-emoji
     (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
   ];
+
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   system.stateVersion = "24.11";
 }
