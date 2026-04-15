@@ -287,8 +287,8 @@ function hydrate() {
 	const vp = window.__VP || {w:1080, h:675};
 	const root = document.getElementById('root');
 	if (!root) return;
-	root.style.width = vp.w + 'px';
-	root.style.height = vp.h + 'px';
+	root.style.width = '100%';
+	root.style.height = '100%';
 	root.style.gridTemplateRows = '44px 1fr 64px';
 
 	root.innerHTML = renderHUD(d)

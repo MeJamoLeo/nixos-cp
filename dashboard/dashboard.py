@@ -30,7 +30,12 @@ def _inject(webview: WebKit2.WebView) -> None:
     alloc = webview.get_allocation()
     w, h = alloc.width, alloc.height
 
-    print(f'[dashboard] viewport: {w}x{h}')
+    # get_allocation()はGDK論理ピクセルを返す。
+    # HiDPI scale 2の場合、CSSピクセルと一致するか確認。
+    # WebKit2GTKのCSSピクセルはGDK論理ピクセルと同じはず。
+    # ただし#rootに固定px指定するとbody(100%)より小さくなる場合がある。
+    # bodyは100%で全体を占めるので、rootもwidth/heightを100%にする方が安全。
+    print(f'[dashboard] allocation: {w}x{h}')
     parts = [f'window.__VP = {{w:{w}, h:{h}}};']
 
     path = _resolve_stats_path()
