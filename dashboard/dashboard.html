@@ -214,26 +214,26 @@ body {
 			</div>
 			<div class="hs" style="border-left:2px solid var(--amber);">
 				<div class="hl">rating</div>
-				<div class="hv" style="color:var(--amber);">438 <span style="font-size:9px;color:#4a2a00;">茶色</span></div>
+				<div class="hv" style="color:var(--amber);" id="hud-rating">438 <span style="font-size:9px;color:#4a2a00;">茶色</span></div>
 			</div>
 			<div class="hs" style="border-left:2px solid #ff8030;">
 				<div class="hl">streak</div>
-				<div class="hv" style="color:#ff8030;">🔥 23日</div>
+				<div class="hv" style="color:#ff8030;" id="hud-streak">🔥 23日</div>
 			</div>
 			<div class="hs gg" style="padding:0 11px;">
 				<div class="hl">today xp</div>
-				<div class="hv" style="color:var(--green);">2,840 <span style="font-size:9px;">↑最高</span></div>
-				<div class="hb">Lv23 → 24 まで 1,160</div>
+				<div class="hv" style="color:var(--green);" id="hud-xp">2,840 <span style="font-size:9px;">↑最高</span></div>
+				<div class="hb" id="hud-level">Lv23 → 24 まで 1,160</div>
 			</div>
 			<div class="hs"><div class="hl">combo</div><div class="hv" style="color:var(--blue);">×3 <span style="font-size:9px;color:#2a2a5a;">XP×1.5</span></div></div>
 			<div class="hs gg"><div class="hl">初見AC</div><div class="hv" style="color:var(--green);">43% <span style="font-size:9px;">↑</span></div></div>
 			<div class="hs gc"><div class="hl">A問題速度</div><div class="hv" style="color:var(--cyan);">1:42 <span style="font-size:9px;">↓最速</span></div></div>
-			<div class="hs ga"><div class="hl">早朝AC</div><div class="hv" style="color:#ffcc00;">7:05 <span style="font-size:9px;">★26分早</span></div><div class="hb">avg 7:31</div></div>
+			<div class="hs ga"><div class="hl">早朝AC</div><div class="hv" style="color:#ffcc00;" id="hud-morning">7:05 <span style="font-size:9px;">★26分早</span></div><div class="hb" id="hud-morning-avg">avg 7:31</div></div>
 			<div class="hs"><div class="hl">緑まで</div><div class="hv" style="color:#4a6a4a;">74日 <span style="font-size:9px;color:#1a3a1a;">/14戦</span></div></div>
 			<div class="sp"></div>
 			<div class="boss-hud">
-				<div><div style="font-size:7px;color:#3a2a00;letter-spacing:.12em;text-transform:uppercase;">BOSS FIGHT</div><div style="font-size:12px;color:var(--amber);font-weight:500;">ABC 452</div></div>
-				<div class="boss-t">3:24:00</div>
+				<div><div style="font-size:7px;color:#3a2a00;letter-spacing:.12em;text-transform:uppercase;">BOSS FIGHT</div><div style="font-size:12px;color:var(--amber);font-weight:500;" id="hud-boss-name">ABC 452</div></div>
+				<div class="boss-t" id="hud-boss-timer">3:24:00</div>
 				<div style="min-width:90px;"><div style="font-size:7px;color:#3a2a00;margin-bottom:2px;">制限時間 HP</div><div style="height:5px;background:#1a1000;border:0.5px solid #2a1800;overflow:hidden;"><div style="width:100%;height:100%;background:var(--amber);"></div></div></div>
 			</div>
 		</div>
@@ -243,17 +243,17 @@ body {
 
 			<!-- COL1 -->
 			<div class="c1">
-				<div class="p ga" data-l="PLAYER STATUS" style="flex:0 0 auto;">
+				<div class="p ga" data-l="PLAYER STATUS" style="flex:0 0 auto;" id="player-status">
 					<div class="pi">
 						<div style="display:flex;justify-content:space-between;align-items:flex-end;">
-							<div><div style="font-size:7px;color:var(--muted);margin-bottom:1px;">RATING</div><div style="font-size:34px;font-weight:500;color:var(--amber);line-height:1;">438</div></div>
-							<div style="text-align:right;"><div style="font-size:7px;color:var(--muted);">LEVEL</div><div style="font-size:20px;font-weight:500;color:var(--cyan);line-height:1;">23</div></div>
+							<div><div style="font-size:7px;color:var(--muted);margin-bottom:1px;">RATING</div><div style="font-size:34px;font-weight:500;color:var(--amber);line-height:1;" id="ps-rating">438</div></div>
+							<div style="text-align:right;"><div style="font-size:7px;color:var(--muted);">LEVEL</div><div style="font-size:20px;font-weight:500;color:var(--cyan);line-height:1;" id="ps-level">23</div></div>
 						</div>
-						<div class="bw"><div class="bf" style="width:9.5%;background:var(--amber);"></div></div>
-						<div style="display:flex;justify-content:space-between;font-size:8px;color:var(--muted);margin-top:1px;margin-bottom:5px;"><span>400</span><span style="color:var(--amber);">438</span><span style="color:var(--green);">800</span></div>
+						<div class="bw"><div class="bf" id="ps-progress-bar" style="width:9.5%;background:var(--amber);"></div></div>
+						<div style="display:flex;justify-content:space-between;font-size:8px;color:var(--muted);margin-top:1px;margin-bottom:5px;" id="ps-progress-labels"><span>400</span><span style="color:var(--amber);">438</span><span style="color:var(--green);">800</span></div>
 						<div class="dsc">
 							<div style="font-size:7px;color:#1a4a1a;margin-bottom:1px;">TODAY XP</div>
-							<div><span style="font-size:26px;font-weight:500;color:#3aaa6a;line-height:1;">2,840</span><span style="font-size:10px;color:#1a5a1a;margin-left:4px;">XP</span></div>
+							<div><span style="font-size:26px;font-weight:500;color:#3aaa6a;line-height:1;" id="ps-today-xp">2,840</span><span style="font-size:10px;color:#1a5a1a;margin-left:4px;">XP</span></div>
 							<div style="display:flex;gap:3px;margin-top:3px;flex-wrap:wrap;">
 								<span style="font-size:7px;padding:1px 4px;background:#040e04;border:0.5px solid #0a2a0a;color:#2a5a2a;">AC×3 +1200</span>
 								<span style="font-size:7px;padding:1px 4px;background:#080600;border:0.5px solid #1a1000;color:#5a4010;">早朝×1.5</span>
@@ -261,12 +261,12 @@ body {
 						</div>
 						<div class="sf">
 							<span style="font-size:18px;">🔥</span>
-							<div><span style="font-size:22px;font-weight:500;color:#ff8030;line-height:1;">23</span><span style="font-size:10px;color:#6a3a00;margin-left:3px;">日連続</span><div style="font-size:7px;color:#3a1800;">最長: 31日 ｜ 明日も🔥</div></div>
+							<div><span style="font-size:22px;font-weight:500;color:#ff8030;line-height:1;" id="ps-streak">23</span><span style="font-size:10px;color:#6a3a00;margin-left:3px;">日連続</span><div style="font-size:7px;color:#3a1800;" id="ps-max-streak">最長: 31日 ｜ 明日も🔥</div></div>
 						</div>
 					</div>
 				</div>
-				<div class="p" data-l="WA QUEUE" style="flex:1;">
-					<div class="pi">
+				<div class="p" data-l="WA QUEUE" style="flex:1;" id="wa-queue-panel">
+					<div class="pi" id="wa-queue">
 						<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><span style="font-size:8px;color:var(--dim);">復習待ち 8問</span><span class="pb pba">優先順</span></div>
 						<div class="wa"><div class="wp" style="background:#cc4444;height:22px;"></div><span class="wb">×3</span><span class="wn">abc385_e</span><span style="font-size:7px;color:#333;margin-right:2px;">BFS</span><span class="wd">1089</span></div>
 						<div class="wa"><div class="wp" style="background:#cc4444;height:22px;"></div><span class="wb">×2</span><span class="wn">abc382_d</span><span style="font-size:7px;color:#333;margin-right:2px;">DP</span><span class="wd">912</span></div>
@@ -565,6 +565,7 @@ body {
 							<div class="spr i"><span class="spl" style="color:var(--cyan);">4月</span><div class="spbw"><div class="spbf" style="width:73%;background:var(--cyan);"><span class="spt" style="color:#030808;">1:42★</span></div></div><span class="spv" style="color:var(--cyan);">↓1:42</span></div>
 							<div style="border-top:0.5px solid var(--b);margin-top:5px;padding-top:4px;">
 								<div class="sl">コンテスト</div>
+								<div id="contest-list">
 								<div class="ci" style="background:#060800;border:0.5px solid #2a1800;padding:3px 5px;margin-bottom:3px;">
 									<span class="cb ca">ABC</span>
 									<div style="flex:1;min-width:0;"><div class="cn">Beginner 452</div><div class="ct" style="color:var(--amber);">21:00〜 BOSS</div></div>
@@ -573,6 +574,7 @@ body {
 								<div class="ci"><span class="cb ch">AHC</span><div style="flex:1;min-width:0;"><div class="cn">Heuristic 041</div><div class="ct">4/17 (木)</div></div><div class="crt y">All ●</div></div>
 								<div class="ci"><span class="cb ca">ABC</span><div style="flex:1;min-width:0;"><div class="cn">Beginner 453</div><div class="ct">4/19 (土)</div></div><div class="crt y">〜1999 ●</div></div>
 								<div class="ci"><span class="cb crr">ARC</span><div style="flex:1;min-width:0;"><div class="cn">Regular 218</div><div class="ct">4/20 (日)</div></div><div class="crt">対象外</div></div>
+								</div>
 								<div class="ci"><span class="cb ca">ABC</span><div style="flex:1;min-width:0;"><div class="cn">Beginner 454</div><div class="ct">4/26 (土)</div></div><div class="crt y">〜1999 ●</div></div>
 							</div>
 						</div>
@@ -630,5 +632,117 @@ body {
 			</div>
 		</div>
 
+	<script>
+	function hydrate() {
+		const d = window.__CP_DATA;
+		if (!d) return;
+
+		const $ = id => document.getElementById(id);
+
+		// --- HUD ---
+		const h = d.hud;
+		if (h) {
+			const el = $('hud-rating');
+			if (el) el.innerHTML = h.rating + ' <span style="font-size:9px;color:#4a2a00;">' + h.rank_label + '</span>';
+			const st = $('hud-streak');
+			if (st) st.textContent = '🔥 ' + h.streak_days + '日';
+			const m = $('hud-morning');
+			if (m && h.first_ac_today) m.innerHTML = h.first_ac_today;
+			const ma = $('hud-morning-avg');
+			if (ma && h.avg_first_ac) ma.textContent = 'avg ' + h.avg_first_ac;
+		}
+
+		// --- Player Status ---
+		const ps = d.player_status;
+		if (ps) {
+			const r = $('ps-rating');
+			if (r) r.textContent = ps.rating;
+			const l = $('ps-level');
+			if (l) l.textContent = ps.level;
+			const pb = $('ps-progress-bar');
+			if (pb) pb.style.width = (ps.rating_progress * 100).toFixed(1) + '%';
+			const pl = $('ps-progress-labels');
+			if (pl) pl.innerHTML = '<span>' + ps.rating_min + '</span><span style="color:var(--amber);">' + ps.rating + '</span><span style="color:var(--green);">' + ps.rating_max + '</span>';
+			const xp = $('ps-today-xp');
+			if (xp) xp.textContent = ps.today_xp.toLocaleString();
+			const sk = $('ps-streak');
+			if (sk) sk.textContent = ps.streak_days;
+			const ms = $('ps-max-streak');
+			if (ms) ms.textContent = '最長: ' + ps.max_streak + '日';
+			const hl = $('hud-level');
+			if (hl) hl.textContent = 'Lv' + ps.level;
+			const hx = $('hud-xp');
+			if (hx) hx.innerHTML = ps.today_xp.toLocaleString() + ' <span style="font-size:9px;">XP</span>';
+		}
+
+		// --- Contests ---
+		const cl = $('contest-list');
+		if (cl && d.contests && d.contests.length > 0) {
+			const days = ['日','月','火','水','木','金','土'];
+			let html = '';
+			d.contests.forEach((c, i) => {
+				const dt = new Date(c.start_epoch * 1000);
+				const mm = dt.getMonth() + 1;
+				const dd = dt.getDate();
+				const dow = days[dt.getDay()];
+				const hh = String(dt.getHours()).padStart(2, '0');
+				const mi = String(dt.getMinutes()).padStart(2, '0');
+				const dateStr = mm + '/' + dd + ' (' + dow + ') ' + hh + ':' + mi;
+
+				const typeClass = c.type === 'ABC' ? 'ca' : c.type === 'ARC' ? 'crr' : c.type === 'AHC' ? 'ch' : '';
+				const ratedStr = c.is_rated_for_user ? '<div class="crt y">' + c.rated_range + ' ●</div>' : '<div class="crt">対象外</div>';
+				const isFirst = i === 0;
+				const style = isFirst ? ' style="background:#060800;border:0.5px solid #2a1800;padding:3px 5px;margin-bottom:3px;"' : '';
+
+				html += '<div class="ci"' + style + '>'
+					+ '<span class="cb ' + typeClass + '">' + c.type + '</span>'
+					+ '<div style="flex:1;min-width:0;"><div class="cn">' + c.title.replace(/.*\(/, '').replace(/\)$/, '').replace('AtCoder ', '') + '</div>'
+					+ '<div class="ct"' + (isFirst ? ' style="color:var(--amber);"' : '') + '>' + dateStr + (isFirst ? ' BOSS' : '') + '</div></div>'
+					+ ratedStr + '</div>';
+			});
+			cl.innerHTML = html;
+		}
+
+		// --- Boss HUD ---
+		if (d.contests && d.contests.length > 0) {
+			const next = d.contests[0];
+			const bn = $('hud-boss-name');
+			if (bn) bn.textContent = next.type + ' ' + next.id.replace(/[a-z]+/, '');
+			// Countdown timer
+			const bt = $('hud-boss-timer');
+			if (bt) {
+				function updateTimer() {
+					const now = Date.now() / 1000;
+					const diff = next.start_epoch - now;
+					if (diff <= 0) {
+						bt.textContent = 'LIVE';
+						return;
+					}
+					const h = Math.floor(diff / 3600);
+					const m = Math.floor((diff % 3600) / 60);
+					const s = Math.floor(diff % 60);
+					bt.textContent = h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+				}
+				updateTimer();
+				setInterval(updateTimer, 1000);
+			}
+		}
+
+		// --- WA Queue ---
+		const wq = $('wa-queue');
+		if (wq && d.wa_queue && d.wa_queue.length > 0) {
+			let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><span style="font-size:8px;color:var(--dim);">復習待ち ' + d.wa_queue.length + '問</span><span class="pb pba">優先順</span></div>';
+			d.wa_queue.forEach(w => {
+				const color = w.wa_count >= 3 ? '#cc4444' : w.wa_count >= 2 ? 'var(--amber)' : '#333';
+				html += '<div class="wa"><div class="wp" style="background:' + color + ';height:22px;"></div>'
+					+ '<span class="wb">×' + w.wa_count + '</span>'
+					+ '<span class="wn">' + w.problem_id + '</span>'
+					+ '<span style="font-size:7px;color:#333;margin-right:2px;">' + w.tag + '</span>'
+					+ '<span class="wd">' + w.difficulty + '</span></div>';
+			});
+			wq.innerHTML = html;
+		}
+	}
+	</script>
 	</body>
 </html>
