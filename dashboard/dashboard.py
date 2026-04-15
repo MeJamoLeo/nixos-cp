@@ -18,17 +18,16 @@ STATS_JSON = os.path.expanduser('~/.cache/cp-dashboard/stats.json')
 def _inject_data(webview: WebKit2.WebView) -> None:
     """Read stats.json and inject into the webview."""
     if not os.path.exists(STATS_JSON):
+        print('[dashboard] stats.json not found')
         return
     try:
         with open(STATS_JSON) as f:
             data = f.read()
+        print(f'[dashboard] injecting {len(data)} bytes of JSON')
         js = f'window.__CP_DATA = {data}; hydrate();'
-        # evaluate_javascript is the non-deprecated API for WebKit2 4.1+
-        if hasattr(webview, 'evaluate_javascript'):
-            webview.evaluate_javascript(js, -1, None, None, None, None, None)
-        else:
-            webview.run_javascript(js, None, None, None)
-    except (OSError, ValueError) as e:
+        webview.run_javascript(js, None, None, None)
+        print('[dashboard] injection done')
+    except Exception as e:
         print(f'[dashboard] inject error: {e}')
 
 
