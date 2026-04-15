@@ -45,8 +45,7 @@
 	--dbg-colright2:  var(--bg);
 }
 
-/* デバッグモード: この行のコメントを外すと各グリッドが色分けされる */
-
+/* デバッグモード: コメントを外すと各グリッドが色分けされる
 :root {
 	--dbg-body:       #1a0000;
 	--dbg-hud:        #2a1010;
@@ -61,7 +60,7 @@
 	--dbg-main:       #001a00;
 	--dbg-colright2:  #00001a;
 }
-
+*/
 
 /* ============================================================
    LAYOUT
@@ -76,7 +75,7 @@ body {
 	font-family: monospace;
 	color: var(--text);
 	display: grid;
-	grid-template-rows: 6% 82% 12%;
+	grid-template-rows: 7% 83% 10%;
 	gap: 3px;
 	padding: 3px;
 	min-width: 0;
@@ -86,8 +85,8 @@ body {
 
 .main {
 	display: grid;
-	grid-template-columns: 17% 1fr 29%;
-	grid-template-rows: 3fr 2fr;
+	grid-template-columns: 15% 1fr 30%;
+	grid-template-rows: 1fr 1fr;
 	background: var(--dbg-main);
 	gap: 3px;
 	min-height: 0;
