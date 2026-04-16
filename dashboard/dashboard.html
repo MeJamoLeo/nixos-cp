@@ -436,8 +436,7 @@ function renderSkillGraph(d) {
 		return null; // parentがbase(tier 0)の場合
 	}
 
-	// 依存の深さ（parentチェーンの長さ）で半径を決める
-	// ティア=色ゾーンとは別に、依存が深いノードほど外側
+	// 深さ計算
 	function getDepth(n) {
 		let d = 0, cur = n;
 		while (cur.parent && byId[cur.parent]) { d++; cur = byId[cur.parent]; }
@@ -449,42 +448,44 @@ function renderSkillGraph(d) {
 		depthRadii[i] = 30 + i * (260 / maxDepth);
 	}
 
-	// BFS順で配置: 親の角度の近くに子を配置
-	const sectorWidth = (Math.PI * 2) / Math.max(t1.length, 1);
+	// 葉ノード（子を持たないノード）を特定
+	const childIds = new Set(nodes.filter(n => n.parent).map(n => n.parent));
+	const leaves = nodes.filter(n => !childIds.has(n.id) && n.tier > 0);
+
+	// 葉ノードを均等配置
 	const nodeAngles = {};
-
-	// Tier 1
-	t1.forEach((n, i) => {
-		const angle = (i / t1.length) * Math.PI * 2 - Math.PI/2;
+	leaves.forEach((n, i) => {
+		const angle = (i / leaves.length) * Math.PI * 2 - Math.PI/2;
 		nodeAngles[n.id] = angle;
 		const r = depthRadii[getDepth(n)];
 		pos[n.id] = {x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r};
 	});
 
-	// 残りのノードを深さ順に配置
-	const remaining = nodes.filter(n => n.tier > 0 && !pos[n.id]);
-	// 深さでソート（浅い方から）
-	remaining.sort((a, b) => getDepth(a) - getDepth(b));
-
-	remaining.forEach(n => {
-		if (pos[n.id]) return;
-		const parentPos = pos[n.parent];
-		if (!parentPos) return;
-		const parentAngle = nodeAngles[n.parent] !== undefined ? nodeAngles[n.parent] : Math.atan2(parentPos.y - cy, parentPos.x - cx);
-		// 同じ親を持つ兄弟を数える
-		const siblings = remaining.filter(s => s.parent === n.parent && !pos[s.id]);
-		const sibIdx = siblings.indexOf(n);
-		const sibCount = nodes.filter(s => s.parent === n.parent).length;
-		// 全兄弟の中での位置を求める
-		const allSibs = nodes.filter(s => s.parent === n.parent);
-		const myIdx = allSibs.indexOf(n);
-		const spread = sectorWidth * 0.7;
-		const offset = sibCount === 1 ? 0 : (myIdx / (sibCount - 1) - 0.5) * spread;
-		const angle = parentAngle + offset;
-		const r = depthRadii[getDepth(n)];
-		nodeAngles[n.id] = angle;
-		pos[n.id] = {x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r};
-	});
+	// 内側に向かって配置: 親は子の平均角度に置く
+	for (let depth = maxDepth - 1; depth >= 1; depth--) {
+		const atDepth = nodes.filter(n => getDepth(n) === depth && !pos[n.id]);
+		atDepth.forEach(n => {
+			// この子孫で既に配置済みのものの角度平均
+			const childAngles = nodes
+				.filter(c => c.parent === n.id && nodeAngles[c.id] !== undefined)
+				.map(c => nodeAngles[c.id]);
+			if (childAngles.length > 0) {
+				// 円周上の平均角度（ベクトル平均）
+				const sx = childAngles.reduce((s, a) => s + Math.cos(a), 0);
+				const sy = childAngles.reduce((s, a) => s + Math.sin(a), 0);
+				const angle = Math.atan2(sy, sx);
+				nodeAngles[n.id] = angle;
+				const r = depthRadii[depth];
+				pos[n.id] = {x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r};
+			} else {
+				// 子がいない非葉ノード（あまりないはず）→ 適当に配置
+				const angle = Math.random() * Math.PI * 2;
+				nodeAngles[n.id] = angle;
+				const r = depthRadii[depth];
+				pos[n.id] = {x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r};
+			}
+		});
+	}
 
 	const tierColor = {};
 	tiers.forEach(t => tierColor[t.tier] = t.color);
