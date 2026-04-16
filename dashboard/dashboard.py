@@ -51,6 +51,83 @@ def _inject(webview: WebKit2.WebView) -> None:
     webview.run_javascript(js, None, None, None)
 
 
+def _debug_check(webview: WebKit2.WebView) -> bool:
+    """複数のデバッグ情報を取得してファイルに書き出す"""
+    debug_js = """
+    (function() {
+        var info = {};
+        info.dpr = window.devicePixelRatio;
+        info.innerW = window.innerWidth;
+        info.innerH = window.innerHeight;
+        info.screenW = screen.width;
+        info.screenH = screen.height;
+
+        var body = document.body;
+        if (body) {
+            var cs = getComputedStyle(body);
+            info.bodyFontSize = cs.fontSize;
+            info.bodyWidth = cs.width;
+            info.bodyHeight = cs.height;
+            info.bodyOffsetW = body.offsetWidth;
+            info.bodyOffsetH = body.offsetHeight;
+        }
+
+        var rating = document.querySelector('.ps-rating');
+        if (rating) {
+            var rcs = getComputedStyle(rating);
+            info.ratingFontSize = rcs.fontSize;
+            info.ratingOffsetH = rating.offsetHeight;
+            info.ratingOffsetW = rating.offsetWidth;
+            info.ratingText = rating.textContent;
+        }
+
+        var hud = document.querySelector('.hud');
+        if (hud) {
+            info.hudOffsetH = hud.offsetHeight;
+        }
+
+        var label = document.querySelector('.hud-label');
+        if (label) {
+            var lcs = getComputedStyle(label);
+            info.labelFontSize = lcs.fontSize;
+            info.labelOffsetH = label.offsetHeight;
+        }
+
+        // CSS変数の実際の値
+        var root = getComputedStyle(document.documentElement);
+        info.varFs3xl = root.getPropertyValue('--fs-3xl');
+        info.varFsSm = root.getPropertyValue('--fs-sm');
+        info.varFsLg = root.getPropertyValue('--fs-lg');
+
+        // 結果をファイルに書くためtitleに入れる
+        var out = JSON.stringify(info, null, 2);
+        document.title = 'DEBUG_DONE';
+
+        // DOM要素として書き出す（titleが取れない場合の保険）
+        var pre = document.createElement('pre');
+        pre.id = 'debug-output';
+        pre.style.cssText = 'position:fixed;bottom:0;left:0;background:red;color:white;font-size:20px;z-index:9999;padding:10px;max-height:50%;overflow:auto;';
+        pre.textContent = out;
+        document.body.appendChild(pre);
+
+        return out;
+    })();
+    """
+    def _on_debug(wv, result, _ud):
+        try:
+            r = wv.run_javascript_finish(result)
+            val = r.get_js_value()
+            text = val.to_string() if val else 'null'
+            print(f'[DEBUG] {text}')
+            # ファイルにも書き出す
+            with open('/tmp/debug_info.json', 'w') as f:
+                f.write(text)
+        except Exception as e:
+            print(f'[DEBUG ERROR] {e}')
+
+    webview.run_javascript(debug_js, None, _on_debug, None)
+    return False
+
 
 def _on_load_changed(
     webview: WebKit2.WebView,
@@ -59,6 +136,7 @@ def _on_load_changed(
     if event == WebKit2.LoadEvent.FINISHED:
         # 少し待ってからinject（ウィンドウサイズ確定後）
         GLib.timeout_add(200, lambda: _inject(webview) or False)
+        GLib.timeout_add(5000, lambda: _debug_check(webview) or False)
 
 
 def _refresh(webview: WebKit2.WebView) -> bool:
