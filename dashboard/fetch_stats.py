@@ -595,10 +595,9 @@ def build_difficulty_log(
             })
     points.sort(key=lambda x: x["epoch"])
 
-    # 6ヶ月分にフィルタ
     now = time.time()
-    six_months_ago = now - 180 * 86400
-    recent_points = [p for p in points if p["epoch"] >= six_months_ago]
+    # 全期間のデータを使用（ACがない期間でもグラフを表示）
+    recent_points = points
 
     # Weekly difficulty sums (棒グラフ用)
     weekly_diff_sums: list[dict] = []
