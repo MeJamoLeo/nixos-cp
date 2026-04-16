@@ -400,6 +400,133 @@ function renderCompare(d) {
 	return h;
 }
 
+function renderSkillGraph(d) {
+	const sg = d.skill_graph || {};
+	const nodes = sg.nodes || [];
+	const tiers = sg.tiers || [];
+	if (!nodes.length) return '<div style="text-align:center;color:var(--dim);padding-top:20px">No data</div>';
+
+	// Build adjacency: parent→children
+	const byId = {};
+	nodes.forEach(n => byId[n.id] = n);
+	const children = {};
+	nodes.forEach(n => { if (n.parent) { (children[n.parent] = children[n.parent] || []).push(n.id); } });
+
+	// Radial layout
+	const W = 480, H = 360, cx = W/2, cy = H/2;
+	const radii = [0, 80, 160, 230]; // tier 0,1,2,3 distance from center
+	const tierGroups = {};
+	nodes.forEach(n => { (tierGroups[n.tier] = tierGroups[n.tier] || []).push(n); });
+
+	// Assign angles: tier 0 at center, tier 1+ spread around parent
+	const pos = {};
+	// Center node
+	const center = nodes.find(n => n.tier === 0);
+	if (center) pos[center.id] = {x: cx, y: cy};
+
+	// Tier 1: evenly around center
+	const t1 = tierGroups[1] || [];
+	t1.forEach((n, i) => {
+		const angle = (i / t1.length) * Math.PI * 2 - Math.PI/2;
+		pos[n.id] = {x: cx + Math.cos(angle) * radii[1], y: cy + Math.sin(angle) * radii[1]};
+	});
+
+	// Tier 2+: spread around parent
+	[2, 3].forEach(tier => {
+		const tn = tierGroups[tier] || [];
+		// Group by parent
+		const byParent = {};
+		tn.forEach(n => { (byParent[n.parent] = byParent[n.parent] || []).push(n); });
+		Object.keys(byParent).forEach(pid => {
+			const grp = byParent[pid];
+			const pp = pos[pid];
+			if (!pp) return;
+			const parentAngle = Math.atan2(pp.y - cy, pp.x - cx);
+			const spread = Math.PI * 0.5; // spread range
+			grp.forEach((n, i) => {
+				const offset = grp.length === 1 ? 0 : (i / (grp.length - 1) - 0.5) * spread;
+				const angle = parentAngle + offset;
+				pos[n.id] = {x: cx + Math.cos(angle) * radii[tier], y: cy + Math.sin(angle) * radii[tier]};
+			});
+		});
+	});
+
+	// Tier colors
+	const tierColor = {};
+	tiers.forEach(t => tierColor[t.tier] = t.color);
+
+	// SVG
+	let s = '<svg width="100%" height="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">';
+
+	// Tier rings (subtle)
+	[1,2,3].forEach(t => {
+		s += '<circle cx="'+cx+'" cy="'+cy+'" r="'+radii[t]+'" fill="none" stroke="'+(tierColor[t]||'#1a1a1a')+'" stroke-width="0.3" stroke-dasharray="2,4" opacity="0.3"/>';
+	});
+
+	// Edges
+	nodes.forEach(n => {
+		if (!n.parent || !pos[n.id] || !pos[n.parent]) return;
+		const p1 = pos[n.parent], p2 = pos[n.id];
+		const col = tierColor[n.tier] || '#1a3a3a';
+		const prog = n.progress ? n.progress[0] / n.progress[1] : 0;
+		const opacity = prog > 0 ? 0.5 + prog * 0.5 : 0.15;
+		s += '<line x1="'+p1.x.toFixed(1)+'" y1="'+p1.y.toFixed(1)+'" x2="'+p2.x.toFixed(1)+'" y2="'+p2.y.toFixed(1)+'" stroke="'+col+'" stroke-width="1" opacity="'+opacity.toFixed(2)+'"/>';
+	});
+
+	// Nodes
+	nodes.forEach(n => {
+		const p = pos[n.id];
+		if (!p) return;
+		const prog = n.progress ? n.progress[0] / n.progress[1] : 0;
+		const done = n.progress && n.progress[0] >= n.progress[1];
+		const col = tierColor[n.tier] || '#808080';
+		const r = n.tier === 0 ? 18 : 14;
+
+		// Glow for completed
+		if (done) {
+			s += '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+(r+4)+'" fill="'+col+'" opacity="0.15"/>';
+		}
+
+		// Background circle
+		s += '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+r+'" fill="'+(prog > 0 ? '#0a1a1a' : '#060c0c')+'" stroke="'+col+'" stroke-width="'+(done ? 1.5 : 0.8)+'" opacity="'+(prog > 0 ? 1 : 0.4)+'"/>';
+
+		// Progress arc
+		if (prog > 0 && !done) {
+			const angle = prog * Math.PI * 2;
+			const x1 = p.x, y1 = p.y - r;
+			const x2 = p.x + Math.sin(angle) * r;
+			const y2 = p.y - Math.cos(angle) * r;
+			const large = angle > Math.PI ? 1 : 0;
+			s += '<path d="M'+x1.toFixed(1)+','+y1.toFixed(1)+' A'+r+','+r+' 0 '+large+' 1 '+x2.toFixed(1)+','+y2.toFixed(1)+'" fill="none" stroke="'+col+'" stroke-width="2" opacity="0.8"/>';
+		}
+
+		// Check mark for completed
+		if (done) {
+			s += '<text x="'+p.x.toFixed(1)+'" y="'+(p.y+1).toFixed(1)+'" fill="'+col+'" font-size="10" text-anchor="middle" dominant-baseline="middle">✓</text>';
+		}
+
+		// Label
+		const labelY = p.y + r + 10;
+		s += '<text x="'+p.x.toFixed(1)+'" y="'+labelY.toFixed(1)+'" fill="'+(prog > 0 ? '#8ababa' : '#2a4a4a')+'" font-size="8" text-anchor="middle" font-family="monospace">'+n.label+'</text>';
+
+		// Progress text (e.g. "2/3")
+		if (n.progress && !done) {
+			s += '<text x="'+p.x.toFixed(1)+'" y="'+(p.y+3).toFixed(1)+'" fill="'+(prog > 0 ? col : '#2a4a4a')+'" font-size="7" text-anchor="middle" font-family="monospace">'+n.progress[0]+'/'+n.progress[1]+'</text>';
+		}
+	});
+
+	// Legend
+	tiers.forEach((t, i) => {
+		if (t.tier === 0) return;
+		const lx = 8, ly = 10 + (i-1) * 14;
+		s += '<circle cx="'+lx+'" cy="'+ly+'" r="4" fill="none" stroke="'+t.color+'" stroke-width="0.8"/>';
+		s += '<text x="'+(lx+8)+'" y="'+(ly+3)+'" fill="'+t.color+'" font-size="7" font-family="monospace">'+t.label+'</text>';
+	});
+
+	s += '</svg>';
+	return s;
+}
+
 function renderInsight(d) {
 	let h = '';
 	if (d.insight) {
@@ -441,7 +568,7 @@ function hydrate() {
 		+'<div class="col-right">'
 			+'<div class="col-right-top">'
 				+renderDifficultyLog(d)
-				+'<div class="panel" data-label="SKILL GRAPH" style="overflow:hidden;background:var(--dbg-skillgraph)"><div class="panel-inner"><div style="text-align:center;color:var(--dim);padding-top:20px">Skill Graph</div></div></div>'
+				+'<div class="panel" data-label="SKILL GRAPH" style="overflow:hidden;background:var(--dbg-skillgraph)"><div class="panel-inner" style="display:flex;flex:1;min-height:0">'+renderSkillGraph(d)+'</div></div>'
 			+'</div>'
 			+'<div class="col-right-bottom">'
 				+'<div class="panel" data-label="TAG AC RATE" style="background:var(--dbg-tagrate)"><div class="panel-inner">'+renderTagACRate(d)+'</div></div>'

@@ -253,7 +253,46 @@
     {"epoch": 1727530800, "old_rating": 171, "new_rating": 179, "contest": "AtCoder Beginner Contest 373", "place": 8327, "performance": 222},
     {"epoch": 1726321200, "old_rating": 155, "new_rating": 171, "contest": "AtCoder Beginner Contest 371", "place": 7612, "performance": 333}
   ],
-  "skill_graph": {"nodes": []},
+  "skill_graph": {
+    "rating": 438,
+    "nodes": [
+      {"id": "base",       "label": "基礎",       "tier": 0, "progress": [5,5],  "x": 0, "y": 0},
+
+      {"id": "bruteforce", "label": "全探索",     "tier": 1, "progress": [4,5],  "parent": "base"},
+      {"id": "string",     "label": "文字列",     "tier": 1, "progress": [3,5],  "parent": "base"},
+      {"id": "gcd",        "label": "GCD/LCM",    "tier": 1, "progress": [3,5],  "parent": "base"},
+      {"id": "cumsum",     "label": "累積和",     "tier": 1, "progress": [4,5],  "parent": "base"},
+      {"id": "basedp",     "label": "基礎DP",     "tier": 1, "progress": [2,5],  "parent": "base"},
+      {"id": "sort",       "label": "ソート",     "tier": 1, "progress": [5,5],  "parent": "base"},
+      {"id": "graph_base", "label": "グラフ探索", "tier": 1, "progress": [3,5],  "parent": "base"},
+      {"id": "math_base",  "label": "数学基礎",   "tier": 1, "progress": [2,5],  "parent": "base"},
+
+      {"id": "binsearch",  "label": "二分探索",   "tier": 2, "progress": [2,5],  "parent": "bruteforce"},
+      {"id": "bfs",        "label": "BFS/DFS",    "tier": 2, "progress": [2,3],  "parent": "graph_base"},
+      {"id": "counting",   "label": "数え上げ",   "tier": 2, "progress": [1,5],  "parent": "basedp"},
+      {"id": "twoptr",     "label": "尺取り法",   "tier": 2, "progress": [1,5],  "parent": "cumsum"},
+      {"id": "imos",       "label": "imos法",      "tier": 2, "progress": [1,5],  "parent": "cumsum"},
+      {"id": "hash",       "label": "ハッシュ",   "tier": 2, "progress": [0,5],  "parent": "string"},
+      {"id": "prime",      "label": "素数判定",   "tier": 2, "progress": [1,5],  "parent": "gcd"},
+      {"id": "mod_base",   "label": "mod基礎",    "tier": 2, "progress": [1,5],  "parent": "math_base"},
+      {"id": "grundy",     "label": "Grundy数",   "tier": 2, "progress": [0,5],  "parent": "math_base"},
+
+      {"id": "unionfind",  "label": "Union Find", "tier": 3, "progress": [0,5],  "parent": "bfs"},
+      {"id": "segtree",    "label": "セグ木",     "tier": 3, "progress": [0,5],  "parent": "basedp"},
+      {"id": "dijkstra",   "label": "ダイクストラ","tier": 3, "progress": [0,5],  "parent": "bfs"},
+      {"id": "bitdp",      "label": "bitDP",      "tier": 3, "progress": [0,5],  "parent": "counting"},
+      {"id": "compress",   "label": "座圧",       "tier": 3, "progress": [0,5],  "parent": "binsearch"},
+      {"id": "kmp",        "label": "KMP",        "tier": 3, "progress": [0,5],  "parent": "hash"},
+      {"id": "modinv",     "label": "mod逆元",    "tier": 3, "progress": [0,5],  "parent": "mod_base"},
+      {"id": "factorize",  "label": "素因数",     "tier": 3, "progress": [0,5],  "parent": "prime"}
+    ],
+    "tiers": [
+      {"tier": 0, "label": "基礎", "color": "#808080"},
+      {"tier": 1, "label": "灰→茶", "color": "#804000"},
+      {"tier": 2, "label": "茶→緑", "color": "#008000"},
+      {"tier": 3, "label": "緑→水", "color": "#00C0C0"}
+    ]
+  },
   "peers": [
     {"user": "user_4821", "rating": 488, "monthly_ac": 62},
     {"user": "k_solver", "rating": 471, "monthly_ac": 55},
