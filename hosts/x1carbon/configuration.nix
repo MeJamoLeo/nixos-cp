@@ -59,6 +59,17 @@
     (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
   ];
 
+  fonts.fontconfig = {
+    enable = true;
+    antialias = true;
+    hinting = {
+      enable = true;
+      style = "slight";
+    };
+    subpixel.lcdfilter = "light";
+    defaultFonts.monospace = [ "JetBrainsMono Nerd Font" ];
+  };
+
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   system.stateVersion = "24.11";
