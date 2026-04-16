@@ -200,7 +200,6 @@ def main() -> None:
                           WebKit2.HardwareAccelerationPolicy.NEVER)
     settings.set_property('default-font-size', 80)
     settings.set_property('default-monospace-font-size', 64)
-    settings.set_property('enable-page-caching', False)
     settings.set_property('enable-smooth-scrolling', False)
     webview.set_settings(settings)
     webview.load_uri(f'file://{DASHBOARD_HTML}')
