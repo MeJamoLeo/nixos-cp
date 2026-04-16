@@ -586,51 +586,68 @@ def build_difficulty_log(
     six_months_ago = now - 180 * 86400
     recent_points = [p for p in points if p["epoch"] >= six_months_ago]
 
-    # 7-day rolling average (全期間で計算、6ヶ月分を返す)
-    seven_day_avg: list[dict] = []
-    if points:
-        for i, p in enumerate(points):
-            cutoff = p["epoch"] - 7 * 86400
-            window = [
-                pp["difficulty"]
-                for pp in points[: i + 1]
-                if pp["epoch"] >= cutoff
-            ]
-            if window:
-                seven_day_avg.append({
-                    "epoch": p["epoch"],
-                    "avg": round(sum(window) / len(window)),
-                })
-    recent_avg = [a for a in seven_day_avg if a["epoch"] >= six_months_ago]
+    # Weekly difficulty sums (棒グラフ用)
+    weekly_diff_sums: list[dict] = []
+    if recent_points:
+        week_sums: dict[int, dict] = {}
+        first_epoch = recent_points[0]["epoch"]
+        for p in recent_points:
+            wk = (p["epoch"] - first_epoch) // (7 * 86400)
+            wk_epoch = first_epoch + wk * 7 * 86400
+            if wk_epoch not in week_sums:
+                week_sums[wk_epoch] = {
+                    "epoch": wk_epoch, "sum": 0, "count": 0,
+                }
+            week_sums[wk_epoch]["sum"] += p["difficulty"]
+            week_sums[wk_epoch]["count"] += 1
+        weekly_diff_sums = sorted(
+            week_sums.values(), key=lambda x: x["epoch"],
+        )
 
-    # 予測線: 直近2週間のトレンドから3ヶ月先を予測
+    # Rating-based projections from recent contest trend
     projections: list[dict] = []
-    two_weeks_ago = now - 14 * 86400
-    recent_2w = [a for a in seven_day_avg if a["epoch"] >= two_weeks_ago]
-    if len(recent_2w) >= 2:
-        # 直近2週間の傾き (difficulty/day)
-        first, last = recent_2w[0], recent_2w[-1]
-        days_span = (last["epoch"] - first["epoch"]) / 86400
+    if len(ratings) >= 3:
+        recent_r = ratings[-5:]
+        first_r, last_r = recent_r[0], recent_r[-1]
+        first_ep = first_r.get("EndTime", 0)
+        last_ep = last_r.get("EndTime", 0)
+        if isinstance(first_ep, str):
+            try:
+                first_ep = int(
+                    datetime.fromisoformat(first_ep).timestamp()
+                )
+            except ValueError:
+                first_ep = 0
+        if isinstance(last_ep, str):
+            try:
+                last_ep = int(
+                    datetime.fromisoformat(last_ep).timestamp()
+                )
+            except ValueError:
+                last_ep = 0
+        days_span = (last_ep - first_ep) / 86400
         if days_span > 0:
-            slope_per_day = (last["avg"] - first["avg"]) / days_span
-            current_avg = last["avg"]
-            current_epoch = last["epoch"]
+            rate_per_day = (
+                last_r["NewRating"] - first_r["NewRating"]
+            ) / days_span
+            cur_epoch = last_ep
+            cur_r = last_r["NewRating"]
 
-            # 3ヶ月先まで、週刻みで予測点を生成
             for scenario, multiplier in [
                 ("optimistic", 1.5),
                 ("maintain", 1.0),
                 ("pessimistic", 0.3),
             ]:
                 proj_points = []
-                for week in range(1, 14):  # 13 weeks ≈ 3 months
-                    future_epoch = current_epoch + week * 7 * 86400
-                    future_avg = current_avg + slope_per_day * week * 7 * multiplier
-                    # Clamp to reasonable range
-                    future_avg = max(0, min(2800, future_avg))
+                for week in range(1, 14):
+                    future_epoch = cur_epoch + week * 7 * 86400
+                    future_r = (
+                        cur_r + rate_per_day * week * 7 * multiplier
+                    )
+                    future_r = max(0, min(2800, future_r))
                     proj_points.append({
                         "epoch": round(future_epoch),
-                        "avg": round(future_avg),
+                        "rating": round(future_r),
                     })
                 projections.append({
                     "scenario": scenario,
@@ -639,7 +656,7 @@ def build_difficulty_log(
 
     return {
         "points": recent_points,
-        "seven_day_avg": recent_avg,
+        "weekly_diff_sums": weekly_diff_sums,
         "current_rating": current_rating,
         "projections": projections,
     }

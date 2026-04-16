@@ -460,148 +460,62 @@
         "difficulty": 1200
       }
     ],
-    "seven_day_avg": [
-      {
-        "epoch": 1763874000,
-        "avg": 225
-      },
-      {
-        "epoch": 1764478800,
-        "avg": 280
-      },
-      {
-        "epoch": 1765083600,
-        "avg": 340
-      },
-      {
-        "epoch": 1765774800,
-        "avg": 380
-      },
-      {
-        "epoch": 1766379600,
-        "avg": 420
-      },
-      {
-        "epoch": 1766898000,
-        "avg": 460
-      },
-      {
-        "epoch": 1767502800,
-        "avg": 490
-      },
-      {
-        "epoch": 1768280400,
-        "avg": 540
-      },
-      {
-        "epoch": 1768971600,
-        "avg": 580
-      },
-      {
-        "epoch": 1769576400,
-        "avg": 630
-      },
-      {
-        "epoch": 1770354000,
-        "avg": 660
-      },
-      {
-        "epoch": 1771045200,
-        "avg": 700
-      },
-      {
-        "epoch": 1771650000,
-        "avg": 720
-      },
-      {
-        "epoch": 1772427600,
-        "avg": 750
-      },
-      {
-        "epoch": 1772946000,
-        "avg": 770
-      },
-      {
-        "epoch": 1773550800,
-        "avg": 800
-      },
-      {
-        "epoch": 1774155600,
-        "avg": 830
-      },
-      {
-        "epoch": 1774760400,
-        "avg": 870
-      },
-      {
-        "epoch": 1775365200,
-        "avg": 900
-      },
-      {
-        "epoch": 1775970000,
-        "avg": 940
-      },
-      {
-        "epoch": 1776315600,
-        "avg": 970
-      }
-    ],
     "current_rating": 438,
     "projections": [
       {
         "scenario": "optimistic",
         "points": [
           {
-            "epoch": 1776920400,
-            "avg": 1037
+            "epoch": 1776747600,
+            "rating": 454
           },
           {
-            "epoch": 1777525200,
-            "avg": 1104
+            "epoch": 1777352400,
+            "rating": 470
           },
           {
-            "epoch": 1778130000,
-            "avg": 1170
+            "epoch": 1777957200,
+            "rating": 485
           },
           {
-            "epoch": 1778734800,
-            "avg": 1237
+            "epoch": 1778562000,
+            "rating": 501
           },
           {
-            "epoch": 1779339600,
-            "avg": 1304
+            "epoch": 1779166800,
+            "rating": 517
           },
           {
-            "epoch": 1779944400,
-            "avg": 1371
+            "epoch": 1779771600,
+            "rating": 532
           },
           {
-            "epoch": 1780549200,
-            "avg": 1438
+            "epoch": 1780376400,
+            "rating": 548
           },
           {
-            "epoch": 1781154000,
-            "avg": 1505
+            "epoch": 1780981200,
+            "rating": 564
           },
           {
-            "epoch": 1781758800,
-            "avg": 1571
+            "epoch": 1781586000,
+            "rating": 580
           },
           {
-            "epoch": 1782363600,
-            "avg": 1638
+            "epoch": 1782190800,
+            "rating": 596
           },
           {
-            "epoch": 1782968400,
-            "avg": 1705
+            "epoch": 1782795600,
+            "rating": 611
           },
           {
-            "epoch": 1783573200,
-            "avg": 1772
+            "epoch": 1783400400,
+            "rating": 627
           },
           {
-            "epoch": 1784178000,
-            "avg": 1839
+            "epoch": 1784005200,
+            "rating": 643
           }
         ]
       },
@@ -609,56 +523,56 @@
         "scenario": "maintain",
         "points": [
           {
-            "epoch": 1776920400,
-            "avg": 1015
+            "epoch": 1776747600,
+            "rating": 448
           },
           {
-            "epoch": 1777525200,
-            "avg": 1059
+            "epoch": 1777352400,
+            "rating": 459
           },
           {
-            "epoch": 1778130000,
-            "avg": 1104
+            "epoch": 1777957200,
+            "rating": 470
           },
           {
-            "epoch": 1778734800,
-            "avg": 1148
+            "epoch": 1778562000,
+            "rating": 480
           },
           {
-            "epoch": 1779339600,
-            "avg": 1193
+            "epoch": 1779166800,
+            "rating": 490
           },
           {
-            "epoch": 1779944400,
-            "avg": 1237
+            "epoch": 1779771600,
+            "rating": 501
           },
           {
-            "epoch": 1780549200,
-            "avg": 1282
+            "epoch": 1780376400,
+            "rating": 512
           },
           {
-            "epoch": 1781154000,
-            "avg": 1326
+            "epoch": 1780981200,
+            "rating": 522
           },
           {
-            "epoch": 1781758800,
-            "avg": 1371
+            "epoch": 1781586000,
+            "rating": 532
           },
           {
-            "epoch": 1782363600,
-            "avg": 1415
+            "epoch": 1782190800,
+            "rating": 543
           },
           {
-            "epoch": 1782968400,
-            "avg": 1460
+            "epoch": 1782795600,
+            "rating": 554
           },
           {
-            "epoch": 1783573200,
-            "avg": 1505
+            "epoch": 1783400400,
+            "rating": 564
           },
           {
-            "epoch": 1784178000,
-            "avg": 1549
+            "epoch": 1784005200,
+            "rating": 574
           }
         ]
       },
@@ -666,56 +580,56 @@
         "scenario": "pessimistic",
         "points": [
           {
-            "epoch": 1776920400,
-            "avg": 983
+            "epoch": 1776747600,
+            "rating": 441
           },
           {
-            "epoch": 1777525200,
-            "avg": 997
+            "epoch": 1777352400,
+            "rating": 444
           },
           {
-            "epoch": 1778130000,
-            "avg": 1010
+            "epoch": 1777957200,
+            "rating": 447
           },
           {
-            "epoch": 1778734800,
-            "avg": 1023
+            "epoch": 1778562000,
+            "rating": 451
           },
           {
-            "epoch": 1779339600,
-            "avg": 1037
+            "epoch": 1779166800,
+            "rating": 454
           },
           {
-            "epoch": 1779944400,
-            "avg": 1050
+            "epoch": 1779771600,
+            "rating": 457
           },
           {
-            "epoch": 1780549200,
-            "avg": 1064
+            "epoch": 1780376400,
+            "rating": 460
           },
           {
-            "epoch": 1781154000,
-            "avg": 1077
+            "epoch": 1780981200,
+            "rating": 463
           },
           {
-            "epoch": 1781758800,
-            "avg": 1090
+            "epoch": 1781586000,
+            "rating": 466
           },
           {
-            "epoch": 1782363600,
-            "avg": 1104
+            "epoch": 1782190800,
+            "rating": 470
           },
           {
-            "epoch": 1782968400,
-            "avg": 1117
+            "epoch": 1782795600,
+            "rating": 473
           },
           {
-            "epoch": 1783573200,
-            "avg": 1130
+            "epoch": 1783400400,
+            "rating": 476
           },
           {
-            "epoch": 1784178000,
-            "avg": 1144
+            "epoch": 1784005200,
+            "rating": 479
           }
         ]
       }
@@ -1062,12 +976,12 @@
   ],
   "rating_history": [
     {
-      "epoch": 1734183600,
+      "epoch": 1726321200,
       "old_rating": 155,
-      "new_rating": 178,
-      "contest": "AtCoder Beginner Contest 384",
-      "place": 8149,
-      "performance": 53
+      "new_rating": 171,
+      "contest": "AtCoder Beginner Contest 371",
+      "place": 7612,
+      "performance": 333
     },
     {
       "epoch": 1727530800,
@@ -1078,12 +992,116 @@
       "performance": 222
     },
     {
-      "epoch": 1726321200,
+      "epoch": 1734183600,
       "old_rating": 155,
-      "new_rating": 171,
-      "contest": "AtCoder Beginner Contest 371",
-      "place": 7612,
-      "performance": 333
+      "new_rating": 178,
+      "contest": "AtCoder Beginner Contest 384",
+      "place": 8149,
+      "performance": 53
+    },
+    {
+      "epoch": 1738000000,
+      "old_rating": 178,
+      "new_rating": 210,
+      "contest": "AtCoder Beginner Contest 389",
+      "place": 6820,
+      "performance": 480
+    },
+    {
+      "epoch": 1741200000,
+      "old_rating": 210,
+      "new_rating": 240,
+      "contest": "AtCoder Beginner Contest 393",
+      "place": 6100,
+      "performance": 520
+    },
+    {
+      "epoch": 1744400000,
+      "old_rating": 240,
+      "new_rating": 220,
+      "contest": "AtCoder Beginner Contest 397",
+      "place": 7500,
+      "performance": 180
+    },
+    {
+      "epoch": 1747600000,
+      "old_rating": 220,
+      "new_rating": 275,
+      "contest": "AtCoder Beginner Contest 401",
+      "place": 5800,
+      "performance": 590
+    },
+    {
+      "epoch": 1750800000,
+      "old_rating": 275,
+      "new_rating": 305,
+      "contest": "AtCoder Beginner Contest 405",
+      "place": 5200,
+      "performance": 540
+    },
+    {
+      "epoch": 1754000000,
+      "old_rating": 305,
+      "new_rating": 290,
+      "contest": "AtCoder Beginner Contest 410",
+      "place": 6300,
+      "performance": 250
+    },
+    {
+      "epoch": 1757200000,
+      "old_rating": 290,
+      "new_rating": 340,
+      "contest": "AtCoder Beginner Contest 414",
+      "place": 4900,
+      "performance": 620
+    },
+    {
+      "epoch": 1760400000,
+      "old_rating": 340,
+      "new_rating": 365,
+      "contest": "AtCoder Beginner Contest 418",
+      "place": 4500,
+      "performance": 580
+    },
+    {
+      "epoch": 1763600000,
+      "old_rating": 365,
+      "new_rating": 350,
+      "contest": "AtCoder Beginner Contest 422",
+      "place": 5600,
+      "performance": 310
+    },
+    {
+      "epoch": 1766800000,
+      "old_rating": 350,
+      "new_rating": 395,
+      "contest": "AtCoder Beginner Contest 428",
+      "place": 4200,
+      "performance": 640
+    },
+    {
+      "epoch": 1770000000,
+      "old_rating": 395,
+      "new_rating": 420,
+      "contest": "AtCoder Beginner Contest 434",
+      "place": 3900,
+      "performance": 610
+    },
+    {
+      "epoch": 1773200000,
+      "old_rating": 420,
+      "new_rating": 410,
+      "contest": "AtCoder Beginner Contest 440",
+      "place": 5000,
+      "performance": 370
+    },
+    {
+      "epoch": 1776142800,
+      "old_rating": 410,
+      "new_rating": 438,
+      "contest": "AtCoder Beginner Contest 446",
+      "place": 3600,
+      "performance": 650
     }
   ],
   "skill_graph": {

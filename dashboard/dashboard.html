@@ -296,63 +296,74 @@ function renderWAQueue(d) {
 	return '<div class="panel" data-label="WA QUEUE" style="flex:1;background:var(--dbg-waqueue)"><div class="panel-inner"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><span style="font-size:var(--fs-xs);color:var(--dim)">復習待ち '+wq.length+'問</span><span class="badge badge-amber">優先順</span></div>'+items+'</div></div>';
 }
 function renderDifficultyLog(d) {
-	const dl=d.difficulty_log||{}, pts=dl.points||[], avg=dl.seven_day_avg||[], cr=dl.current_rating||0;
-	const proj=dl.projections||[];
-	if(!pts.length) return '<div class="panel" data-label="DIFFICULTY LOG" style="background:var(--dbg-difflog)"><div class="panel-inner"></div></div>';
+	const dl=d.difficulty_log||{}, rh=d.rating_history||[], pts=dl.points||[];
+	const proj=dl.projections||[], cr=dl.current_rating||0;
+	if(!rh.length&&!pts.length) return '<div class="panel" data-label="DIFFICULTY LOG" style="background:var(--dbg-difflog)"><div class="panel-inner"></div></div>';
 
-	// X軸: 実績の開始〜予測の終了（6ヶ月過去 + 3ヶ月先）
-	const allEpochs = pts.map(p=>p.epoch);
+	// Weekly difficulty sums from AC points
+	const weekSums={};
+	if(pts.length){const fe=pts[0].epoch;pts.forEach(p=>{const wk=Math.floor((p.epoch-fe)/(7*86400)),we=fe+wk*7*86400;if(!weekSums[we])weekSums[we]={epoch:we,sum:0,count:0};weekSums[we].sum+=p.difficulty;weekSums[we].count++;});}
+	const ws=Object.values(weekSums).sort((a,b)=>a.epoch-b.epoch);
+
+	// X axis: all data + projections
+	const allEpochs=[];
+	rh.forEach(r=>allEpochs.push(r.epoch));
+	pts.forEach(p=>allEpochs.push(p.epoch));
 	proj.forEach(pr=>pr.points.forEach(p=>allEpochs.push(p.epoch)));
-	const mE=Math.min(...allEpochs), xE=Math.max(...allEpochs), R=xE-mE||1;
+	if(!allEpochs.length) return '<div class="panel" data-label="DIFFICULTY LOG" style="background:var(--dbg-difflog)"><div class="panel-inner"></div></div>';
+	const mE=Math.min(...allEpochs),xE=Math.max(...allEpochs),R=xE-mE||1;
 
-	const M=1200,xL=44,xR=550,yT=12,yB=130;
-	const X=e=>xL+(e-mE)/R*(xR-xL), Y=v=>yB-(v/M)*(yB-yT);
+	const W=560,H=150,xL=44,xR=550,yT=12,yB=130;
+	const X=e=>xL+(e-mE)/R*(xR-xL);
 
-	// 「今」のX座標
-	const nowEpoch=pts.length?pts[pts.length-1].epoch:mE;
+	// Rating Y axis (left)
+	const allR=[cr,...rh.map(r=>r.new_rating),...proj.flatMap(pr=>pr.points.map(p=>p.rating||0))].filter(v=>v>0);
+	const maxR=Math.max(...allR,400)*1.3;
+	const YR=v=>yB-(v/maxR)*(yB-yT);
+
+	// Diff sum Y axis (bars 75% height)
+	const maxSum=ws.length?Math.max(...ws.map(w=>w.sum)):1;
+	const YS=v=>yB-(v/maxSum)*(yB-yT)*0.75;
+
+	const nowEpoch=rh.length?rh[rh.length-1].epoch:(pts.length?pts[pts.length-1].epoch:mE);
 	const nowX=X(nowEpoch);
 
-	let s='<svg width="100%" height="100%" viewBox="0 0 560 140" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">';
+	let s='<svg width="100%" height="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">';
 
-	// 予測エリアの背景（今〜右端を薄く）
+	// Future zone
 	s+='<rect x="'+nowX.toFixed(1)+'" y="'+yT+'" width="'+(xR-nowX).toFixed(1)+'" height="'+(yB-yT)+'" fill="#040808" opacity="0.5"/>';
 
-	// グリッド線
-	[1200,900,600,300].forEach(v=>{const y=Y(v);s+='<line x1="'+xL+'" y1="'+y+'" x2="'+xR+'" y2="'+y+'" stroke="#0c1c1c" stroke-width="0.5"/><text x="38" y="'+(y+2)+'" fill="#0c1e1e" font-size="7" text-anchor="end" font-family="monospace">'+v+'</text>';});
+	// Grid (rating scale)
+	for(let v=200;v<maxR;v+=200){const y=YR(v);s+='<line x1="'+xL+'" y1="'+y+'" x2="'+xR+'" y2="'+y+'" stroke="#0c1c1c" stroke-width="0.5"/><text x="38" y="'+(y+2)+'" fill="#0c1e1e" font-size="7" text-anchor="end" font-family="monospace">'+v+'</text>';}
 
-	// 現在のレーティング水平線
-	if(cr>0){const y=Y(cr);s+='<line x1="'+xL+'" y1="'+y+'" x2="'+xR+'" y2="'+y+'" stroke="#4a2a00" stroke-width="0.5" stroke-dasharray="3,3"/><text x="552" y="'+(y+3)+'" fill="#4a2a00" font-size="7" font-family="monospace">'+cr+'</text>';}
+	// Current rating line
+	if(cr>0){const y=YR(cr);s+='<line x1="'+xL+'" y1="'+y+'" x2="'+xR+'" y2="'+y+'" stroke="#4a2a00" stroke-width="0.5" stroke-dasharray="3,3"/><text x="552" y="'+(y+3)+'" fill="#4a2a00" font-size="7" font-family="monospace">'+cr+'</text>';}
 
-	// 「今」の縦線
+	// Now line
 	s+='<line x1="'+nowX.toFixed(1)+'" y1="'+yT+'" x2="'+nowX.toFixed(1)+'" y2="'+yB+'" stroke="var(--dim)" stroke-width="0.5" stroke-dasharray="2,3"/>';
 
-	// AC散布図
-	s+='<g opacity="0.3">';pts.forEach(p=>{s+='<circle cx="'+X(p.epoch).toFixed(1)+'" cy="'+Y(p.difficulty).toFixed(1)+'" r="1.8" fill="#3a7a5a"/>';});s+='</g>';
+	// Bars: weekly difficulty sums
+	const barW=Math.max(4,(xR-xL)/(ws.length+14)*0.7);
+	ws.forEach(w=>{const x=X(w.epoch+3.5*86400),y=YS(w.sum),h=yB-y;s+='<rect x="'+(x-barW/2).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="#1a4a3a" opacity="0.45" rx="1"/>';});
 
-	// 7日移動平均（実績）
-	if(avg.length>1)s+='<polyline points="'+avg.map(a=>X(a.epoch).toFixed(1)+','+Y(a.avg).toFixed(1)).join(' ')+'" fill="none" stroke="var(--cyan)" stroke-width="1.5" stroke-linejoin="round"/>';
+	// Rating line from contest history
+	if(rh.length>1){
+		s+='<polyline points="'+rh.map(r=>X(r.epoch).toFixed(1)+','+YR(r.new_rating).toFixed(1)).join(' ')+'" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-linejoin="round"/>';
+		rh.forEach(r=>{const delta=r.new_rating-r.old_rating,col=delta>=0?'var(--green)':'var(--red)';s+='<circle cx="'+X(r.epoch).toFixed(1)+'" cy="'+YR(r.new_rating).toFixed(1)+'" r="2" fill="'+col+'" stroke="var(--amber)" stroke-width="0.5"/>';});
+	}
 
-	// 予測線（3パターン）
+	// Projection lines (rating-based)
 	const projStyles={optimistic:{color:'var(--green)',dash:'4,3'},maintain:{color:'var(--amber)',dash:'4,3'},pessimistic:{color:'var(--dim)',dash:'4,3'}};
-	proj.forEach(pr=>{
-		const st=projStyles[pr.scenario]||{color:'#555',dash:'4,3'};
-		const startPt=avg.length?avg[avg.length-1]:null;
-		if(!startPt||!pr.points.length) return;
-		let polyPts=X(startPt.epoch).toFixed(1)+','+Y(startPt.avg).toFixed(1);
-		pr.points.forEach(p=>{polyPts+=' '+X(p.epoch).toFixed(1)+','+Y(p.avg).toFixed(1);});
-		s+='<polyline points="'+polyPts+'" fill="none" stroke="'+st.color+'" stroke-width="1" stroke-dasharray="'+st.dash+'" opacity="0.7"/>';
-	});
+	proj.forEach(pr=>{const st=projStyles[pr.scenario]||{color:'#555',dash:'4,3'};const lastR=rh.length?rh[rh.length-1]:null;if(!lastR||!pr.points.length)return;let polyPts=X(lastR.epoch).toFixed(1)+','+YR(lastR.new_rating).toFixed(1);pr.points.forEach(p=>{polyPts+=' '+X(p.epoch).toFixed(1)+','+YR(p.rating).toFixed(1);});s+='<polyline points="'+polyPts+'" fill="none" stroke="'+st.color+'" stroke-width="1" stroke-dasharray="'+st.dash+'" opacity="0.7"/>';});
 
-	// ラベル
-	const startMonth=new Date(mE*1000).getMonth()+1;
-	s+='<text x="'+xL+'" y="136" fill="#0c1e1e" font-size="7" text-anchor="start" font-family="monospace">'+startMonth+'月</text>';
-	s+='<text x="'+nowX.toFixed(1)+'" y="136" fill="var(--cyan)" font-size="7" text-anchor="middle" font-family="monospace">今</text>';
-	const endMonth=new Date(xE*1000).getMonth()+1;
-	s+='<text x="'+xR+'" y="136" fill="var(--dim)" font-size="7" text-anchor="end" font-family="monospace">+3ヶ月</text>';
-
+	// Labels
+	s+='<text x="'+xL+'" y="146" fill="#0c1e1e" font-size="7" text-anchor="start" font-family="monospace">'+(new Date(mE*1000).getMonth()+1)+'月</text>';
+	s+='<text x="'+nowX.toFixed(1)+'" y="146" fill="var(--cyan)" font-size="7" text-anchor="middle" font-family="monospace">今</text>';
+	s+='<text x="'+xR+'" y="146" fill="var(--dim)" font-size="7" text-anchor="end" font-family="monospace">+3ヶ月</text>';
 	s+='</svg>';
+
 	return '<div class="panel" data-label="DIFFICULTY LOG" style="background:var(--dbg-difflog)"><div class="panel-inner">'
-		+'<div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:3px"><span style="font-size:var(--fs-2xs);color:#3a7a5a">● AC</span><span style="font-size:var(--fs-2xs);color:var(--cyan)">— 7日avg</span><span style="font-size:var(--fs-2xs);color:var(--green)">┄ 楽観</span><span style="font-size:var(--fs-2xs);color:var(--amber)">┄ 現状</span><span style="font-size:var(--fs-2xs);color:var(--dim)">┄ 悲観</span></div>'
+		+'<div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:3px"><span style="font-size:var(--fs-2xs);color:#1a4a3a">█ 週diff総和</span><span style="font-size:var(--fs-2xs);color:var(--amber)">— レート</span><span style="font-size:var(--fs-2xs);color:var(--green)">┄ 楽観</span><span style="font-size:var(--fs-2xs);color:var(--amber)">┄ 維持</span><span style="font-size:var(--fs-2xs);color:var(--dim)">┄ 悲観</span></div>'
 		+'<div style="flex:1;min-height:0">'+s+'</div></div></div>';
 }
 function renderTagACRate(d) {
