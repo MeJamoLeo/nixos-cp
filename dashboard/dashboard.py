@@ -51,6 +51,7 @@ def _inject(webview: WebKit2.WebView) -> None:
     webview.run_javascript(js, None, None, None)
 
 
+
 def _on_load_changed(
     webview: WebKit2.WebView,
     event: WebKit2.LoadEvent,
