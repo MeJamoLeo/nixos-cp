@@ -366,19 +366,24 @@ function renderDifficultyLog(d) {
 	const barW=colW*0.8;
 	Object.entries(weekDiff).forEach(([wk,sum])=>{wk=Number(wk);const x=Xw(wk),y=YS(sum),h=yB-y;s+='<rect x="'+(x-barW/2).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="#1a5a3a" opacity="0.55" rx="1"/>';});
 
-	// Ghost bars: target weekly diff for projection scenarios on today's week
+	// Compute effort→outcome mapping for ghost bars + projections + legend
+	const effortMap=[];// [{mult,color,weeklyDiff,endRating}]
 	const rWksSorted=Object.keys(weekRate).map(Number).sort((a,b)=>a-b);
+	let avgWkDiff=0;
 	if(rWksSorted.length>=2&&diffVals.length){
 		const recentStart=rWksSorted[Math.max(0,rWksSorted.length-5)];
 		const recentEnd=rWksSorted[rWksSorted.length-1];
 		let tDiff=0,wCnt=0;
 		for(let w=recentStart;w<=recentEnd;w++){if(weekDiff[w]){tDiff+=weekDiff[w];wCnt++;}}
-		const avgWkDiff=wCnt>0?tDiff/wCnt:0;
-		if(avgWkDiff>0){
-			const todayWk=Math.floor((Date.now()/1000-mE)/WEEK);
-			const ghostTargets=[{mult:1.5,color:'var(--green)'},{mult:1.0,color:'var(--amber)'},{mult:0.3,color:'var(--dim)'}];
-			ghostTargets.forEach(t=>{const td=avgWkDiff*t.mult,y=YS(td),h=yB-y,x=Xw(todayWk);s+='<rect x="'+(x-barW/2).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+t.color+'" opacity="0.08" rx="1"/>';s+='<line x1="'+(x-barW/2).toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+(x+barW/2).toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="'+t.color+'" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.5"/>';});
-		}
+		avgWkDiff=wCnt>0?tDiff/wCnt:0;
+	}
+	const mults=[{mult:1.5,color:'var(--green)',scenario:'optimistic'},{mult:1.0,color:'var(--amber)',scenario:'maintain'},{mult:0.3,color:'var(--dim)',scenario:'pessimistic'}];
+	mults.forEach(m=>{const wd=Math.round(avgWkDiff*m.mult);const pr=proj.find(p=>p.scenario===m.scenario);const er=pr&&pr.points.length?pr.points[pr.points.length-1].rating:0;effortMap.push({mult:m.mult,color:m.color,weeklyDiff:wd,endRating:er});});
+
+	// Ghost bars on today's week
+	if(avgWkDiff>0){
+		const todayWk=Math.floor((Date.now()/1000-mE)/WEEK);
+		effortMap.forEach(t=>{const y=YS(t.weeklyDiff),h=yB-y,x=Xw(todayWk);s+='<rect x="'+(x-barW/2).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+t.color+'" opacity="0.08" rx="1"/>';s+='<line x1="'+(x-barW/2).toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+(x+barW/2).toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="'+t.color+'" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.5"/>';});
 	}
 
 	// Rating line (connect contest dots)
@@ -388,9 +393,9 @@ function renderDifficultyLog(d) {
 	}
 	rWeeks.forEach((wk,i)=>{const r=weekRate[wk],delta=r.new_rating-r.old_rating,col=delta>=0?'var(--green)':'var(--red)',rc=ratingColor(r.new_rating);const cx=Xw(wk).toFixed(1),cy=YR(r.new_rating).toFixed(1);s+='<circle cx="'+cx+'" cy="'+cy+'" r="2.5" fill="'+rc+'" stroke="'+rc+'" stroke-width="0.5" opacity="0.9"/>';const sign=delta>=0?'+':'';s+='<text x="'+cx+'" y="'+(YR(r.new_rating)-8).toFixed(1)+'" fill="'+col+'" font-size="6" text-anchor="middle" font-family="monospace">'+sign+delta+'</text>';s+='<text x="'+cx+'" y="'+(YR(r.new_rating)+10).toFixed(1)+'" fill="'+rc+'" font-size="6" text-anchor="middle" font-family="monospace" opacity="0.9">'+r.new_rating+'</text>';});
 
-	// Projections (rating-based) with end labels
-	const projStyles={optimistic:{color:'var(--green)',dash:'4,3',label:'楽観'},maintain:{color:'var(--amber)',dash:'4,3',label:'維持'},pessimistic:{color:'var(--dim)',dash:'4,3',label:'悲観'}};
-	proj.forEach(pr=>{const st=projStyles[pr.scenario]||{color:'#555',dash:'4,3',label:''};if(!frh.length||!pr.points.length)return;const lastR=frh[frh.length-1];let polyPts=Xw(nowWk).toFixed(1)+','+YR(lastR.new_rating).toFixed(1);pr.points.forEach(p=>{const wk=Math.floor((p.epoch-mE)/WEEK);polyPts+=' '+Xw(wk).toFixed(1)+','+YR(p.rating).toFixed(1);});s+='<polyline points="'+polyPts+'" fill="none" stroke="'+st.color+'" stroke-width="1" stroke-dasharray="'+st.dash+'" opacity="0.7"/>';const last=pr.points[pr.points.length-1],lwk=Math.floor((last.epoch-mE)/WEEK),prc=ratingColor(last.rating);s+='<text x="'+(Xw(lwk)+4).toFixed(1)+'" y="'+(YR(last.rating)+3).toFixed(1)+'" fill="'+prc+'" font-size="6" font-family="monospace">'+last.rating+'</text>';});
+	// Projections (rating-based) with effort→outcome end labels
+	const projColors={optimistic:'var(--green)',maintain:'var(--amber)',pessimistic:'var(--dim)'};
+	proj.forEach(pr=>{const col=projColors[pr.scenario]||'#555';if(!frh.length||!pr.points.length)return;const lastR=frh[frh.length-1];let polyPts=Xw(nowWk).toFixed(1)+','+YR(lastR.new_rating).toFixed(1);pr.points.forEach(p=>{const wk=Math.floor((p.epoch-mE)/WEEK);polyPts+=' '+Xw(wk).toFixed(1)+','+YR(p.rating).toFixed(1);});s+='<polyline points="'+polyPts+'" fill="none" stroke="'+col+'" stroke-width="1" stroke-dasharray="4,3" opacity="0.7"/>';const last=pr.points[pr.points.length-1],lwk=Math.floor((last.epoch-mE)/WEEK),prc=ratingColor(last.rating);const em=effortMap.find(e=>e.endRating===last.rating);const label=em?'週'+em.weeklyDiff+' → '+last.rating:''+last.rating;s+='<text x="'+(Xw(lwk)+4).toFixed(1)+'" y="'+(YR(last.rating)+3).toFixed(1)+'" fill="'+prc+'" font-size="6" font-family="monospace">'+label+'</text>';});
 
 	// X labels (concrete dates)
 	function fmtDate(ep){const d=new Date(ep*1000);return(d.getMonth()+1)+'/'+d.getDate();}
@@ -402,8 +407,13 @@ function renderDifficultyLog(d) {
 	s+='<text x="'+xR+'" y="'+labelY+'" fill="var(--dim)" font-size="7" text-anchor="end" font-family="monospace">'+fmtDate(xE)+'</text>';
 	s+='</svg>';
 
+	// Legend: effort→outcome
+	let legend='<div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:3px"><span style="font-size:var(--fs-2xs);color:#1a5a3a">█ 週diff</span><span style="font-size:var(--fs-2xs);color:var(--amber)">— レート</span>';
+	effortMap.forEach(e=>{if(e.weeklyDiff>0&&e.endRating>0){const rc=ratingColor(e.endRating);legend+='<span style="font-size:var(--fs-2xs);color:'+e.color+'">┄ 週'+e.weeklyDiff+' → <span style="color:'+rc+'">'+e.endRating+'</span></span>';}});
+	legend+='</div>';
+
 	return '<div class="panel" data-label="DIFFICULTY LOG" style="background:var(--dbg-difflog)"><div class="panel-inner">'
-		+'<div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:3px"><span style="font-size:var(--fs-2xs);color:#1a5a3a">█ 週diff総和</span><span style="font-size:var(--fs-2xs);color:var(--amber)">— レート</span><span style="font-size:var(--fs-2xs);color:var(--green)">┄ 楽観</span><span style="font-size:var(--fs-2xs);color:var(--amber)">┄ 維持</span><span style="font-size:var(--fs-2xs);color:var(--dim)">┄ 悲観</span></div>'
+		+legend
 		+'<div style="flex:1;min-height:0">'+s+'</div></div></div>';
 }
 function renderTagACRate(d) {
