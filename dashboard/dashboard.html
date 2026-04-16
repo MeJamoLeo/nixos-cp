@@ -366,25 +366,13 @@ function renderDifficultyLog(d) {
 	const barW=colW*0.8;
 	Object.entries(weekDiff).forEach(([wk,sum])=>{wk=Number(wk);const x=Xw(wk),y=YS(sum),h=yB-y;s+='<rect x="'+(x-barW/2).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="#1a5a3a" opacity="0.55" rx="1"/>';});
 
-	// Compute effort→outcome mapping for ghost bars + projections + legend
-	const effortMap=[];// [{mult,color,weeklyDiff,endRating}]
-	const rWksSorted=Object.keys(weekRate).map(Number).sort((a,b)=>a-b);
-	let avgWkDiff=0;
-	if(rWksSorted.length>=2&&diffVals.length){
-		const recentStart=rWksSorted[Math.max(0,rWksSorted.length-5)];
-		const recentEnd=rWksSorted[rWksSorted.length-1];
-		let tDiff=0,wCnt=0;
-		for(let w=recentStart;w<=recentEnd;w++){if(weekDiff[w]){tDiff+=weekDiff[w];wCnt++;}}
-		avgWkDiff=wCnt>0?tDiff/wCnt:0;
-	}
-	const mults=[{mult:1.5,color:'var(--green)',scenario:'optimistic'},{mult:1.0,color:'var(--amber)',scenario:'maintain'},{mult:0.3,color:'var(--dim)',scenario:'pessimistic'}];
-	mults.forEach(m=>{const wd=Math.round(avgWkDiff*m.mult);const pr=proj.find(p=>p.scenario===m.scenario);const er=pr&&pr.points.length?pr.points[pr.points.length-1].rating:0;effortMap.push({mult:m.mult,color:m.color,weeklyDiff:wd,endRating:er});});
+	// Effort→outcome from projection data (weekly_diff included in JSON)
+	const projColorMap={optimistic:'var(--green)',maintain:'var(--amber)',pessimistic:'var(--dim)'};
+	const effortMap=proj.map(pr=>{const last=pr.points.length?pr.points[pr.points.length-1]:{rating:0};return{weeklyDiff:pr.weekly_diff||0,endRating:last.rating||0,color:projColorMap[pr.scenario]||'var(--dim)'};});
 
 	// Ghost bars on today's week with inline labels
-	if(avgWkDiff>0){
-		const todayWk=Math.floor((Date.now()/1000-mE)/WEEK);
-		effortMap.forEach(t=>{if(!t.weeklyDiff||!t.endRating)return;const y=YS(t.weeklyDiff),h=yB-y,x=Xw(todayWk),prc=ratingColor(t.endRating);s+='<rect x="'+(x-barW/2).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+t.color+'" opacity="0.08" rx="1"/>';s+='<line x1="'+(x-barW/2).toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+(x+barW/2).toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="'+t.color+'" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.5"/>';s+='<text x="'+(x+barW/2+3).toFixed(1)+'" y="'+(y+3).toFixed(1)+'" fill="'+t.color+'" font-size="6" font-family="monospace" opacity="0.7">'+t.weeklyDiff+' → <tspan fill="'+prc+'">'+t.endRating+'</tspan></text>';});
-	}
+	const todayWk=Math.floor((Date.now()/1000-mE)/WEEK);
+	effortMap.forEach(t=>{if(!t.weeklyDiff||!t.endRating)return;const y=YS(t.weeklyDiff),h=yB-y,x=Xw(todayWk),prc=ratingColor(t.endRating);s+='<rect x="'+(x-barW/2).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+t.color+'" opacity="0.08" rx="1"/>';s+='<line x1="'+(x-barW/2).toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+(x+barW/2).toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="'+t.color+'" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.5"/>';s+='<text x="'+(x+barW/2+3).toFixed(1)+'" y="'+(y+3).toFixed(1)+'" fill="'+t.color+'" font-size="6" font-family="monospace" opacity="0.7">'+t.weeklyDiff+' → <tspan fill="'+prc+'">'+t.endRating+'</tspan></text>';});
 
 	// Rating line (connect contest dots)
 	const rWeeks=Object.keys(weekRate).map(Number).sort((a,b)=>a-b);
@@ -393,9 +381,8 @@ function renderDifficultyLog(d) {
 	}
 	rWeeks.forEach((wk,i)=>{const r=weekRate[wk],delta=r.new_rating-r.old_rating,col=delta>=0?'var(--green)':'var(--red)',rc=ratingColor(r.new_rating);const cx=Xw(wk).toFixed(1),cy=YR(r.new_rating).toFixed(1);s+='<circle cx="'+cx+'" cy="'+cy+'" r="2.5" fill="'+rc+'" stroke="'+rc+'" stroke-width="0.5" opacity="0.9"/>';const sign=delta>=0?'+':'';s+='<text x="'+cx+'" y="'+(YR(r.new_rating)-8).toFixed(1)+'" fill="'+col+'" font-size="6" text-anchor="middle" font-family="monospace">'+sign+delta+'</text>';s+='<text x="'+cx+'" y="'+(YR(r.new_rating)+10).toFixed(1)+'" fill="'+rc+'" font-size="6" text-anchor="middle" font-family="monospace" opacity="0.9">'+r.new_rating+'</text>';});
 
-	// Projections (rating-based) with effort→outcome end labels
-	const projColors={optimistic:'var(--green)',maintain:'var(--amber)',pessimistic:'var(--dim)'};
-	proj.forEach(pr=>{const col=projColors[pr.scenario]||'#555';if(!frh.length||!pr.points.length)return;const lastR=frh[frh.length-1];let polyPts=Xw(nowWk).toFixed(1)+','+YR(lastR.new_rating).toFixed(1);pr.points.forEach(p=>{const wk=Math.floor((p.epoch-mE)/WEEK);polyPts+=' '+Xw(wk).toFixed(1)+','+YR(p.rating).toFixed(1);});s+='<polyline points="'+polyPts+'" fill="none" stroke="'+col+'" stroke-width="1" stroke-dasharray="4,3" opacity="0.7"/>';const last=pr.points[pr.points.length-1],lwk=Math.floor((last.epoch-mE)/WEEK),prc=ratingColor(last.rating);const em=effortMap.find(e=>e.endRating===last.rating);const label=em?'週'+em.weeklyDiff+' → '+last.rating:''+last.rating;s+='<text x="'+(Xw(lwk)+4).toFixed(1)+'" y="'+(YR(last.rating)+3).toFixed(1)+'" fill="'+prc+'" font-size="6" font-family="monospace">'+label+'</text>';});
+	// Projections (effort→outcome) with end labels
+	proj.forEach(pr=>{const col=projColorMap[pr.scenario]||'#555';if(!frh.length||!pr.points.length)return;const lastR=frh[frh.length-1];let polyPts=Xw(nowWk).toFixed(1)+','+YR(lastR.new_rating).toFixed(1);pr.points.forEach(p=>{const wk=Math.floor((p.epoch-mE)/WEEK);polyPts+=' '+Xw(wk).toFixed(1)+','+YR(p.rating).toFixed(1);});s+='<polyline points="'+polyPts+'" fill="none" stroke="'+col+'" stroke-width="1" stroke-dasharray="4,3" opacity="0.7"/>';const last=pr.points[pr.points.length-1],lwk=Math.floor((last.epoch-mE)/WEEK),prc=ratingColor(last.rating);const em=effortMap.find(e=>e.endRating===last.rating);const label=em?'週'+em.weeklyDiff+' → '+last.rating:''+last.rating;s+='<text x="'+(Xw(lwk)+4).toFixed(1)+'" y="'+(YR(last.rating)+3).toFixed(1)+'" fill="'+prc+'" font-size="6" font-family="monospace">'+label+'</text>';});
 
 	// X labels (concrete dates)
 	function fmtDate(ep){const d=new Date(ep*1000);return(d.getMonth()+1)+'/'+d.getDate();}
@@ -423,12 +410,12 @@ function renderPeerTable(d) {
 function renderStreakCalendar(d) {
 	const cal=d.streak_calendar||[], h=d.hud||{};
 	const now=new Date(),ts=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
-	let g='';cal.forEach(c=>{let cls='streak-cell ';if(c.ac_count===0)cls+='streak-none';else if(c.max_difficulty>=1200)cls+='streak-cyan';else if(c.max_difficulty>=800)cls+='streak-green';else cls+='streak-amber';if(c.date===ts)cls+=' streak-today';g+='<div class="'+cls+'"></div>';});
+	let g='';cal.forEach(c=>{if(c.ac_count===0){g+='<div class="streak-cell streak-none'+(c.date===ts?' streak-today':'')+'"></div>';}else{const sc=ratingColor(c.max_difficulty);g+='<div class="streak-cell'+(c.date===ts?' streak-today':'')+'" style="background:'+sc+';opacity:0.9"></div>';}});
 	for(let i=cal.length;i<28;i++)g+='<div class="streak-cell streak-none" style="opacity:.15"></div>';
 	return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><span style="font-size:var(--fs-sm);color:var(--dim)">最長 '+(h.max_streak||0)+'日</span><span class="badge badge-amber">🔥 '+(h.streak_days||0)+'日</span></div>'
 		+'<div style="font-size:var(--fs-2xs);color:var(--muted);display:grid;grid-template-columns:repeat(7,1fr);text-align:center;margin-bottom:2px"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>'
 		+'<div class="streak-grid">'+g+'</div>'
-		+'<div style="display:flex;gap:4px;margin:3px 0;font-size:var(--fs-2xs);color:var(--muted)"><span>● なし</span><span style="color:var(--amber)">● 400〜</span><span style="color:var(--green)">● 800〜</span><span style="color:var(--cyan)">● 1200〜</span></div>'
+		+'<div style="display:flex;gap:4px;margin:3px 0;font-size:var(--fs-2xs);color:var(--muted)"><span>● なし</span><span style="color:#808080">● 灰</span><span style="color:#804000">● 茶</span><span style="color:#008000">● 緑</span><span style="color:#00c0c0">● 水</span></div>'
 		+'<div style="background:#060800;border:0.5px solid #5a4000;padding:4px 6px;box-shadow:inset 2px 0 0 var(--amber)"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:var(--fs-2xs);color:#5a4000">🌅 今日の初回提出</div><div style="font-size:var(--fs-lg);font-weight:500;color:#ffcc00;line-height:1.1">'+(h.first_ac_today||'--:--')+'</div></div><div style="text-align:right"><div style="font-size:var(--fs-2xs);color:#3a2a00">avg '+(h.avg_first_ac||'--:--')+'</div></div></div></div>';
 }
 function renderQualityBar(d) {

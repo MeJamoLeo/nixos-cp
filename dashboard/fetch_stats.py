@@ -530,8 +530,11 @@ def build_wa_queue(
     difficulties: dict[str, Any],
     problems_list: list[dict],
     tag_overrides: dict[str, str],
+    current_rating: int = 0,
 ) -> list[dict]:
     problems_map = {p["id"]: p for p in problems_list}
+    # 実力から離れすぎた問題を除外: 現レート+400が上限
+    diff_cap = current_rating + 400 if current_rating > 0 else 9999
 
     by_problem: dict[str, list[dict]] = {}
     for s in submissions:
@@ -545,6 +548,8 @@ def build_wa_queue(
             diff = difficulties.get(pid, {}).get("difficulty") or 0
             if diff < 0:
                 diff = 0
+            if diff > diff_cap:
+                continue
             cid = problems_map.get(pid, {}).get("contest_id", "")
             tag = tag_overrides.get(pid, _guess_tag(pid, cid, diff))
             last_wa = max(
@@ -604,60 +609,70 @@ def build_difficulty_log(
             week_sums.values(), key=lambda x: x["epoch"],
         )
 
-    # Rating-based projections from recent contest trend
+    # RPS-based projection model (r=0.73, discounted 50%)
+    # Population benchmark: +1 rating per 100 RPS → 0.01
+    # Conservative discount: × 0.5 → efficiency = 0.005
+    RPS_EFFICIENCY = 0.005
+
+    # Average weekly diff from recent weeks
+    avg_weekly_diff = 0
+    if weekly_diff_sums:
+        recent_weeks = weekly_diff_sums[-10:]
+        avg_weekly_diff = round(
+            sum(w["sum"] for w in recent_weeks) / len(recent_weeks)
+        )
+
+    # Try personal efficiency from own data
+    if len(ratings) >= 5 and recent_points:
+        total_diff = sum(p["difficulty"] for p in recent_points)
+        first_r = ratings[0]["NewRating"]
+        last_r = ratings[-1]["NewRating"]
+        rating_gain = last_r - first_r
+        if total_diff > 0 and rating_gain > 0:
+            personal_eff = rating_gain / total_diff
+            RPS_EFFICIENCY = personal_eff
+
+    # Effort-based projections
     projections: list[dict] = []
-    if len(ratings) >= 3:
-        recent_r = ratings[-5:]
-        first_r, last_r = recent_r[0], recent_r[-1]
-        first_ep = first_r.get("EndTime", 0)
-        last_ep = last_r.get("EndTime", 0)
-        if isinstance(first_ep, str):
-            try:
-                first_ep = int(
-                    datetime.fromisoformat(first_ep).timestamp()
-                )
-            except ValueError:
-                first_ep = 0
+    cur_epoch = now
+    if ratings:
+        last_ep = ratings[-1].get("EndTime", 0)
         if isinstance(last_ep, str):
             try:
                 last_ep = int(
                     datetime.fromisoformat(last_ep).timestamp()
                 )
             except ValueError:
-                last_ep = 0
-        days_span = (last_ep - first_ep) / 86400
-        if days_span > 0:
-            rate_per_day = (
-                last_r["NewRating"] - first_r["NewRating"]
-            ) / days_span
-            cur_epoch = last_ep
-            cur_r = last_r["NewRating"]
+                last_ep = int(now)
+        cur_epoch = last_ep
 
-            for scenario, multiplier in [
-                ("optimistic", 1.5),
-                ("maintain", 1.0),
-                ("pessimistic", 0.3),
-            ]:
-                proj_points = []
-                for week in range(1, 14):
-                    future_epoch = cur_epoch + week * 7 * 86400
-                    future_r = (
-                        cur_r + rate_per_day * week * 7 * multiplier
-                    )
-                    future_r = max(0, min(2800, future_r))
-                    proj_points.append({
-                        "epoch": round(future_epoch),
-                        "rating": round(future_r),
-                    })
-                projections.append({
-                    "scenario": scenario,
-                    "points": proj_points,
-                })
+    for scenario, multiplier in [
+        ("optimistic", 1.5),
+        ("maintain", 1.0),
+        ("pessimistic", 0.3),
+    ]:
+        weekly_diff = round(avg_weekly_diff * multiplier)
+        proj_points = []
+        for week in range(1, 14):
+            future_epoch = cur_epoch + week * 7 * 86400
+            gain = weekly_diff * week * RPS_EFFICIENCY
+            future_r = max(0, min(2800, current_rating + gain))
+            proj_points.append({
+                "epoch": round(future_epoch),
+                "rating": round(future_r),
+            })
+        projections.append({
+            "scenario": scenario,
+            "weekly_diff": weekly_diff,
+            "points": proj_points,
+        })
 
     return {
         "points": recent_points,
         "weekly_diff_sums": weekly_diff_sums,
         "current_rating": current_rating,
+        "avg_weekly_diff": avg_weekly_diff,
+        "rps_efficiency": round(RPS_EFFICIENCY, 5),
         "projections": projections,
     }
 
@@ -1059,7 +1074,10 @@ def main() -> None:
             submissions, ratings, difficulties, streak_days, max_streak
         ),
         "wa_queue": (
-            build_wa_queue(submissions, difficulties, problems_list, tag_overrides)
+            build_wa_queue(
+                submissions, difficulties, problems_list, tag_overrides,
+                current_rating=ratings[-1]["NewRating"] if ratings else 0,
+            )
             if has_submissions
             else []
         ),

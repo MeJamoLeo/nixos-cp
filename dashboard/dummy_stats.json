@@ -464,176 +464,181 @@
     "projections": [
       {
         "scenario": "optimistic",
+        "weekly_diff": 3750,
         "points": [
           {
             "epoch": 1776747600,
-            "rating": 454
+            "rating": 457
           },
           {
             "epoch": 1777352400,
-            "rating": 470
+            "rating": 476
           },
           {
             "epoch": 1777957200,
-            "rating": 485
+            "rating": 494
           },
           {
             "epoch": 1778562000,
-            "rating": 501
+            "rating": 513
           },
           {
             "epoch": 1779166800,
-            "rating": 517
-          },
-          {
-            "epoch": 1779771600,
             "rating": 532
           },
           {
+            "epoch": 1779771600,
+            "rating": 550
+          },
+          {
             "epoch": 1780376400,
-            "rating": 548
+            "rating": 569
           },
           {
             "epoch": 1780981200,
-            "rating": 564
+            "rating": 588
           },
           {
             "epoch": 1781586000,
-            "rating": 580
+            "rating": 607
           },
           {
             "epoch": 1782190800,
-            "rating": 596
+            "rating": 626
           },
           {
             "epoch": 1782795600,
-            "rating": 611
+            "rating": 644
           },
           {
             "epoch": 1783400400,
-            "rating": 627
+            "rating": 663
           },
           {
             "epoch": 1784005200,
-            "rating": 643
+            "rating": 682
           }
         ]
       },
       {
         "scenario": "maintain",
+        "weekly_diff": 2500,
         "points": [
           {
             "epoch": 1776747600,
-            "rating": 448
+            "rating": 450
           },
           {
             "epoch": 1777352400,
-            "rating": 459
+            "rating": 463
           },
           {
             "epoch": 1777957200,
-            "rating": 470
+            "rating": 476
           },
           {
             "epoch": 1778562000,
-            "rating": 480
+            "rating": 488
           },
           {
             "epoch": 1779166800,
-            "rating": 490
+            "rating": 500
           },
           {
             "epoch": 1779771600,
-            "rating": 501
+            "rating": 513
           },
           {
             "epoch": 1780376400,
-            "rating": 512
+            "rating": 526
           },
           {
             "epoch": 1780981200,
-            "rating": 522
+            "rating": 538
           },
           {
             "epoch": 1781586000,
-            "rating": 532
+            "rating": 550
           },
           {
             "epoch": 1782190800,
-            "rating": 543
+            "rating": 563
           },
           {
             "epoch": 1782795600,
-            "rating": 554
+            "rating": 576
           },
           {
             "epoch": 1783400400,
-            "rating": 564
+            "rating": 588
           },
           {
             "epoch": 1784005200,
-            "rating": 574
+            "rating": 600
           }
         ]
       },
       {
         "scenario": "pessimistic",
+        "weekly_diff": 750,
         "points": [
           {
             "epoch": 1776747600,
-            "rating": 441
+            "rating": 442
           },
           {
             "epoch": 1777352400,
-            "rating": 444
+            "rating": 446
           },
           {
             "epoch": 1777957200,
-            "rating": 447
+            "rating": 449
           },
           {
             "epoch": 1778562000,
-            "rating": 451
+            "rating": 453
           },
           {
             "epoch": 1779166800,
-            "rating": 454
-          },
-          {
-            "epoch": 1779771600,
             "rating": 457
           },
           {
-            "epoch": 1780376400,
+            "epoch": 1779771600,
             "rating": 460
           },
           {
+            "epoch": 1780376400,
+            "rating": 464
+          },
+          {
             "epoch": 1780981200,
-            "rating": 463
+            "rating": 468
           },
           {
             "epoch": 1781586000,
-            "rating": 466
+            "rating": 472
           },
           {
             "epoch": 1782190800,
-            "rating": 470
-          },
-          {
-            "epoch": 1782795600,
-            "rating": 473
-          },
-          {
-            "epoch": 1783400400,
             "rating": 476
           },
           {
-            "epoch": 1784005200,
+            "epoch": 1782795600,
             "rating": 479
+          },
+          {
+            "epoch": 1783400400,
+            "rating": 483
+          },
+          {
+            "epoch": 1784005200,
+            "rating": 487
           }
         ]
       }
-    ]
+    ],
+    "avg_weekly_diff": 2500,
+    "rps_efficiency": 0.005
   },
   "tag_ac_rate": [
     {
