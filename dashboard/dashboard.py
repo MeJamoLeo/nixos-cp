@@ -2,7 +2,10 @@
 """CP Dashboard — GTK4 + WebKit6 + gtk4-layer-shell renderer for Sway BACKGROUND layer."""
 
 import os
-import sys
+from ctypes import CDLL
+
+# gtk4-layer-shell must be pre-loaded before GI import
+CDLL('libgtk4-layer-shell.so')
 
 import gi
 gi.require_version('Gtk', '4.0')
@@ -124,7 +127,7 @@ def _refresh(webview: WebKit.WebView) -> bool:
 
 
 def on_activate(app: Gtk.Application) -> None:
-    win = Gtk.ApplicationWindow(application=app)
+    win = Gtk.Window(application=app)
     win.set_title("dashboard")
 
     Gtk4LayerShell.init_for_window(win)
@@ -144,9 +147,9 @@ def on_activate(app: Gtk.Application) -> None:
     webview.load_uri(f'file://{DASHBOARD_HTML}')
 
     # GTK4: set_background_color → WebView背景はCSS側で制御
-    webview.set_background_color(
-        Gdk.RGBA(red=0.008, green=0.016, blue=0.016, alpha=1.0)
-    )
+    bg = Gdk.RGBA()
+    bg.red, bg.green, bg.blue, bg.alpha = 0.008, 0.016, 0.016, 1.0
+    webview.set_background_color(bg)
 
     webview.connect('load-changed', _on_load_changed)
     GLib.timeout_add_seconds(1800, _refresh, webview)
