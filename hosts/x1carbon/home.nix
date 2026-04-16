@@ -39,9 +39,6 @@
 		};
 	};
 
-	# fcitx5: mozc pre-configured (no manual setup needed)
-	home.file.".config/fcitx5/profile".source = ../../dotfiles/fcitx5/profile;
-
 	programs.home-manager.enable = true;
 
 	home.stateVersion = "24.11";
