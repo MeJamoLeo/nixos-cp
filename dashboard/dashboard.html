@@ -436,42 +436,54 @@ function renderSkillGraph(d) {
 		return null; // parentがbase(tier 0)の場合
 	}
 
-	// Tier 2: tier-1祖先またはcenterの角度の近くに配置
-	const t2 = tierGroups[2] || [];
-	// tier-1祖先ごとにグループ化（parentがbaseのものも含む）
-	const t2ByAncestor = {};
-	t2.forEach(n => {
-		const anc = findT1Ancestor(n) || n.parent;
-		(t2ByAncestor[anc] = t2ByAncestor[anc] || []).push(n);
-	});
-	// 各tier-1ノードの角度セクター幅
-	const sectorWidth = (Math.PI * 2) / Math.max(t1.length, Object.keys(t2ByAncestor).length);
-	const t2Angles = {};
-	Object.keys(t2ByAncestor).forEach(ancId => {
-		const grp = t2ByAncestor[ancId];
-		const baseAngle = t1Angles[ancId] !== undefined ? t1Angles[ancId] : 0;
-		const spread = sectorWidth * 0.8;
-		grp.forEach((n, i) => {
-			const offset = grp.length === 1 ? 0 : (i / (grp.length - 1) - 0.5) * spread;
-			const angle = baseAngle + offset;
-			t2Angles[n.id] = angle;
-			pos[n.id] = {x: cx + Math.cos(angle) * radii[2], y: cy + Math.sin(angle) * radii[2]};
-		});
+	// 依存の深さ（parentチェーンの長さ）で半径を決める
+	// ティア=色ゾーンとは別に、依存が深いノードほど外側
+	function getDepth(n) {
+		let d = 0, cur = n;
+		while (cur.parent && byId[cur.parent]) { d++; cur = byId[cur.parent]; }
+		return d;
+	}
+	const maxDepth = Math.max(...nodes.map(getDepth));
+	const depthRadii = [];
+	for (let i = 0; i <= maxDepth; i++) {
+		depthRadii[i] = 30 + i * (260 / maxDepth);
+	}
+
+	// BFS順で配置: 親の角度の近くに子を配置
+	const sectorWidth = (Math.PI * 2) / Math.max(t1.length, 1);
+	const nodeAngles = {};
+
+	// Tier 1
+	t1.forEach((n, i) => {
+		const angle = (i / t1.length) * Math.PI * 2 - Math.PI/2;
+		nodeAngles[n.id] = angle;
+		const r = depthRadii[getDepth(n)];
+		pos[n.id] = {x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r};
 	});
 
-	// Tier 3: tier-2の親の角度の近くに配置
-	const t3 = tierGroups[3] || [];
-	const t3ByParent = {};
-	t3.forEach(n => { (t3ByParent[n.parent] = t3ByParent[n.parent] || []).push(n); });
-	Object.keys(t3ByParent).forEach(pid => {
-		const grp = t3ByParent[pid];
-		const baseAngle = t2Angles[pid] !== undefined ? t2Angles[pid] : 0;
-		const spread = sectorWidth * 0.5;
-		grp.forEach((n, i) => {
-			const offset = grp.length === 1 ? 0 : (i / (grp.length - 1) - 0.5) * spread;
-			const angle = baseAngle + offset;
-			pos[n.id] = {x: cx + Math.cos(angle) * radii[3], y: cy + Math.sin(angle) * radii[3]};
-		});
+	// 残りのノードを深さ順に配置
+	const remaining = nodes.filter(n => n.tier > 0 && !pos[n.id]);
+	// 深さでソート（浅い方から）
+	remaining.sort((a, b) => getDepth(a) - getDepth(b));
+
+	remaining.forEach(n => {
+		if (pos[n.id]) return;
+		const parentPos = pos[n.parent];
+		if (!parentPos) return;
+		const parentAngle = nodeAngles[n.parent] !== undefined ? nodeAngles[n.parent] : Math.atan2(parentPos.y - cy, parentPos.x - cx);
+		// 同じ親を持つ兄弟を数える
+		const siblings = remaining.filter(s => s.parent === n.parent && !pos[s.id]);
+		const sibIdx = siblings.indexOf(n);
+		const sibCount = nodes.filter(s => s.parent === n.parent).length;
+		// 全兄弟の中での位置を求める
+		const allSibs = nodes.filter(s => s.parent === n.parent);
+		const myIdx = allSibs.indexOf(n);
+		const spread = sectorWidth * 0.7;
+		const offset = sibCount === 1 ? 0 : (myIdx / (sibCount - 1) - 0.5) * spread;
+		const angle = parentAngle + offset;
+		const r = depthRadii[getDepth(n)];
+		nodeAngles[n.id] = angle;
+		pos[n.id] = {x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r};
 	});
 
 	const tierColor = {};
@@ -518,9 +530,21 @@ function renderSkillGraph(d) {
 	nodes.forEach(n => {
 		if (!n.parent || !pos[n.id] || !pos[n.parent]) return;
 		const p1 = pos[n.parent], p2 = pos[n.id];
+		const parentNode = byId[n.parent];
 		const prog = n.progress ? n.progress[0] / n.progress[1] : 0;
 		const opacity = prog > 0 ? 0.4 + prog * 0.6 : 0.1;
-		s += '<line x1="'+p1.x.toFixed(1)+'" y1="'+p1.y.toFixed(1)+'" x2="'+p2.x.toFixed(1)+'" y2="'+p2.y.toFixed(1)+'" stroke="'+nodeStroke+'" stroke-width="0.8" opacity="'+opacity.toFixed(2)+'"/>';
+		const sameTier = parentNode && parentNode.tier === n.tier;
+		if (sameTier) {
+			// 同ティア間: 中心に向かってカーブさせる
+			const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
+			const dx = mx - cx, dy = my - cy;
+			const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+			const pull = 30; // 中心方向への引き込み量
+			const cpx = mx - dx/dist * pull, cpy = my - dy/dist * pull;
+			s += '<path d="M'+p1.x.toFixed(1)+','+p1.y.toFixed(1)+' Q'+cpx.toFixed(1)+','+cpy.toFixed(1)+' '+p2.x.toFixed(1)+','+p2.y.toFixed(1)+'" fill="none" stroke="'+nodeStroke+'" stroke-width="0.6" stroke-dasharray="3,2" opacity="'+opacity.toFixed(2)+'"/>';
+		} else {
+			s += '<line x1="'+p1.x.toFixed(1)+'" y1="'+p1.y.toFixed(1)+'" x2="'+p2.x.toFixed(1)+'" y2="'+p2.y.toFixed(1)+'" stroke="'+nodeStroke+'" stroke-width="0.8" opacity="'+opacity.toFixed(2)+'"/>';
+		}
 	});
 
 	// Nodes
