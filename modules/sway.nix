@@ -98,6 +98,11 @@
 				childBorder = "#6d28d9";
 			};
 
+			window.commands = [
+				{ criteria = { app_id = "firefox"; }; command = "opacity 0.85"; }
+				{ criteria = { app_id = "kitty"; }; command = "opacity 0.85"; }
+			];
+
 			startup = [
 				{ command = "sleep 3 && nix-shell /home/treo/nixos-cp/dashboard/shell.nix --keep WAYLAND_DISPLAY --keep XDG_RUNTIME_DIR --run 'python3 /home/treo/nixos-cp/dashboard/dashboard.py'"; }
 			];
