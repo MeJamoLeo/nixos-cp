@@ -75,25 +75,36 @@ def _fetch_user(username: str) -> None:
 
 
 def _prefetch_all() -> None:
-    """Fetch primary user first, then others in background."""
+    """Load cached data immediately, then refresh all in background."""
     global _current_user
     if not _watchlist:
         return
     _current_user = _watchlist[0]
 
-    # Primary user: blocking fetch (need it for initial display)
-    primary = _watchlist[0]
-    path = _stats_path(primary)
-    # Use cached if fresh enough (< 5 min)
-    if os.path.exists(path):
-        try:
-            with open(path) as f:
-                _user_data[primary] = f.read()
-            print(f'[dashboard] loaded cached {primary}')
-        except OSError:
-            pass
+    # Load ALL cached data immediately (for instant display + switch)
+    for user in _watchlist:
+        path = _stats_path(user)
+        if os.path.exists(path):
+            try:
+                with open(path) as f:
+                    _user_data[user] = f.read()
+                print(f'[dashboard] loaded cached {user}')
+            except OSError:
+                pass
 
-    # Fetch all users in background threads
+    # Also check old stats.json as fallback for primary user
+    primary = _watchlist[0]
+    if primary not in _user_data:
+        old_path = os.path.join(CACHE_DIR, 'stats.json')
+        if os.path.exists(old_path):
+            try:
+                with open(old_path) as f:
+                    _user_data[primary] = f.read()
+                print(f'[dashboard] loaded fallback stats.json for {primary}')
+            except OSError:
+                pass
+
+    # Refresh all users in background threads
     for user in _watchlist:
         t = threading.Thread(target=_fetch_user, args=(user,), daemon=True)
         t.start()
