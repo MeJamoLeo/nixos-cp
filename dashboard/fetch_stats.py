@@ -549,6 +549,9 @@ def build_wa_queue(
     for s in submissions:
         by_problem.setdefault(s.get("problem_id", ""), []).append(s)
 
+    # 1年以上前のWAは復習対象外
+    one_year_ago = time.time() - 365 * 86400
+
     queue: list[dict] = []
     for pid, subs in by_problem.items():
         has_ac = any(s.get("result") == "AC" for s in subs)
@@ -565,6 +568,8 @@ def build_wa_queue(
                 (s["epoch_second"] for s in subs if s.get("result") == "WA"),
                 default=0,
             )
+            if last_wa < one_year_ago:
+                continue
             queue.append({
                 "problem_id": pid,
                 "wa_count": wa_count,
