@@ -82,8 +82,8 @@ def main() -> None:
     settings = webview.get_settings()
     settings.set_property('hardware-acceleration-policy',
                           WebKit2.HardwareAccelerationPolicy.NEVER)
-    settings.set_property('default-font-size', 40)
-    settings.set_property('default-monospace-font-size', 32)
+    settings.set_property('default-font-size', 80)
+    settings.set_property('default-monospace-font-size', 64)
     webview.set_settings(settings)
     webview.load_uri(f'file://{DASHBOARD_HTML}')
     webview.set_background_color(
