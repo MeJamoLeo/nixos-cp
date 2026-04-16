@@ -30,6 +30,7 @@
     wofi
     brightnessctl
     pulseaudio
+    online-judge-tools
   ];
 
   # SSH
