@@ -334,10 +334,10 @@ function renderDifficultyLog(d) {
 	const maxR=bandThresholds[targetIdx];
 	const YR=v=>yB-(v/maxR)*(yB-yT);
 
-	// Diff sum Y (bars use full height)
+	// Diff sum Y (bars capped at 40% chart height)
 	const diffVals=Object.values(weekDiff);
 	const maxSum=diffVals.length?Math.max(...diffVals):1;
-	const YS=v=>yB-(v/maxSum)*(yB-yT);
+	const YS=v=>yB-(v/maxSum)*(yB-yT)*0.4;
 
 	// Now week
 	const nowEpoch=frh.length?frh[frh.length-1].epoch:(pts.length?pts[pts.length-1].epoch:mE);
