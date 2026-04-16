@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""CP Dashboard — WebKit2GTK renderer for Sway BACKGROUND layer."""
+"""CP Dashboard — GTK4 + WebKit6 + gtk4-layer-shell renderer for Sway BACKGROUND layer."""
 
-import json
 import os
+import sys
 
 import gi
-gi.require_version('Gtk', '3.0')
-gi.require_version('WebKit2', '4.1')
-gi.require_version('GtkLayerShell', '0.1')
-from gi.repository import Gtk, Gdk, GLib, WebKit2, GtkLayerShell
+gi.require_version('Gtk', '4.0')
+gi.require_version('WebKit', '6.0')
+gi.require_version('Gtk4LayerShell', '1.0')
+from gi.repository import Gtk, Gdk, GLib, WebKit, Gtk4LayerShell
 
 DASHBOARD_DIR = os.path.dirname(os.path.abspath(__file__))
 DASHBOARD_HTML = os.path.join(DASHBOARD_DIR, 'dashboard.html')
@@ -24,18 +24,12 @@ def _resolve_stats_path() -> str | None:
     return None
 
 
-def _inject(webview: WebKit2.WebView) -> None:
+def _inject(webview: WebKit.WebView) -> None:
     """Inject viewport size + stats data, then call hydrate()."""
-    # ウィンドウの実際のサイズを取得してJSに渡す
-    alloc = webview.get_allocation()
-    w, h = alloc.width, alloc.height
+    w = webview.get_width()
+    h = webview.get_height()
+    print(f'[dashboard] webview size: {w}x{h}')
 
-    # get_allocation()はGDK論理ピクセルを返す。
-    # HiDPI scale 2の場合、CSSピクセルと一致するか確認。
-    # WebKit2GTKのCSSピクセルはGDK論理ピクセルと同じはず。
-    # ただし#rootに固定px指定するとbody(100%)より小さくなる場合がある。
-    # bodyは100%で全体を占めるので、rootもwidth/heightを100%にする方が安全。
-    print(f'[dashboard] allocation: {w}x{h}')
     parts = [f'window.__VP = {{w:{w}, h:{h}}};']
 
     path = _resolve_stats_path()
@@ -46,27 +40,13 @@ def _inject(webview: WebKit2.WebView) -> None:
         except OSError:
             pass
 
-    # layer-shellのviewportバグ回避:
-    # WebKit2GTKがgeometry hints(-1)を負の値として解釈するため
-    # CSS全体の寸法が負になる。get_allocation()の正しい値を
-    # html/bodyに直接px指定して強制上書きする。
-    # さらに全てのCSS変数をabsolute pxに変換し、
-    # フォントサイズも直接style属性で強制する。
-    parts.append(
-        f"document.documentElement.style.cssText="
-        f"'width:{w}px !important;height:{h}px !important;"
-        f"overflow:hidden;font-size:80px !important;';"
-        f"document.body.style.cssText="
-        f"'width:{w}px !important;height:{h}px !important;"
-        f"margin:0;padding:0;overflow:hidden;font-size:80px !important;';"
-    )
     parts.append('hydrate();')
     js = 'try {' + ''.join(parts) + '} catch(e) {}'
-    webview.run_javascript(js, None, None, None)
+    webview.evaluate_javascript(js, -1, None, None, None, None, None)
 
 
-def _debug_check(webview: WebKit2.WebView) -> bool:
-    """複数のデバッグ情報を取得してファイルに書き出す"""
+def _debug_check(webview: WebKit.WebView) -> bool:
+    """デバッグ情報を取得してファイルに書き出す"""
     debug_js = """
     (function() {
         var info = {};
@@ -107,102 +87,63 @@ def _debug_check(webview: WebKit2.WebView) -> bool:
             info.labelOffsetH = label.offsetHeight;
         }
 
-        // CSS変数の実際の値
         var root = getComputedStyle(document.documentElement);
         info.varFs3xl = root.getPropertyValue('--fs-3xl');
         info.varFsSm = root.getPropertyValue('--fs-sm');
         info.varFsLg = root.getPropertyValue('--fs-lg');
 
-        // 結果をファイルに書くためtitleに入れる
-        var out = JSON.stringify(info, null, 2);
-        document.title = 'DEBUG_DONE';
-
-        // DOM要素として書き出す（titleが取れない場合の保険）
-        var pre = document.createElement('pre');
-        pre.id = 'debug-output';
-        pre.style.cssText = 'position:fixed;bottom:0;left:0;background:red;color:white;font-size:20px;z-index:9999;padding:10px;max-height:50%;overflow:auto;';
-        pre.textContent = out;
-        document.body.appendChild(pre);
-
-        return out;
+        return JSON.stringify(info, null, 2);
     })();
     """
-    def _on_debug(wv, result, _ud):
+    def _on_debug(wv, result, _ud=None):
         try:
-            r = wv.run_javascript_finish(result)
-            val = r.get_js_value()
-            text = val.to_string() if val else 'null'
+            js_val = wv.evaluate_javascript_finish(result)
+            text = js_val.to_string() if js_val else 'null'
             print(f'[DEBUG] {text}')
-            # ファイルにも書き出す
             with open('/tmp/debug_info.json', 'w') as f:
                 f.write(text)
         except Exception as e:
             print(f'[DEBUG ERROR] {e}')
 
-    webview.run_javascript(debug_js, None, _on_debug, None)
+    webview.evaluate_javascript(debug_js, -1, None, None, None, _on_debug, None)
     return False
 
 
 def _on_load_changed(
-    webview: WebKit2.WebView,
-    event: WebKit2.LoadEvent,
+    webview: WebKit.WebView,
+    event: WebKit.LoadEvent,
 ) -> None:
-    if event == WebKit2.LoadEvent.FINISHED:
-        # 少し待ってからinject（ウィンドウサイズ確定後）
+    if event == WebKit.LoadEvent.FINISHED:
         GLib.timeout_add(200, lambda: _inject(webview) or False)
         GLib.timeout_add(5000, lambda: _debug_check(webview) or False)
 
 
-def _refresh(webview: WebKit2.WebView) -> bool:
+def _refresh(webview: WebKit.WebView) -> bool:
     _inject(webview)
     return True
 
 
-def _get_monitor_size() -> tuple[int, int]:
-    """Get primary monitor size in logical pixels."""
-    display = Gdk.Display.get_default()
-    if display:
-        monitor = display.get_primary_monitor() or display.get_monitor(0)
-        if monitor:
-            geom = monitor.get_geometry()
-            return geom.width, geom.height
-    # fallback: X1 Carbon Nano at scale 1
-    return 2160, 1350
-
-
-def main() -> None:
-    win = Gtk.Window()
+def on_activate(app: Gtk.Application) -> None:
+    win = Gtk.ApplicationWindow(application=app)
     win.set_title("dashboard")
 
-    GtkLayerShell.init_for_window(win)
-    GtkLayerShell.set_layer(win, GtkLayerShell.Layer.BACKGROUND)
-    GtkLayerShell.set_anchor(win, GtkLayerShell.Edge.TOP,    True)
-    GtkLayerShell.set_anchor(win, GtkLayerShell.Edge.BOTTOM, True)
-    GtkLayerShell.set_anchor(win, GtkLayerShell.Edge.LEFT,   True)
-    GtkLayerShell.set_anchor(win, GtkLayerShell.Edge.RIGHT,  True)
-    GtkLayerShell.set_exclusive_zone(win, -1)
+    Gtk4LayerShell.init_for_window(win)
+    Gtk4LayerShell.set_layer(win, Gtk4LayerShell.Layer.BACKGROUND)
+    Gtk4LayerShell.set_anchor(win, Gtk4LayerShell.Edge.TOP,    True)
+    Gtk4LayerShell.set_anchor(win, Gtk4LayerShell.Edge.BOTTOM, True)
+    Gtk4LayerShell.set_anchor(win, Gtk4LayerShell.Edge.LEFT,   True)
+    Gtk4LayerShell.set_anchor(win, Gtk4LayerShell.Edge.RIGHT,  True)
+    Gtk4LayerShell.set_exclusive_zone(win, -1)
 
-    # GtkFixed wrapper: layer-shellのgeometry hints(-1)が
-    # WebKit2GTKの内部viewport計算を壊す問題を回避。
-    # WebViewを直接windowに入れず、Fixedコンテナ経由で
-    # 明示的なサイズを渡すことで正のviewportを維持する。
-    mon_w, mon_h = _get_monitor_size()
-    print(f'[dashboard] monitor size: {mon_w}x{mon_h}')
-
-    fixed = Gtk.Fixed()
-    win.add(fixed)
-
-    webview = WebKit2.WebView()
-    webview.set_size_request(mon_w, mon_h)
+    webview = WebKit.WebView()
 
     settings = webview.get_settings()
     settings.set_property('hardware-acceleration-policy',
-                          WebKit2.HardwareAccelerationPolicy.NEVER)
-    settings.set_property('default-font-size', 80)
-    settings.set_property('default-monospace-font-size', 64)
-    settings.set_property('enable-smooth-scrolling', False)
+                          WebKit.HardwareAccelerationPolicy.NEVER)
     webview.set_settings(settings)
     webview.load_uri(f'file://{DASHBOARD_HTML}')
+
+    # GTK4: set_background_color → WebView背景はCSS側で制御
     webview.set_background_color(
         Gdk.RGBA(red=0.008, green=0.016, blue=0.016, alpha=1.0)
     )
@@ -210,10 +151,14 @@ def main() -> None:
     webview.connect('load-changed', _on_load_changed)
     GLib.timeout_add_seconds(1800, _refresh, webview)
 
-    fixed.put(webview, 0, 0)
-    win.connect('destroy', Gtk.main_quit)
-    win.show_all()
-    Gtk.main()
+    win.set_child(webview)
+    win.present()
+
+
+def main() -> None:
+    app = Gtk.Application(application_id='com.treo.cpdashboard')
+    app.connect('activate', on_activate)
+    app.run(None)
 
 
 if __name__ == '__main__':

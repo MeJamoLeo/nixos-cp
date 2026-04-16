@@ -6,9 +6,9 @@ pkgs.mkShell {
       pygobject3
       pycairo
     ]))
-    gtk3
-    webkitgtk_4_1
-    gtk-layer-shell
+    gtk4
+    webkitgtk_6_0
+    gtk4-layer-shell
     gobject-introspection
   ];
 }
