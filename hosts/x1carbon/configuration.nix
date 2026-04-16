@@ -7,12 +7,6 @@
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.kernelModules = [ "thinkpad_acpi" ];
-
-  # ThinkPad: F1-F12をデフォルトに（メディアキーはFn+F1で）
-  services.udev.extraRules = ''
-    ACTION=="add", SUBSYSTEM=="hid", DRIVER=="thinkpad-kbd", ATTR{fn_lock}="1"
-  '';
 
   networking.hostName = "x1carbon";
   networking.networkmanager.enable = true;
