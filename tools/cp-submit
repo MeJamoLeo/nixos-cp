@@ -1,0 +1,143 @@
+#!/usr/bin/env bash
+# cp-submit — submit to AtCoder, get result, write insight
+# Usage: cp-submit <solution_file> [problem_url]
+set -euo pipefail
+
+CP_DIR="$HOME/cp"
+INSIGHTS_DIR="$CP_DIR/insights"
+mkdir -p "$INSIGHTS_DIR"
+
+# --- Tags (from skill tree nodes) ---
+TAGS=(
+    "全探索"
+    "ソート"
+    "貪欲法"
+    "文字列"
+    "Map/Set"
+    "GCD/LCM"
+    "実装力"
+    "累積和"
+    "二分探索"
+    "基礎DP"
+    "BFS/DFS"
+    "尺取り法"
+    "ビット演算"
+    "素数/約数"
+    "計算量"
+    "Union-Find"
+    "優先度Queue"
+    "最短路"
+    "セグ木/BIT"
+    "bitDP"
+    "MST"
+    "座標圧縮"
+    "mod逆元"
+    "imos法"
+    "桁DP"
+    "木DP"
+    "LCA"
+    "強連結成分"
+    "遅延セグ木"
+    "文字列Hash"
+    "わからない"
+)
+
+# --- Args ---
+SOLUTION="${1:?Usage: cp-submit <solution_file> [problem_url]}"
+
+if [[ ! -f "$SOLUTION" ]]; then
+    echo "Error: $SOLUTION not found" >&2
+    exit 1
+fi
+
+# Auto-detect problem URL from current directory or arg
+if [[ -n "${2:-}" ]]; then
+    PROBLEM_URL="$2"
+else
+    # Try to find URL from oj download history
+    if [[ -f ".problem_url" ]]; then
+        PROBLEM_URL=$(cat .problem_url)
+    else
+        echo -n "Problem URL: "
+        read -r PROBLEM_URL
+    fi
+fi
+
+# Extract problem ID from URL (e.g., abc453_d from .../tasks/abc453_d)
+PROBLEM_ID=$(echo "$PROBLEM_URL" | grep -oP '[^/]+$')
+CONTEST_ID=$(echo "$PROBLEM_URL" | grep -oP 'contests/\K[^/]+')
+
+# Detect language
+case "$SOLUTION" in
+    *.py)  LANG_NAME="Python" ;;
+    *.cpp) LANG_NAME="C++" ;;
+    *.rs)  LANG_NAME="Rust" ;;
+    *)     LANG_NAME="Unknown" ;;
+esac
+
+echo "=== cp-submit ==="
+echo "Problem: $PROBLEM_ID ($CONTEST_ID)"
+echo "File:    $SOLUTION"
+echo "Lang:    $LANG_NAME"
+echo ""
+
+# --- Submit ---
+echo "Submitting..."
+oj submit "$PROBLEM_URL" "$SOLUTION" --yes --wait 2>&1 | tee /tmp/cp-submit-output.txt
+
+# --- Parse result ---
+# oj submit --wait outputs the result
+RESULT="Unknown"
+if grep -q "AC" /tmp/cp-submit-output.txt; then
+    RESULT="AC"
+elif grep -q "WA" /tmp/cp-submit-output.txt; then
+    RESULT="WA"
+elif grep -q "TLE" /tmp/cp-submit-output.txt; then
+    RESULT="TLE"
+elif grep -q "RE" /tmp/cp-submit-output.txt; then
+    RESULT="RE"
+elif grep -q "CE" /tmp/cp-submit-output.txt; then
+    RESULT="CE"
+fi
+
+TIMESTAMP=$(date '+%Y-%m-%d %H:%M')
+
+echo ""
+echo "Result: $RESULT"
+echo ""
+
+# --- Tag selection via fzf ---
+echo "Select tag(s):"
+SELECTED_TAG=$(printf '%s\n' "${TAGS[@]}" | fzf --prompt="tag> " --height=15)
+
+# --- Prepare insight file ---
+INSIGHT_FILE="$INSIGHTS_DIR/${PROBLEM_ID}.md"
+
+# Add header if new file
+if [[ ! -f "$INSIGHT_FILE" ]]; then
+    echo "# $PROBLEM_ID" > "$INSIGHT_FILE"
+    echo "" >> "$INSIGHT_FILE"
+fi
+
+# Append entry template
+cat >> "$INSIGHT_FILE" << EOF
+
+## $RESULT $TIMESTAMP
+tags: [$SELECTED_TAG]
+
+EOF
+
+# Record cursor position (line number to place cursor)
+CURSOR_LINE=$(wc -l < "$INSIGHT_FILE")
+
+# --- Open nvim in Sway floating window ---
+if command -v swaymsg &>/dev/null; then
+    # Set next window to floating, centered
+    swaymsg 'for_window [title="cp-insight"] floating enable, resize set 800 400, move position center' 2>/dev/null || true
+    kitty --title "cp-insight" -e nvim "+$CURSOR_LINE" "$INSIGHT_FILE"
+else
+    # Fallback: just open nvim
+    nvim "+$CURSOR_LINE" "$INSIGHT_FILE"
+fi
+
+echo "Insight saved: $INSIGHT_FILE"

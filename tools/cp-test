@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# cp-test — run solution against downloaded test cases
+# Usage: cp-test [solution_file]
+set -euo pipefail
+
+SOLUTION="${1:-main.py}"
+
+if [[ ! -f "$SOLUTION" ]]; then
+    echo "Error: $SOLUTION not found" >&2
+    exit 1
+fi
+
+case "$SOLUTION" in
+    *.py)
+        CMD="python3 $SOLUTION"
+        ;;
+    *.cpp)
+        echo "Compiling..."
+        g++ -std=c++20 -O2 -Wall -o /tmp/cp_sol "$SOLUTION"
+        CMD="/tmp/cp_sol"
+        ;;
+    *)
+        echo "Unknown file type: $SOLUTION" >&2
+        exit 1
+        ;;
+esac
+
+oj test -c "$CMD"

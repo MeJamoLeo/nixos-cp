@@ -31,6 +31,7 @@
     brightnessctl
     pulseaudio
     online-judge-tools
+    fzf
   ];
 
   # SSH

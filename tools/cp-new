@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# cp-new — create contest directory and download test cases
+# Usage: cp-new abc453
+set -euo pipefail
+
+CP_DIR="$HOME/cp"
+CONTEST="${1:?Usage: cp-new <contest_id> (e.g., abc453)}"
+CONTEST_DIR="$CP_DIR/contests/$CONTEST"
+
+if [[ -d "$CONTEST_DIR" ]]; then
+    echo "Already exists: $CONTEST_DIR"
+    exit 1
+fi
+
+# Determine number of problems (ABC=6, ARC=4, AGC=6)
+case "$CONTEST" in
+    abc*) PROBLEMS=(a b c d e f) ;;
+    arc*) PROBLEMS=(a b c d) ;;
+    agc*) PROBLEMS=(a b c d e f) ;;
+    *)    PROBLEMS=(a b c d e f) ;;
+esac
+
+BASE_URL="https://atcoder.jp/contests/$CONTEST/tasks"
+
+echo "=== cp-new $CONTEST ==="
+
+for p in "${PROBLEMS[@]}"; do
+    PROB_DIR="$CONTEST_DIR/$p"
+    mkdir -p "$PROB_DIR"
+
+    URL="$BASE_URL/${CONTEST}_${p}"
+    echo "Downloading: $p ($URL)"
+
+    # Save URL for cp-submit auto-detection
+    echo "$URL" > "$PROB_DIR/.problem_url"
+
+    # Download test cases
+    (cd "$PROB_DIR" && oj download "$URL" 2>/dev/null) || echo "  (download failed, skipping)"
+
+    # Create empty solution file
+    touch "$PROB_DIR/main.py"
+done
+
+echo ""
+echo "Created: $CONTEST_DIR"
+echo "cd $CONTEST_DIR/a && nvim main.py"
