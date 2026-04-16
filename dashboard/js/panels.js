@@ -106,6 +106,12 @@ function renderSpeedBars(d) {
 			const pct=(remaining/dur*100).toFixed(1);
 			h+='<div style="width:'+pct+'%;display:flex;align-items:center;justify-content:center;font-size:var(--fs-2xs);color:var(--muted);overflow:hidden"></div>';
 		}
+		h+='</div>';
+		h+='<div style="display:flex;gap:4px;font-size:var(--fs-2xs);color:var(--dim);margin-top:1px">';
+		c.laps.forEach(l=>{
+			const col=l.problem==='A'?'#335577':l.problem==='B'?'#3a7a5a':l.problem==='C'?'var(--amber)':l.problem==='D'?'var(--cyan)':'var(--green)';
+			h+='<span style="color:'+col+'">'+l.problem+':'+fmt(l.lap)+'</span>';
+		});
 		h+='</div></div>';
 	});
 	return h;
