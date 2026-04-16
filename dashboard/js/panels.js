@@ -88,34 +88,10 @@ function renderQualityBar(d) {
 }
 
 function renderSpeedBars(d) {
-	const sp=d.speed||[];const rh=d.rating_history||[];
-	if(!sp.length&&!rh.length)return '';
+	const sp=d.speed||[];
+	if(!sp.length)return '';
 	function fmt(s){const m=Math.floor(s/60),sec=String(s%60).padStart(2,'0');return m+':'+sec;}
-
-	// Recent contest summary: 完数 + perf
-	let h='';
-	if(rh.length){
-		h+='<div class="section-label">直近コンテスト</div>';
-		rh.slice(-6).reverse().forEach(r=>{
-			const delta=r.new_rating-r.old_rating;
-			const col=delta>=0?'var(--green)':'var(--red)';
-			const sign=delta>=0?'+':'';
-			const name=(r.contest||'').replace(/AtCoder /,'').replace(/Beginner Contest /,'ABC').replace(/Regular Contest /,'ARC').substring(0,18);
-			const perfCol=ratingColor(r.performance);
-			// Count solved from speed data
-			const spd=sp.find(s=>name.includes(s.contest.replace(/\s/g,''))||s.contest.includes(name.substring(0,6)));
-			const solved=spd?spd.laps.length+'完':'';
-			h+='<div style="display:flex;align-items:center;gap:3px;padding:1px 0;border-bottom:0.5px solid var(--border);font-size:var(--fs-2xs)">';
-			h+='<span style="color:var(--dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+name+'</span>';
-			if(solved)h+='<span style="color:var(--cyan)">'+solved+'</span>';
-			h+='<span style="color:'+perfCol+';min-width:28px;text-align:right">'+r.performance+'</span>';
-			h+='<span style="color:'+col+';min-width:28px;text-align:right">'+sign+delta+'</span>';
-			h+='</div>';
-		});
-	}
-
-	if(!sp.length)return h;
-	h+='<div class="section-label" style="margin-top:4px">ラップタイム</div>';
+	let h='<div class="section-label">ラップタイム</div>';
 	sp.slice(-4).forEach(c=>{
 		const dur=c.duration_seconds||(c.contest.includes('ARC')?7200:6000);
 		const totalUsed=c.laps.length?c.laps[c.laps.length-1].cumulative:0;
@@ -180,16 +156,21 @@ function renderCompare(d) {
 		+ '<div>今月</div><div style="font-size:var(--fs-lg);color:var(--cyan)">'+(cmp.this_month_ac||0)+'<span style="font-size:var(--fs-xs)"> AC</span></div></div>';
 	h += '</div>';
 
-	const recent = rh.slice(-3).reverse();
+	const sp = d.speed || [];
+	const recent = rh.slice(-8).reverse();
 	if (recent.length) {
+		h += '<div class="section-label" style="margin-top:4px">直近コンテスト</div>';
 		recent.forEach(r => {
 			const delta = r.new_rating - r.old_rating;
 			const color = delta >= 0 ? 'var(--green)' : 'var(--red)';
 			const sign = delta >= 0 ? '+' : '';
-			const name = (r.contest||'').replace(/AtCoder /,'').substring(0,20);
-			h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 0;border-bottom:0.5px solid var(--border);font-size:var(--fs-xs)">'
-				+ '<span style="color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">'+name+'</span>'
-				+ '<span style="color:'+color+';font-weight:500;min-width:40px;text-align:right">'+sign+delta+'</span></div>';
+			const name = (r.contest||'').replace(/AtCoder /,'').replace(/Beginner Contest /,'ABC').replace(/Regular Contest /,'ARC').substring(0,18);
+			const perfCol = ratingColor(r.performance);
+			h += '<div style="display:flex;align-items:center;gap:3px;padding:1px 0;border-bottom:0.5px solid var(--border);font-size:var(--fs-2xs)">';
+			h += '<span style="color:var(--dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+name+'</span>';
+			h += '<span style="color:'+perfCol+';min-width:28px;text-align:right">'+r.performance+'</span>';
+			h += '<span style="color:'+color+';min-width:28px;text-align:right;font-weight:500">'+sign+delta+'</span>';
+			h += '</div>';
 		});
 	}
 	return h;
