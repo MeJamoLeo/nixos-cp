@@ -32,10 +32,10 @@ STATS_JSON = os.path.expanduser('~/.cache/cp-dashboard/stats.json')
 
 
 def _resolve_stats_path() -> str | None:
-    if os.path.exists(DUMMY_STATS_JSON):
-        return DUMMY_STATS_JSON
     if os.path.exists(STATS_JSON):
         return STATS_JSON
+    if os.path.exists(DUMMY_STATS_JSON):
+        return DUMMY_STATS_JSON
     return None
 
 
