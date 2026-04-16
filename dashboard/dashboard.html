@@ -323,7 +323,7 @@ function renderDifficultyLog(d) {
 	const weekRate={};
 	frh.forEach(r=>{const wk=Math.floor((r.epoch-mE)/WEEK);weekRate[wk]=r;});
 
-	const W=560,H=480,xL=44,xR=550,yT=10,yB=455;
+	const W=560,H=480,xL=44,xR=550,yT=30,yB=435;
 	const colW=(xR-xL)/totalWeeks;
 	const Xw=wk=>xL+(wk+0.5)*colW;
 
