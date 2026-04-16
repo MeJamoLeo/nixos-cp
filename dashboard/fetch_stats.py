@@ -581,7 +581,12 @@ def build_difficulty_log(
             })
     points.sort(key=lambda x: x["epoch"])
 
-    # 7-day rolling average
+    # 6ヶ月分にフィルタ
+    now = time.time()
+    six_months_ago = now - 180 * 86400
+    recent_points = [p for p in points if p["epoch"] >= six_months_ago]
+
+    # 7-day rolling average (全期間で計算、6ヶ月分を返す)
     seven_day_avg: list[dict] = []
     if points:
         for i, p in enumerate(points):
@@ -596,11 +601,47 @@ def build_difficulty_log(
                     "epoch": p["epoch"],
                     "avg": round(sum(window) / len(window)),
                 })
+    recent_avg = [a for a in seven_day_avg if a["epoch"] >= six_months_ago]
+
+    # 予測線: 直近2週間のトレンドから3ヶ月先を予測
+    projections: list[dict] = []
+    two_weeks_ago = now - 14 * 86400
+    recent_2w = [a for a in seven_day_avg if a["epoch"] >= two_weeks_ago]
+    if len(recent_2w) >= 2:
+        # 直近2週間の傾き (difficulty/day)
+        first, last = recent_2w[0], recent_2w[-1]
+        days_span = (last["epoch"] - first["epoch"]) / 86400
+        if days_span > 0:
+            slope_per_day = (last["avg"] - first["avg"]) / days_span
+            current_avg = last["avg"]
+            current_epoch = last["epoch"]
+
+            # 3ヶ月先まで、週刻みで予測点を生成
+            for scenario, multiplier in [
+                ("optimistic", 1.5),
+                ("maintain", 1.0),
+                ("pessimistic", 0.3),
+            ]:
+                proj_points = []
+                for week in range(1, 14):  # 13 weeks ≈ 3 months
+                    future_epoch = current_epoch + week * 7 * 86400
+                    future_avg = current_avg + slope_per_day * week * 7 * multiplier
+                    # Clamp to reasonable range
+                    future_avg = max(0, min(2800, future_avg))
+                    proj_points.append({
+                        "epoch": round(future_epoch),
+                        "avg": round(future_avg),
+                    })
+                projections.append({
+                    "scenario": scenario,
+                    "points": proj_points,
+                })
 
     return {
-        "points": points[-90:],
-        "seven_day_avg": seven_day_avg[-30:],
+        "points": recent_points,
+        "seven_day_avg": recent_avg,
         "current_rating": current_rating,
+        "projections": projections,
     }
 
 
