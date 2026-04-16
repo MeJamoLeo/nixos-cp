@@ -16,7 +16,7 @@ function hydrate() {
 				+'<div class="panel" data-label="SKILL GRAPH" style="overflow:hidden;background:var(--dbg-skillgraph)"><div class="panel-inner" style="display:flex;flex:1;min-height:0">'+renderSkillGraph(d)+'</div></div>'
 			+'</div>'
 			+'<div class="col-right-bottom">'
-				+'<div class="panel" data-label="TAG AC RATE" style="background:var(--dbg-tagrate)"><div class="panel-inner">'+renderTagACRate(d)+'</div></div>'
+				+'<div class="panel" data-label="LANGUAGE" style="background:var(--dbg-tagrate)"><div class="panel-inner">'+renderLanguageStats(d)+'</div></div>'
 				+'<div class="panel" data-label="成長比較" style="background:var(--dbg-compare)"><div class="panel-inner">'+renderCompare(d)+'</div></div>'
 				+'<div class="panel accent-amber" data-label="STREAK" style="background:var(--dbg-streak)"><div class="panel-inner">'+renderStreakCalendar(d)+'</div></div>'
 				+'<div class="panel" data-label="SPEED" style="background:var(--dbg-speed)"><div class="panel-inner">'+renderSpeedBars(d)+'</div></div>'

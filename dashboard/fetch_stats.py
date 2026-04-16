@@ -685,6 +685,43 @@ def build_difficulty_log(
     }
 
 
+def build_language_stats(submissions: list[dict]) -> list[dict]:
+    """Count unique ACs per programming language."""
+    ac_map = _ac_problems(submissions)
+    # Map problem_id to language from first AC submission
+    lang_count: dict[str, int] = {}
+    for pid, s in ac_map.items():
+        lang = s.get("language", "Unknown")
+        # Normalize language names
+        if "Python" in lang or "PyPy" in lang:
+            lang = "Python"
+        elif "C++" in lang:
+            lang = "C++"
+        elif "Rust" in lang:
+            lang = "Rust"
+        elif "Java" in lang:
+            lang = "Java"
+        elif "Go" in lang:
+            lang = "Go"
+        elif "Ruby" in lang:
+            lang = "Ruby"
+        elif "JavaScript" in lang or "Node" in lang:
+            lang = "JavaScript"
+        elif "TypeScript" in lang or "Deno" in lang:
+            lang = "TypeScript"
+        elif "C#" in lang:
+            lang = "C#"
+        elif "Kotlin" in lang:
+            lang = "Kotlin"
+        lang_count[lang] = lang_count.get(lang, 0) + 1
+
+    result = sorted(
+        [{"lang": k, "count": v} for k, v in lang_count.items()],
+        key=lambda x: -x["count"],
+    )
+    return result[:8]
+
+
 def build_tag_ac_rate(
     submissions: list[dict],
     problems_list: list[dict],
@@ -729,14 +766,12 @@ def build_streak_calendar(
     submissions: list[dict],
     difficulties: dict[str, Any],
 ) -> tuple[list[dict], int, int]:
-    # Group ACs by JST date
+    # Group FIRST ACs only (global unique) by JST date
+    ac_map = _ac_problems(submissions)
     by_date: dict[str, set[str]] = {}
     diff_by_date: dict[str, float] = {}
-    for s in submissions:
-        if s.get("result") != "AC":
-            continue
+    for pid, s in ac_map.items():
         d = _epoch_to_jst_date(s.get("epoch_second", 0))
-        pid = s.get("problem_id", "")
         by_date.setdefault(d, set()).add(pid)
         diff = difficulties.get(pid, {}).get("difficulty") or 0
         if diff < 0:
@@ -1245,6 +1280,9 @@ def main() -> None:
         ),
         "contests": upcoming,
         "compare": build_compare(submissions) if has_submissions else {},
+        "language_stats": (
+            build_language_stats(submissions) if has_submissions else []
+        ),
         "rating_history": build_rating_log(ratings),
         "skill_graph": build_skill_graph(
             submissions, difficulties, problems_list, ratings

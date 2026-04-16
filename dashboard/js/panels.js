@@ -68,9 +68,12 @@ function renderWAQueue(d) {
 	return '<div class="panel" data-label="WA QUEUE" style="flex:1;background:var(--dbg-waqueue)"><div class="panel-inner"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><span style="font-size:var(--fs-xs);color:var(--dim)">復習待ち '+wq.length+'問</span><span class="badge badge-amber">優先順</span></div>'+items+'</div></div>';
 }
 
-function renderTagACRate(d) {
-	let h='<div class="section-label">タグ別AC率</div>';
-	(d.tag_ac_rate||[]).forEach((t,i)=>{const p=Math.round(t.ac_rate*100),c=p>=70?'var(--green)':p>=50?'var(--amber)':'#885522';h+='<div class="tag-row'+(i===0?' active':'')+'"><span class="tag-name">'+t.tag+'</span><div class="tag-bar"><div class="tag-bar-fill" style="width:'+p+'%;background:'+c+'"></div></div><span class="tag-pct" style="color:'+c+'">'+p+'%</span></div>';});
+function renderLanguageStats(d) {
+	const ls=d.language_stats||[];
+	if(!ls.length)return '<div class="section-label">言語別AC</div>';
+	const max=ls[0].count;
+	let h='<div class="section-label">言語別AC</div>';
+	ls.forEach((l,i)=>{const pct=Math.round(l.count/max*100);const c=i===0?'var(--cyan)':i<3?'var(--green)':'var(--dim)';h+='<div class="tag-row'+(i===0?' active':'')+'"><span class="tag-name">'+l.lang+'</span><div class="tag-bar"><div class="tag-bar-fill" style="width:'+pct+'%;background:'+c+'"></div></div><span class="tag-pct" style="color:'+c+'">'+l.count+'</span></div>';});
 	return h;
 }
 
