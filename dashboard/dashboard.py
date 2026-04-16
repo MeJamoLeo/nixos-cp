@@ -50,6 +50,28 @@ def _inject(webview: WebKit2.WebView) -> None:
     js = 'try {' + ''.join(parts) + '} catch(e) {}'
     webview.run_javascript(js, None, None, None)
 
+    # デバッグ: HUDサイズ確認
+    def _check_hud():
+        debug_js = """
+        var h = document.querySelector('.hud');
+        var s = document.querySelector('.hud-section');
+        var l = document.querySelector('.hud-label');
+        var v = document.querySelector('.hud-value');
+        document.title = 'hud:' + (h?h.offsetHeight:'?') + 'x' + (h?h.offsetWidth:'?')
+            + ' sec:' + (s?s.offsetHeight:'?')
+            + ' lbl:' + (l?l.offsetHeight:'?') + '/' + (l?l.offsetWidth:'?')
+            + ' val:' + (v?v.offsetHeight:'?');
+        """
+        def _on_done(wv, result, _ud):
+            try:
+                wv.run_javascript_finish(result)
+                print(f'[debug] {wv.get_title()}')
+            except Exception as e:
+                print(f'[debug] error: {e}')
+        webview.run_javascript(debug_js, None, _on_done, None)
+        return False
+    GLib.timeout_add(1000, _check_hud)
+
 
 def _on_load_changed(
     webview: WebKit2.WebView,
