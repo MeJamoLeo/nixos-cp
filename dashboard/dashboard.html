@@ -7,14 +7,14 @@
    THEME — colors and scale
    ============================================================ */
 :root {
-	--fs-2xs: 7px;
-	--fs-xs:  8px;
-	--fs-sm:  9px;
-	--fs-md:  11px;
-	--fs-lg:  14px;
-	--fs-xl:  20px;
-	--fs-2xl: 26px;
-	--fs-3xl: 34px;
+	--fs-2xs: 14px;
+	--fs-xs:  16px;
+	--fs-sm:  18px;
+	--fs-md:  22px;
+	--fs-lg:  28px;
+	--fs-xl:  40px;
+	--fs-2xl: 52px;
+	--fs-3xl: 68px;
 
 	--bg:      #020404;
 	--panel:   #061010;
@@ -133,7 +133,7 @@ body {
    ============================================================ */
 .panel { background: var(--panel); border: 0.5px solid var(--border); position: relative; overflow: hidden; }
 .panel[data-label]::before { content: attr(data-label); position: absolute; top: 0; left: 0; font-size: var(--fs-xs); color: var(--muted); letter-spacing: .12em; padding: 2px 6px; border-bottom: 0.5px solid var(--border); border-right: 0.5px solid var(--border); background: var(--bg); z-index: 1; white-space: nowrap; }
-.panel-inner { padding: 16px 8px 4px; height: 100%; display: flex; flex-direction: column; gap: 2px; }
+.panel-inner { padding: 32px 16px 8px; height: 100%; display: flex; flex-direction: column; gap: 4px; }
 .panel.accent-green { border-color: #2a6a3a !important; box-shadow: inset 3px 0 0 var(--green); }
 .panel.accent-amber { border-color: #6a3a00 !important; box-shadow: inset 3px 0 0 var(--amber); }
 .panel.accent-cyan  { border-color: #2a4a6a !important; box-shadow: inset 3px 0 0 var(--cyan); }
@@ -159,7 +159,7 @@ body {
 .ps-streak  { font-size: var(--fs-xl); font-weight: 500; color: #ff8030; line-height: 1; }
 .ps-box-green { background: #040c04; border: 0.5px solid #0a2a0a; padding: 4px 6px; }
 .ps-box-amber { display: flex; align-items: center; gap: 4px; background: #060800; border: 0.5px solid #2a1800; padding: 4px 6px; }
-.progress-bar { background: var(--bar-bg); height: 5px; width: 100%; overflow: hidden; border: 0.5px solid var(--border); }
+.progress-bar { background: var(--bar-bg); height: 10px; width: 100%; overflow: hidden; border: 1px solid var(--border); }
 .progress-fill { height: 100%; }
 
 /* ============================================================
@@ -174,7 +174,7 @@ body {
 .tag-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
 .tag-row.active { border-left: 2px solid var(--green); padding-left: 3px; background: #030a04; }
 .tag-name { font-size: var(--fs-md); color: var(--dim); min-width: 52px; }
-.tag-bar { flex: 1; height: 10px; background: var(--bar-bg); overflow: hidden; border-radius: 2px; }
+.tag-bar { flex: 1; height: 20px; background: var(--bar-bg); overflow: hidden; border-radius: 4px; }
 .tag-bar-fill { height: 100%; }
 .tag-pct { font-size: var(--fs-md); min-width: 30px; text-align: right; }
 
@@ -205,20 +205,20 @@ body {
 .speed-row { display: flex; align-items: center; gap: 4px; padding: 2px; }
 .speed-row.active { border-left: 2px solid var(--cyan); padding-left: 4px; background: #04080c; }
 .speed-label { font-size: var(--fs-sm); color: var(--dim); min-width: 22px; }
-.speed-bar { flex: 1; height: 12px; background: #0a1010; overflow: hidden; }
+.speed-bar { flex: 1; height: 24px; background: #0a1010; overflow: hidden; }
 .speed-bar-fill { height: 100%; display: flex; align-items: center; padding-left: 3px; }
 .speed-bar-text { font-size: var(--fs-xs); color: #060808; font-weight: 500; }
 .speed-value { font-size: var(--fs-sm); min-width: 32px; text-align: right; }
 
 .streak-grid { display: grid; grid-template-columns: repeat(28,1fr); gap: 2px; }
-.streak-cell { height: 12px; border-radius: 1px; }
+.streak-cell { height: 24px; border-radius: 2px; }
 .streak-none { background: #0c1818; }
 .streak-amber { background: var(--amber); opacity: .9; }
 .streak-green { background: var(--green); opacity: .9; }
 .streak-cyan { background: var(--cyan); opacity: .9; }
 .streak-today { outline: 1px solid rgba(255,255,255,.45); outline-offset: 1px; }
 
-.quality-bar { display: flex; height: 10px; gap: 1px; overflow: hidden; }
+.quality-bar { display: flex; height: 20px; gap: 2px; overflow: hidden; }
 .quality-seg { height: 100%; }
 
 .quest-card { background: var(--panel); border: 0.5px solid var(--border); padding: 4px 6px; display: flex; align-items: center; gap: 4px; overflow: hidden; }
