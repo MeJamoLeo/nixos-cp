@@ -96,11 +96,17 @@ function renderSkillGraph(d) {
 	});
 	s += '</defs>';
 
-	// ティアゾーン（AtCoderカラー帯 — Difficulty Logと統一）
+	// ティアゾーン（AtCoderカラー帯 — リング型で重ならない）
 	const acBands = {1:'#c06000', 2:'#008000', 3:'#00c0c0'};
-	[3, 2, 1].forEach(t => {
+	[1, 2, 3].forEach(t => {
+		const inner = t === 1 ? 0 : radii[t-1] + 20;
 		const outer = radii[t] + 20;
-		s += '<circle cx="'+cx+'" cy="'+cy+'" r="'+outer+'" fill="'+(acBands[t]||'#1a1a1a')+'" opacity="0.06"/>';
+		// clipPathでリング（ドーナツ）を作る
+		const clipId = 'tierClip'+t;
+		s += '<defs><clipPath id="'+clipId+'"><path d="M'+(cx-outer-1)+','+(cy-outer-1)+' h'+(2*outer+2)+' v'+(2*outer+2)+' h'+(-2*outer-2)+' Z';
+		if(inner > 0) s += ' M'+cx+','+(cy-inner)+' a'+inner+','+inner+' 0 1,0 0,'+(2*inner)+' a'+inner+','+inner+' 0 1,0 0,'+(-2*inner)+' Z';
+		s += '"/></clipPath></defs>';
+		s += '<circle cx="'+cx+'" cy="'+cy+'" r="'+outer+'" fill="'+(acBands[t]||'#1a1a1a')+'" opacity="0.08" clip-path="url(#'+clipId+')"/>';
 	});
 	[1, 2, 3].forEach(t => {
 		const r = (radii[t-1] + radii[t]) / 2 + 10;
