@@ -979,12 +979,17 @@ def build_skill_graph(
             "typical90_d",  # #004 Cross Sum (前計算で高速化)
             "abc176_d",     # Wizard in Maze (0-1 BFS)
         ],
-        # Tier 3 (緑→水): 典型 + 応用問題
         "unionfind": [
             "typical90_l",  # #012 Red Painting (UF典型)
             "abc177_d",     # Friends (連結成分最大サイズ)
             "abc157_d",     # Friend Suggestions (サイズ付きUF)
         ],
+        "pqueue": [
+            "abc141_d",     # Powerful Discount Tickets (ヒープ貪欲)
+            "abc137_d",     # Summer Vacation (締切+ヒープ)
+            "abc153_d",     # Caracal vs Monster (分割/優先度)
+        ],
+        # Tier 3 (緑→水): 典型 + 応用問題
         "dijkstra": [
             "typical90_m",  # #013 Passing (2回ダイクストラ)
             "abc176_d",     # Wizard in Maze (0-1 BFS)
@@ -1039,7 +1044,8 @@ def build_skill_graph(
         {"id": "bit",        "label": "ビット演算", "tier": 2, "parent": "bruteforce"},
         {"id": "prime",      "label": "素数/約数",  "tier": 2, "parent": "gcd"},
         {"id": "complexity", "label": "計算量",     "tier": 2, "parent": "sort"},
-        {"id": "unionfind",  "label": "Union-Find", "tier": 3, "parent": "bfs"},
+        {"id": "unionfind",  "label": "Union-Find", "tier": 2, "parent": "bfs"},
+        {"id": "pqueue",     "label": "優先度Queue","tier": 2, "parent": "sort"},
         {"id": "dijkstra",   "label": "最短路",     "tier": 3, "parent": "bfs"},
         {"id": "segtree",    "label": "セグ木/BIT", "tier": 3, "parent": "cumsum"},
         {"id": "bitdp",      "label": "bitDP",      "tier": 3, "parent": "bit"},
