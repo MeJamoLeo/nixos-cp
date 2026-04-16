@@ -581,55 +581,55 @@
         "points": [
           {
             "epoch": 1776747600,
-            "rating": 444
+            "rating": 441
           },
           {
             "epoch": 1777352400,
-            "rating": 451
+            "rating": 444
           },
           {
             "epoch": 1777957200,
-            "rating": 457
+            "rating": 447
           },
           {
             "epoch": 1778562000,
-            "rating": 463
+            "rating": 451
           },
           {
             "epoch": 1779166800,
-            "rating": 470
+            "rating": 454
           },
           {
             "epoch": 1779771600,
-            "rating": 476
+            "rating": 457
           },
           {
             "epoch": 1780376400,
-            "rating": 482
+            "rating": 460
           },
           {
             "epoch": 1780981200,
-            "rating": 488
+            "rating": 463
           },
           {
             "epoch": 1781586000,
-            "rating": 495
+            "rating": 466
           },
           {
             "epoch": 1782190800,
-            "rating": 501
+            "rating": 470
           },
           {
             "epoch": 1782795600,
-            "rating": 507
+            "rating": 473
           },
           {
             "epoch": 1783400400,
-            "rating": 514
+            "rating": 476
           },
           {
             "epoch": 1784005200,
-            "rating": 520
+            "rating": 479
           }
         ]
       }

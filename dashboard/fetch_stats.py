@@ -636,7 +636,7 @@ def build_difficulty_log(
             for scenario, multiplier in [
                 ("optimistic", 1.5),
                 ("maintain", 1.0),
-                ("pessimistic", 0.6),
+                ("pessimistic", 0.3),
             ]:
                 proj_points = []
                 for week in range(1, 14):

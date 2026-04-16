@@ -337,7 +337,7 @@ function renderDifficultyLog(d) {
 	// Diff sum Y (bars capped at 40% chart height)
 	const diffVals=Object.values(weekDiff);
 	const maxSum=diffVals.length?Math.max(...diffVals):1;
-	const YS=v=>yB-(v/maxSum)*(yB-yT)*0.4;
+	const YS=v=>yB-(v/maxSum)*(yB-yT)*0.6;
 
 	// Now week
 	const nowEpoch=frh.length?frh[frh.length-1].epoch:(pts.length?pts[pts.length-1].epoch:mE);
@@ -377,7 +377,7 @@ function renderDifficultyLog(d) {
 		for(let w=recentStart;w<=recentEnd;w++){if(weekDiff[w]){tDiff+=weekDiff[w];wCnt++;}}
 		avgWkDiff=wCnt>0?tDiff/wCnt:0;
 	}
-	const mults=[{mult:1.5,color:'var(--green)',scenario:'optimistic'},{mult:1.0,color:'var(--amber)',scenario:'maintain'},{mult:0.6,color:'var(--dim)',scenario:'pessimistic'}];
+	const mults=[{mult:1.5,color:'var(--green)',scenario:'optimistic'},{mult:1.0,color:'var(--amber)',scenario:'maintain'},{mult:0.3,color:'var(--dim)',scenario:'pessimistic'}];
 	mults.forEach(m=>{const wd=Math.round(avgWkDiff*m.mult);const pr=proj.find(p=>p.scenario===m.scenario);const er=pr&&pr.points.length?pr.points[pr.points.length-1].rating:0;effortMap.push({mult:m.mult,color:m.color,weeklyDiff:wd,endRating:er});});
 
 	// Ghost bars on today's week with inline labels
