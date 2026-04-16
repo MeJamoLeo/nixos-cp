@@ -343,12 +343,16 @@ function renderDifficultyLog(d) {
 
 	let s='<svg width="100%" height="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">';
 
+	// Rating band backgrounds (AtCoder colors)
+	const bands=[[0,'#808080'],[400,'#804000'],[800,'#008000'],[1200,'#00c0c0'],[1600,'#0000ff'],[2000,'#c0c000'],[2400,'#ff8000'],[2800,'#ff0000']];
+	for(let i=0;i<bands.length;i++){const lo=bands[i][0],hi=i+1<bands.length?bands[i+1][0]:maxR,col=bands[i][1];if(hi<=0||lo>=maxR)continue;const y1=YR(Math.min(hi,maxR)),y2=YR(Math.max(lo,0));if(y2<=yT||y1>=yB)continue;const cy1=Math.max(y1,yT),cy2=Math.min(y2,yB);s+='<rect x="'+xL+'" y="'+cy1.toFixed(1)+'" width="'+(xR-xL)+'" height="'+(cy2-cy1).toFixed(1)+'" fill="'+col+'" opacity="0.06"/>';}
+
 	// Future zone
 	const futX=xL+(nowWk+1)*colW;
-	s+='<rect x="'+futX.toFixed(1)+'" y="'+yT+'" width="'+(xR-futX).toFixed(1)+'" height="'+(yB-yT)+'" fill="#040808" opacity="0.5"/>';
+	s+='<rect x="'+futX.toFixed(1)+'" y="'+yT+'" width="'+(xR-futX).toFixed(1)+'" height="'+(yB-yT)+'" fill="#020404" opacity="0.5"/>';
 
 	// Grid (rating)
-	for(let v=200;v<maxR;v+=200){const y=YR(v);s+='<line x1="'+xL+'" y1="'+y+'" x2="'+xR+'" y2="'+y+'" stroke="#0c1c1c" stroke-width="0.5"/><text x="38" y="'+(y+2)+'" fill="#0c1e1e" font-size="7" text-anchor="end" font-family="monospace">'+v+'</text>';}
+	for(let v=200;v<maxR;v+=200){const y=YR(v);s+='<line x1="'+xL+'" y1="'+y+'" x2="'+xR+'" y2="'+y+'" stroke="#0c1c1c" stroke-width="0.5"/><text x="38" y="'+(y+2)+'" fill="#1a2a2a" font-size="7" text-anchor="end" font-family="monospace">'+v+'</text>';}
 
 	// Current rating line
 	if(cr>0){const y=YR(cr),rc=ratingColor(cr);s+='<line x1="'+xL+'" y1="'+y+'" x2="'+xR+'" y2="'+y+'" stroke="'+rc+'" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.5"/><text x="552" y="'+(y+3)+'" fill="'+rc+'" font-size="7" font-family="monospace">'+cr+'</text>';}
