@@ -62,15 +62,10 @@ def _inject(webview: WebKit2.WebView) -> None:
             + ' lbl:' + (l?l.offsetHeight:'?') + '/' + (l?l.offsetWidth:'?')
             + ' val:' + (v?v.offsetHeight:'?');
         """
-        def _on_done(wv, result, _ud):
-            try:
-                wv.run_javascript_finish(result)
-                print(f'[debug] {wv.get_title()}')
-            except Exception as e:
-                print(f'[debug] error: {e}')
-        webview.run_javascript(debug_js, None, _on_done, None)
+        webview.run_javascript(debug_js, None, None, None)
+        GLib.timeout_add(500, lambda: print(f'[debug] {webview.get_title()}') or False)
         return False
-    GLib.timeout_add(1000, _check_hud)
+    GLib.timeout_add(3000, _check_hud)
 
 
 def _on_load_changed(
