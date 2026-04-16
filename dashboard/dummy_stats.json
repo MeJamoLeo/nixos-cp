@@ -100,626 +100,1397 @@
   "difficulty_log": {
     "points": [
       {
-        "epoch": 1763269200,
-        "difficulty": 180
-      },
-      {
-        "epoch": 1763355600,
-        "difficulty": 220
-      },
-      {
-        "epoch": 1763528400,
-        "difficulty": 150
-      },
-      {
-        "epoch": 1763701200,
-        "difficulty": 280
-      },
-      {
-        "epoch": 1763874000,
-        "difficulty": 310
-      },
-      {
-        "epoch": 1764133200,
-        "difficulty": 200
-      },
-      {
-        "epoch": 1764306000,
-        "difficulty": 350
-      },
-      {
-        "epoch": 1764478800,
-        "difficulty": 290
-      },
-      {
-        "epoch": 1764651600,
-        "difficulty": 420
-      },
-      {
-        "epoch": 1764910800,
-        "difficulty": 380
-      },
-      {
-        "epoch": 1765083600,
-        "difficulty": 310
-      },
-      {
-        "epoch": 1765256400,
-        "difficulty": 450
-      },
-      {
-        "epoch": 1765429200,
-        "difficulty": 280
-      },
-      {
-        "epoch": 1765602000,
-        "difficulty": 520
-      },
-      {
-        "epoch": 1765774800,
-        "difficulty": 390
-      },
-      {
-        "epoch": 1765947600,
-        "difficulty": 470
-      },
-      {
-        "epoch": 1766206800,
-        "difficulty": 350
-      },
-      {
-        "epoch": 1766379600,
-        "difficulty": 540
-      },
-      {
-        "epoch": 1766552400,
-        "difficulty": 420
-      },
-      {
-        "epoch": 1766725200,
-        "difficulty": 580
-      },
-      {
-        "epoch": 1766898000,
-        "difficulty": 460
-      },
-      {
-        "epoch": 1767157200,
-        "difficulty": 510
-      },
-      {
-        "epoch": 1767330000,
-        "difficulty": 620
-      },
-      {
-        "epoch": 1767502800,
-        "difficulty": 380
-      },
-      {
-        "epoch": 1767675600,
-        "difficulty": 550
-      },
-      {
-        "epoch": 1767848400,
-        "difficulty": 670
-      },
-      {
-        "epoch": 1768021200,
-        "difficulty": 480
-      },
-      {
-        "epoch": 1768280400,
-        "difficulty": 590
-      },
-      {
-        "epoch": 1768453200,
-        "difficulty": 720
-      },
-      {
-        "epoch": 1768626000,
-        "difficulty": 530
-      },
-      {
-        "epoch": 1768798800,
-        "difficulty": 650
-      },
-      {
-        "epoch": 1768971600,
-        "difficulty": 480
-      },
-      {
-        "epoch": 1769230800,
-        "difficulty": 710
-      },
-      {
-        "epoch": 1769403600,
-        "difficulty": 560
-      },
-      {
-        "epoch": 1769576400,
-        "difficulty": 780
-      },
-      {
-        "epoch": 1769749200,
-        "difficulty": 620
-      },
-      {
-        "epoch": 1769922000,
-        "difficulty": 690
-      },
-      {
-        "epoch": 1770181200,
-        "difficulty": 530
-      },
-      {
-        "epoch": 1770354000,
-        "difficulty": 750
-      },
-      {
-        "epoch": 1770526800,
-        "difficulty": 810
-      },
-      {
-        "epoch": 1770699600,
-        "difficulty": 580
-      },
-      {
-        "epoch": 1770872400,
-        "difficulty": 720
-      },
-      {
-        "epoch": 1771045200,
-        "difficulty": 650
-      },
-      {
-        "epoch": 1771304400,
-        "difficulty": 830
-      },
-      {
-        "epoch": 1771477200,
-        "difficulty": 710
-      },
-      {
-        "epoch": 1771650000,
-        "difficulty": 560
-      },
-      {
-        "epoch": 1771822800,
-        "difficulty": 880
-      },
-      {
-        "epoch": 1771995600,
-        "difficulty": 620
-      },
-      {
-        "epoch": 1772168400,
-        "difficulty": 750
-      },
-      {
-        "epoch": 1772427600,
-        "difficulty": 690
-      },
-      {
-        "epoch": 1772600400,
-        "difficulty": 840
-      },
-      {
-        "epoch": 1772773200,
-        "difficulty": 560
-      },
-      {
-        "epoch": 1772946000,
-        "difficulty": 920
-      },
-      {
-        "epoch": 1773118800,
-        "difficulty": 710
-      },
-      {
-        "epoch": 1773291600,
-        "difficulty": 800
-      },
-      {
-        "epoch": 1773378000,
-        "difficulty": 650
-      },
-      {
-        "epoch": 1773464400,
-        "difficulty": 880
-      },
-      {
-        "epoch": 1773550800,
-        "difficulty": 730
-      },
-      {
-        "epoch": 1773637200,
-        "difficulty": 950
-      },
-      {
-        "epoch": 1773723600,
-        "difficulty": 810
-      },
-      {
-        "epoch": 1773810000,
-        "difficulty": 690
-      },
-      {
-        "epoch": 1773896400,
-        "difficulty": 1020
-      },
-      {
-        "epoch": 1773982800,
-        "difficulty": 760
-      },
-      {
-        "epoch": 1774069200,
-        "difficulty": 890
-      },
-      {
-        "epoch": 1774155600,
-        "difficulty": 720
-      },
-      {
-        "epoch": 1774242000,
-        "difficulty": 980
-      },
-      {
-        "epoch": 1774328400,
-        "difficulty": 850
-      },
-      {
-        "epoch": 1774414800,
-        "difficulty": 1100
-      },
-      {
-        "epoch": 1774501200,
-        "difficulty": 670
-      },
-      {
-        "epoch": 1774587600,
-        "difficulty": 930
-      },
-      {
-        "epoch": 1774674000,
-        "difficulty": 780
-      },
-      {
-        "epoch": 1774760400,
-        "difficulty": 1050
-      },
-      {
-        "epoch": 1774846800,
-        "difficulty": 820
-      },
-      {
-        "epoch": 1774933200,
-        "difficulty": 960
-      },
-      {
-        "epoch": 1775019600,
+        "epoch": 1764334695,
         "difficulty": 700
       },
       {
-        "epoch": 1775106000,
-        "difficulty": 1120
+        "epoch": 1764373938,
+        "difficulty": 700
       },
       {
-        "epoch": 1775192400,
-        "difficulty": 850
+        "epoch": 1764435555,
+        "difficulty": 450
       },
       {
-        "epoch": 1775278800,
-        "difficulty": 940
+        "epoch": 1764501540,
+        "difficulty": 200
       },
       {
-        "epoch": 1775365200,
-        "difficulty": 780
+        "epoch": 1764504331,
+        "difficulty": 600
       },
       {
-        "epoch": 1775451600,
-        "difficulty": 1080
+        "epoch": 1764628685,
+        "difficulty": 400
       },
       {
-        "epoch": 1775538000,
-        "difficulty": 910
+        "epoch": 1764671490,
+        "difficulty": 900
       },
       {
-        "epoch": 1775624400,
-        "difficulty": 1150
+        "epoch": 1764678893,
+        "difficulty": 200
       },
       {
-        "epoch": 1775710800,
-        "difficulty": 830
+        "epoch": 1764713334,
+        "difficulty": 150
       },
       {
-        "epoch": 1775797200,
-        "difficulty": 970
+        "epoch": 1764716848,
+        "difficulty": 400
       },
       {
-        "epoch": 1775883600,
-        "difficulty": 1060
+        "epoch": 1764821390,
+        "difficulty": 300
       },
       {
-        "epoch": 1775970000,
-        "difficulty": 890
+        "epoch": 1764850433,
+        "difficulty": 300
       },
       {
-        "epoch": 1776056400,
-        "difficulty": 1130
+        "epoch": 1764858726,
+        "difficulty": 150
       },
       {
-        "epoch": 1776142800,
-        "difficulty": 950
+        "epoch": 1764860117,
+        "difficulty": 300
       },
       {
-        "epoch": 1776229200,
-        "difficulty": 1080
+        "epoch": 1764987575,
+        "difficulty": 600
       },
       {
-        "epoch": 1776315600,
+        "epoch": 1765122153,
+        "difficulty": 300
+      },
+      {
+        "epoch": 1765289905,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1765291833,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1765321007,
+        "difficulty": 250
+      },
+      {
+        "epoch": 1765339462,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1765372142,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1765372636,
+        "difficulty": 1000
+      },
+      {
+        "epoch": 1765412213,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1765428172,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1765430586,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1765461783,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1765572390,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1765581569,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1765620450,
+        "difficulty": 400
+      },
+      {
+        "epoch": 1765635361,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1765749254,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1765795536,
+        "difficulty": 600
+      },
+      {
+        "epoch": 1765800910,
+        "difficulty": 250
+      },
+      {
+        "epoch": 1765801456,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1765806511,
+        "difficulty": 600
+      },
+      {
+        "epoch": 1765828929,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1765833546,
+        "difficulty": 700
+      },
+      {
+        "epoch": 1765852266,
+        "difficulty": 500
+      },
+      {
+        "epoch": 1765858957,
+        "difficulty": 300
+      },
+      {
+        "epoch": 1765881317,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1765919958,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1765922967,
+        "difficulty": 500
+      },
+      {
+        "epoch": 1765932355,
+        "difficulty": 800
+      },
+      {
+        "epoch": 1765939061,
+        "difficulty": 800
+      },
+      {
+        "epoch": 1765978552,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1766035789,
+        "difficulty": 600
+      },
+      {
+        "epoch": 1766054854,
+        "difficulty": 600
+      },
+      {
+        "epoch": 1766062738,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1766069688,
+        "difficulty": 250
+      },
+      {
+        "epoch": 1766071847,
+        "difficulty": 800
+      },
+      {
+        "epoch": 1766154702,
         "difficulty": 1200
-      }
-    ],
-    "seven_day_avg": [
-      {
-        "epoch": 1763874000,
-        "avg": 225
       },
       {
-        "epoch": 1764478800,
-        "avg": 280
+        "epoch": 1766349830,
+        "difficulty": 600
       },
       {
-        "epoch": 1765083600,
-        "avg": 340
+        "epoch": 1766407746,
+        "difficulty": 300
       },
       {
-        "epoch": 1765774800,
-        "avg": 380
+        "epoch": 1766446719,
+        "difficulty": 100
       },
       {
-        "epoch": 1766379600,
-        "avg": 420
+        "epoch": 1766488173,
+        "difficulty": 300
       },
       {
-        "epoch": 1766898000,
-        "avg": 460
+        "epoch": 1766489897,
+        "difficulty": 300
       },
       {
-        "epoch": 1767502800,
-        "avg": 490
+        "epoch": 1766501587,
+        "difficulty": 100
       },
       {
-        "epoch": 1768280400,
-        "avg": 540
+        "epoch": 1766611445,
+        "difficulty": 200
       },
       {
-        "epoch": 1768971600,
-        "avg": 580
+        "epoch": 1766659303,
+        "difficulty": 100
       },
       {
-        "epoch": 1769576400,
-        "avg": 630
+        "epoch": 1766670264,
+        "difficulty": 200
       },
       {
-        "epoch": 1770354000,
-        "avg": 660
+        "epoch": 1766714207,
+        "difficulty": 1100
       },
       {
-        "epoch": 1771045200,
-        "avg": 700
+        "epoch": 1766784549,
+        "difficulty": 100
       },
       {
-        "epoch": 1771650000,
-        "avg": 720
+        "epoch": 1766804214,
+        "difficulty": 450
       },
       {
-        "epoch": 1772427600,
-        "avg": 750
+        "epoch": 1766841427,
+        "difficulty": 450
       },
       {
-        "epoch": 1772946000,
-        "avg": 770
+        "epoch": 1766881378,
+        "difficulty": 150
       },
       {
-        "epoch": 1773550800,
-        "avg": 800
+        "epoch": 1766916527,
+        "difficulty": 1200
       },
       {
-        "epoch": 1774155600,
-        "avg": 830
+        "epoch": 1766920804,
+        "difficulty": 350
       },
       {
-        "epoch": 1774760400,
-        "avg": 870
+        "epoch": 1766923104,
+        "difficulty": 150
       },
       {
-        "epoch": 1775365200,
-        "avg": 900
+        "epoch": 1766933320,
+        "difficulty": 500
       },
       {
-        "epoch": 1775970000,
-        "avg": 940
+        "epoch": 1767049727,
+        "difficulty": 450
       },
       {
-        "epoch": 1776315600,
-        "avg": 970
+        "epoch": 1767055291,
+        "difficulty": 350
+      },
+      {
+        "epoch": 1767095544,
+        "difficulty": 800
+      },
+      {
+        "epoch": 1767226670,
+        "difficulty": 900
+      },
+      {
+        "epoch": 1767265572,
+        "difficulty": 700
+      },
+      {
+        "epoch": 1767350441,
+        "difficulty": 400
+      },
+      {
+        "epoch": 1767352661,
+        "difficulty": 300
+      },
+      {
+        "epoch": 1767480134,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1767481250,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1767486376,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1767523999,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1767570810,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1767573060,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1767610293,
+        "difficulty": 300
+      },
+      {
+        "epoch": 1767612176,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1767653195,
+        "difficulty": 1100
+      },
+      {
+        "epoch": 1767678597,
+        "difficulty": 700
+      },
+      {
+        "epoch": 1767699394,
+        "difficulty": 250
+      },
+      {
+        "epoch": 1767753803,
+        "difficulty": 1100
+      },
+      {
+        "epoch": 1767780124,
+        "difficulty": 1000
+      },
+      {
+        "epoch": 1767781898,
+        "difficulty": 900
+      },
+      {
+        "epoch": 1767791935,
+        "difficulty": 550
+      },
+      {
+        "epoch": 1767870715,
+        "difficulty": 1000
+      },
+      {
+        "epoch": 1767913158,
+        "difficulty": 300
+      },
+      {
+        "epoch": 1767918388,
+        "difficulty": 250
+      },
+      {
+        "epoch": 1767927056,
+        "difficulty": 1200
+      },
+      {
+        "epoch": 1768003477,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1768011731,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1768042272,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1768052759,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1768161982,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1768168798,
+        "difficulty": 1100
+      },
+      {
+        "epoch": 1768193284,
+        "difficulty": 1100
+      },
+      {
+        "epoch": 1768215757,
+        "difficulty": 400
+      },
+      {
+        "epoch": 1768226802,
+        "difficulty": 1200
+      },
+      {
+        "epoch": 1768302585,
+        "difficulty": 600
+      },
+      {
+        "epoch": 1768347590,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1768353702,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1768359003,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1768385412,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1768538647,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1768566030,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1768572637,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1768624490,
+        "difficulty": 600
+      },
+      {
+        "epoch": 1768646236,
+        "difficulty": 700
+      },
+      {
+        "epoch": 1768692902,
+        "difficulty": 600
+      },
+      {
+        "epoch": 1768741520,
+        "difficulty": 350
+      },
+      {
+        "epoch": 1768773255,
+        "difficulty": 1100
+      },
+      {
+        "epoch": 1768839451,
+        "difficulty": 700
+      },
+      {
+        "epoch": 1768863529,
+        "difficulty": 400
+      },
+      {
+        "epoch": 1768869768,
+        "difficulty": 250
+      },
+      {
+        "epoch": 1768910695,
+        "difficulty": 550
+      },
+      {
+        "epoch": 1768918303,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1768946582,
+        "difficulty": 1100
+      },
+      {
+        "epoch": 1768949246,
+        "difficulty": 1100
+      },
+      {
+        "epoch": 1769118869,
+        "difficulty": 600
+      },
+      {
+        "epoch": 1769126211,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1769131445,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1769136154,
+        "difficulty": 300
+      },
+      {
+        "epoch": 1769199575,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1769201095,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1769264159,
+        "difficulty": 900
+      },
+      {
+        "epoch": 1769289833,
+        "difficulty": 1000
+      },
+      {
+        "epoch": 1769335278,
+        "difficulty": 1000
+      },
+      {
+        "epoch": 1769388016,
+        "difficulty": 1200
+      },
+      {
+        "epoch": 1769517060,
+        "difficulty": 600
+      },
+      {
+        "epoch": 1769567048,
+        "difficulty": 500
+      },
+      {
+        "epoch": 1769601510,
+        "difficulty": 500
+      },
+      {
+        "epoch": 1769608850,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1769609201,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1769632626,
+        "difficulty": 400
+      },
+      {
+        "epoch": 1769721008,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1769732357,
+        "difficulty": 900
+      },
+      {
+        "epoch": 1769732629,
+        "difficulty": 600
+      },
+      {
+        "epoch": 1769734540,
+        "difficulty": 900
+      },
+      {
+        "epoch": 1769747357,
+        "difficulty": 550
+      },
+      {
+        "epoch": 1769808093,
+        "difficulty": 550
+      },
+      {
+        "epoch": 1769825534,
+        "difficulty": 900
+      },
+      {
+        "epoch": 1769869545,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1769901265,
+        "difficulty": 250
+      },
+      {
+        "epoch": 1769911621,
+        "difficulty": 400
+      },
+      {
+        "epoch": 1769948375,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1770116433,
+        "difficulty": 350
+      },
+      {
+        "epoch": 1770117059,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1770121639,
+        "difficulty": 900
+      },
+      {
+        "epoch": 1770151791,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1770205654,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1770209298,
+        "difficulty": 500
+      },
+      {
+        "epoch": 1770218059,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1770239646,
+        "difficulty": 300
+      },
+      {
+        "epoch": 1770253485,
+        "difficulty": 250
+      },
+      {
+        "epoch": 1770295317,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1770297209,
+        "difficulty": 250
+      },
+      {
+        "epoch": 1770395886,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1770518718,
+        "difficulty": 300
+      },
+      {
+        "epoch": 1770554367,
+        "difficulty": 250
+      },
+      {
+        "epoch": 1770604698,
+        "difficulty": 600
+      },
+      {
+        "epoch": 1770672137,
+        "difficulty": 300
+      },
+      {
+        "epoch": 1770692159,
+        "difficulty": 900
+      },
+      {
+        "epoch": 1770806484,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1770809993,
+        "difficulty": 800
+      },
+      {
+        "epoch": 1770811907,
+        "difficulty": 800
+      },
+      {
+        "epoch": 1770816570,
+        "difficulty": 600
+      },
+      {
+        "epoch": 1770998635,
+        "difficulty": 800
+      },
+      {
+        "epoch": 1771019725,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1771021585,
+        "difficulty": 700
+      },
+      {
+        "epoch": 1771024595,
+        "difficulty": 300
+      },
+      {
+        "epoch": 1771065362,
+        "difficulty": 350
+      },
+      {
+        "epoch": 1771102049,
+        "difficulty": 900
+      },
+      {
+        "epoch": 1771122898,
+        "difficulty": 250
+      },
+      {
+        "epoch": 1771328421,
+        "difficulty": 1000
+      },
+      {
+        "epoch": 1771374878,
+        "difficulty": 550
+      },
+      {
+        "epoch": 1771380235,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1771416546,
+        "difficulty": 600
+      },
+      {
+        "epoch": 1771424137,
+        "difficulty": 400
+      },
+      {
+        "epoch": 1771448172,
+        "difficulty": 1200
+      },
+      {
+        "epoch": 1771539324,
+        "difficulty": 600
+      },
+      {
+        "epoch": 1771547015,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1771547975,
+        "difficulty": 350
+      },
+      {
+        "epoch": 1771555263,
+        "difficulty": 350
+      },
+      {
+        "epoch": 1771805257,
+        "difficulty": 800
+      },
+      {
+        "epoch": 1771846791,
+        "difficulty": 800
+      },
+      {
+        "epoch": 1771930250,
+        "difficulty": 300
+      },
+      {
+        "epoch": 1771936715,
+        "difficulty": 400
+      },
+      {
+        "epoch": 1772022205,
+        "difficulty": 700
+      },
+      {
+        "epoch": 1772050014,
+        "difficulty": 400
+      },
+      {
+        "epoch": 1772062344,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1772103644,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1772278231,
+        "difficulty": 500
+      },
+      {
+        "epoch": 1772311050,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1772323847,
+        "difficulty": 900
+      },
+      {
+        "epoch": 1772344170,
+        "difficulty": 900
+      },
+      {
+        "epoch": 1772484127,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1772496984,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1772533624,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1772544307,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1772592560,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1772623123,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1772636381,
+        "difficulty": 300
+      },
+      {
+        "epoch": 1772654706,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1772657705,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1772706495,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1772749328,
+        "difficulty": 800
+      },
+      {
+        "epoch": 1772791475,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1772794880,
+        "difficulty": 300
+      },
+      {
+        "epoch": 1772879105,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1772886920,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1772888007,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1773002322,
+        "difficulty": 500
+      },
+      {
+        "epoch": 1773012722,
+        "difficulty": 500
+      },
+      {
+        "epoch": 1773016461,
+        "difficulty": 350
+      },
+      {
+        "epoch": 1773018371,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1773056436,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1773090895,
+        "difficulty": 400
+      },
+      {
+        "epoch": 1773161997,
+        "difficulty": 550
+      },
+      {
+        "epoch": 1773176304,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1773176722,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1773181891,
+        "difficulty": 1100
+      },
+      {
+        "epoch": 1773310622,
+        "difficulty": 800
+      },
+      {
+        "epoch": 1773322001,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1773363008,
+        "difficulty": 900
+      },
+      {
+        "epoch": 1773378102,
+        "difficulty": 900
+      },
+      {
+        "epoch": 1773380759,
+        "difficulty": 900
+      },
+      {
+        "epoch": 1773408418,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1773453057,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1773457108,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1773490950,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1773535828,
+        "difficulty": 800
+      },
+      {
+        "epoch": 1773609333,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1773613767,
+        "difficulty": 400
+      },
+      {
+        "epoch": 1773618121,
+        "difficulty": 500
+      },
+      {
+        "epoch": 1773637378,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1773658620,
+        "difficulty": 500
+      },
+      {
+        "epoch": 1773871041,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1773877378,
+        "difficulty": 350
+      },
+      {
+        "epoch": 1773880163,
+        "difficulty": 400
+      },
+      {
+        "epoch": 1773896065,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1773954951,
+        "difficulty": 500
+      },
+      {
+        "epoch": 1774050951,
+        "difficulty": 600
+      },
+      {
+        "epoch": 1774069556,
+        "difficulty": 600
+      },
+      {
+        "epoch": 1774093203,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1774099875,
+        "difficulty": 300
+      },
+      {
+        "epoch": 1774108445,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1774176611,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1774179272,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1774180426,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1774190469,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1774216553,
+        "difficulty": 350
+      },
+      {
+        "epoch": 1774276773,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1774280012,
+        "difficulty": 400
+      },
+      {
+        "epoch": 1774326686,
+        "difficulty": 400
+      },
+      {
+        "epoch": 1774353586,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1774358323,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1774362198,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1774642443,
+        "difficulty": 250
+      },
+      {
+        "epoch": 1774660926,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1774662837,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1774702686,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1774747297,
+        "difficulty": 300
+      },
+      {
+        "epoch": 1774815447,
+        "difficulty": 600
+      },
+      {
+        "epoch": 1774822634,
+        "difficulty": 800
+      },
+      {
+        "epoch": 1774824525,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1774826298,
+        "difficulty": 900
+      },
+      {
+        "epoch": 1774876303,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1774903018,
+        "difficulty": 900
+      },
+      {
+        "epoch": 1774921899,
+        "difficulty": 550
+      },
+      {
+        "epoch": 1775078696,
+        "difficulty": 700
+      },
+      {
+        "epoch": 1775084055,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1775092636,
+        "difficulty": 700
+      },
+      {
+        "epoch": 1775129118,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1775257931,
+        "difficulty": 1000
+      },
+      {
+        "epoch": 1775333170,
+        "difficulty": 900
+      },
+      {
+        "epoch": 1775344335,
+        "difficulty": 700
+      },
+      {
+        "epoch": 1775390170,
+        "difficulty": 250
+      },
+      {
+        "epoch": 1775394715,
+        "difficulty": 250
+      },
+      {
+        "epoch": 1775440721,
+        "difficulty": 350
+      },
+      {
+        "epoch": 1775454816,
+        "difficulty": 400
+      },
+      {
+        "epoch": 1775470422,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1775482795,
+        "difficulty": 350
+      },
+      {
+        "epoch": 1775494456,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1775564248,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1775699999,
+        "difficulty": 300
+      },
+      {
+        "epoch": 1775740337,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1775786641,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1775839838,
+        "difficulty": 600
+      },
+      {
+        "epoch": 1775909107,
+        "difficulty": 900
+      },
+      {
+        "epoch": 1775918129,
+        "difficulty": 100
+      },
+      {
+        "epoch": 1775946301,
+        "difficulty": 1200
+      },
+      {
+        "epoch": 1775970962,
+        "difficulty": 300
+      },
+      {
+        "epoch": 1776198204,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1776229922,
+        "difficulty": 500
+      },
+      {
+        "epoch": 1776287328,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1776301205,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1776347498,
+        "difficulty": 450
       }
     ],
     "current_rating": 438,
     "projections": [
       {
         "scenario": "optimistic",
+        "weekly_diff": 3750,
         "points": [
           {
-            "epoch": 1776920400,
-            "avg": 1037
+            "epoch": 1776747600,
+            "rating": 457
           },
           {
-            "epoch": 1777525200,
-            "avg": 1104
+            "epoch": 1777352400,
+            "rating": 476
           },
           {
-            "epoch": 1778130000,
-            "avg": 1170
+            "epoch": 1777957200,
+            "rating": 494
           },
           {
-            "epoch": 1778734800,
-            "avg": 1237
+            "epoch": 1778562000,
+            "rating": 513
           },
           {
-            "epoch": 1779339600,
-            "avg": 1304
+            "epoch": 1779166800,
+            "rating": 532
           },
           {
-            "epoch": 1779944400,
-            "avg": 1371
+            "epoch": 1779771600,
+            "rating": 550
           },
           {
-            "epoch": 1780549200,
-            "avg": 1438
+            "epoch": 1780376400,
+            "rating": 569
           },
           {
-            "epoch": 1781154000,
-            "avg": 1505
+            "epoch": 1780981200,
+            "rating": 588
           },
           {
-            "epoch": 1781758800,
-            "avg": 1571
+            "epoch": 1781586000,
+            "rating": 607
           },
           {
-            "epoch": 1782363600,
-            "avg": 1638
+            "epoch": 1782190800,
+            "rating": 626
           },
           {
-            "epoch": 1782968400,
-            "avg": 1705
+            "epoch": 1782795600,
+            "rating": 644
           },
           {
-            "epoch": 1783573200,
-            "avg": 1772
+            "epoch": 1783400400,
+            "rating": 663
           },
           {
-            "epoch": 1784178000,
-            "avg": 1839
+            "epoch": 1784005200,
+            "rating": 682
           }
         ]
       },
       {
         "scenario": "maintain",
+        "weekly_diff": 2500,
         "points": [
           {
-            "epoch": 1776920400,
-            "avg": 1015
+            "epoch": 1776747600,
+            "rating": 450
           },
           {
-            "epoch": 1777525200,
-            "avg": 1059
+            "epoch": 1777352400,
+            "rating": 463
           },
           {
-            "epoch": 1778130000,
-            "avg": 1104
+            "epoch": 1777957200,
+            "rating": 476
           },
           {
-            "epoch": 1778734800,
-            "avg": 1148
+            "epoch": 1778562000,
+            "rating": 488
           },
           {
-            "epoch": 1779339600,
-            "avg": 1193
+            "epoch": 1779166800,
+            "rating": 500
           },
           {
-            "epoch": 1779944400,
-            "avg": 1237
+            "epoch": 1779771600,
+            "rating": 513
           },
           {
-            "epoch": 1780549200,
-            "avg": 1282
+            "epoch": 1780376400,
+            "rating": 526
           },
           {
-            "epoch": 1781154000,
-            "avg": 1326
+            "epoch": 1780981200,
+            "rating": 538
           },
           {
-            "epoch": 1781758800,
-            "avg": 1371
+            "epoch": 1781586000,
+            "rating": 550
           },
           {
-            "epoch": 1782363600,
-            "avg": 1415
+            "epoch": 1782190800,
+            "rating": 563
           },
           {
-            "epoch": 1782968400,
-            "avg": 1460
+            "epoch": 1782795600,
+            "rating": 576
           },
           {
-            "epoch": 1783573200,
-            "avg": 1505
+            "epoch": 1783400400,
+            "rating": 588
           },
           {
-            "epoch": 1784178000,
-            "avg": 1549
+            "epoch": 1784005200,
+            "rating": 600
           }
         ]
       },
       {
         "scenario": "pessimistic",
+        "weekly_diff": 750,
         "points": [
           {
-            "epoch": 1776920400,
-            "avg": 983
+            "epoch": 1776747600,
+            "rating": 442
           },
           {
-            "epoch": 1777525200,
-            "avg": 997
+            "epoch": 1777352400,
+            "rating": 446
           },
           {
-            "epoch": 1778130000,
-            "avg": 1010
+            "epoch": 1777957200,
+            "rating": 449
           },
           {
-            "epoch": 1778734800,
-            "avg": 1023
+            "epoch": 1778562000,
+            "rating": 453
           },
           {
-            "epoch": 1779339600,
-            "avg": 1037
+            "epoch": 1779166800,
+            "rating": 457
           },
           {
-            "epoch": 1779944400,
-            "avg": 1050
+            "epoch": 1779771600,
+            "rating": 460
           },
           {
-            "epoch": 1780549200,
-            "avg": 1064
+            "epoch": 1780376400,
+            "rating": 464
           },
           {
-            "epoch": 1781154000,
-            "avg": 1077
+            "epoch": 1780981200,
+            "rating": 468
           },
           {
-            "epoch": 1781758800,
-            "avg": 1090
+            "epoch": 1781586000,
+            "rating": 472
           },
           {
-            "epoch": 1782363600,
-            "avg": 1104
+            "epoch": 1782190800,
+            "rating": 476
           },
           {
-            "epoch": 1782968400,
-            "avg": 1117
+            "epoch": 1782795600,
+            "rating": 479
           },
           {
-            "epoch": 1783573200,
-            "avg": 1130
+            "epoch": 1783400400,
+            "rating": 483
           },
           {
-            "epoch": 1784178000,
-            "avg": 1144
+            "epoch": 1784005200,
+            "rating": 487
           }
         ]
       }
-    ]
+    ],
+    "avg_weekly_diff": 2500,
+    "rps_efficiency": 0.005
   },
   "tag_ac_rate": [
     {
@@ -761,143 +1532,703 @@
   ],
   "streak_calendar": [
     {
-      "date": "2026-03-19",
-      "max_difficulty": 450,
-      "ac_count": 2
+      "date": "2025-11-28",
+      "max_difficulty": 700,
+      "ac_count": 1
     },
     {
-      "date": "2026-03-20",
-      "max_difficulty": 620,
+      "date": "2025-11-29",
+      "max_difficulty": 700,
+      "ac_count": 1
+    },
+    {
+      "date": "2025-11-30",
+      "max_difficulty": 600,
       "ac_count": 3
     },
     {
-      "date": "2026-03-21",
+      "date": "2025-12-01",
       "max_difficulty": 0,
       "ac_count": 0
     },
     {
-      "date": "2026-03-22",
-      "max_difficulty": 890,
+      "date": "2025-12-02",
+      "max_difficulty": 900,
+      "ac_count": 3
+    },
+    {
+      "date": "2025-12-03",
+      "max_difficulty": 400,
+      "ac_count": 2
+    },
+    {
+      "date": "2025-12-04",
+      "max_difficulty": 300,
       "ac_count": 4
     },
     {
+      "date": "2025-12-05",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2025-12-06",
+      "max_difficulty": 600,
+      "ac_count": 1
+    },
+    {
+      "date": "2025-12-07",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2025-12-08",
+      "max_difficulty": 300,
+      "ac_count": 1
+    },
+    {
+      "date": "2025-12-09",
+      "max_difficulty": 200,
+      "ac_count": 2
+    },
+    {
+      "date": "2025-12-10",
+      "max_difficulty": 1000,
+      "ac_count": 4
+    },
+    {
+      "date": "2025-12-11",
+      "max_difficulty": 200,
+      "ac_count": 4
+    },
+    {
+      "date": "2025-12-12",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2025-12-13",
+      "max_difficulty": 450,
+      "ac_count": 4
+    },
+    {
+      "date": "2025-12-14",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2025-12-15",
+      "max_difficulty": 600,
+      "ac_count": 5
+    },
+    {
+      "date": "2025-12-16",
+      "max_difficulty": 700,
+      "ac_count": 5
+    },
+    {
+      "date": "2025-12-17",
+      "max_difficulty": 800,
+      "ac_count": 5
+    },
+    {
+      "date": "2025-12-18",
+      "max_difficulty": 600,
+      "ac_count": 4
+    },
+    {
+      "date": "2025-12-19",
+      "max_difficulty": 1200,
+      "ac_count": 2
+    },
+    {
+      "date": "2025-12-20",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2025-12-21",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2025-12-22",
+      "max_difficulty": 600,
+      "ac_count": 2
+    },
+    {
+      "date": "2025-12-23",
+      "max_difficulty": 300,
+      "ac_count": 4
+    },
+    {
+      "date": "2025-12-24",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2025-12-25",
+      "max_difficulty": 200,
+      "ac_count": 3
+    },
+    {
+      "date": "2025-12-26",
+      "max_difficulty": 1100,
+      "ac_count": 1
+    },
+    {
+      "date": "2025-12-27",
+      "max_difficulty": 450,
+      "ac_count": 3
+    },
+    {
+      "date": "2025-12-28",
+      "max_difficulty": 1200,
+      "ac_count": 5
+    },
+    {
+      "date": "2025-12-29",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2025-12-30",
+      "max_difficulty": 800,
+      "ac_count": 3
+    },
+    {
+      "date": "2025-12-31",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-01-01",
+      "max_difficulty": 900,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-01-02",
+      "max_difficulty": 400,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-01-03",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-01-04",
+      "max_difficulty": 200,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-01-05",
+      "max_difficulty": 450,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-01-06",
+      "max_difficulty": 1100,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-01-07",
+      "max_difficulty": 1100,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-01-08",
+      "max_difficulty": 1000,
+      "ac_count": 1
+    },
+    {
+      "date": "2026-01-09",
+      "max_difficulty": 1200,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-01-10",
+      "max_difficulty": 200,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-01-11",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-01-12",
+      "max_difficulty": 1200,
+      "ac_count": 5
+    },
+    {
+      "date": "2026-01-13",
+      "max_difficulty": 600,
+      "ac_count": 1
+    },
+    {
+      "date": "2026-01-14",
+      "max_difficulty": 200,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-01-15",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-01-16",
+      "max_difficulty": 200,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-01-17",
+      "max_difficulty": 700,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-01-18",
+      "max_difficulty": 600,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-01-19",
+      "max_difficulty": 1100,
+      "ac_count": 1
+    },
+    {
+      "date": "2026-01-20",
+      "max_difficulty": 700,
+      "ac_count": 5
+    },
+    {
+      "date": "2026-01-21",
+      "max_difficulty": 1100,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-01-22",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-01-23",
+      "max_difficulty": 600,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-01-24",
+      "max_difficulty": 900,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-01-25",
+      "max_difficulty": 1000,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-01-26",
+      "max_difficulty": 1200,
+      "ac_count": 1
+    },
+    {
+      "date": "2026-01-27",
+      "max_difficulty": 600,
+      "ac_count": 1
+    },
+    {
+      "date": "2026-01-28",
+      "max_difficulty": 500,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-01-29",
+      "max_difficulty": 400,
+      "ac_count": 1
+    },
+    {
+      "date": "2026-01-30",
+      "max_difficulty": 900,
+      "ac_count": 5
+    },
+    {
+      "date": "2026-01-31",
+      "max_difficulty": 900,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-02-01",
+      "max_difficulty": 450,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-02-02",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-02-03",
+      "max_difficulty": 900,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-02-04",
+      "max_difficulty": 500,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-02-05",
+      "max_difficulty": 300,
+      "ac_count": 5
+    },
+    {
+      "date": "2026-02-06",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-02-07",
+      "max_difficulty": 450,
+      "ac_count": 1
+    },
+    {
+      "date": "2026-02-08",
+      "max_difficulty": 300,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-02-09",
+      "max_difficulty": 600,
+      "ac_count": 1
+    },
+    {
+      "date": "2026-02-10",
+      "max_difficulty": 900,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-02-11",
+      "max_difficulty": 800,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-02-12",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-02-13",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-02-14",
+      "max_difficulty": 800,
+      "ac_count": 5
+    },
+    {
+      "date": "2026-02-15",
+      "max_difficulty": 900,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-02-16",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-02-17",
+      "max_difficulty": 1000,
+      "ac_count": 1
+    },
+    {
+      "date": "2026-02-18",
+      "max_difficulty": 600,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-02-19",
+      "max_difficulty": 1200,
+      "ac_count": 1
+    },
+    {
+      "date": "2026-02-20",
+      "max_difficulty": 600,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-02-21",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-02-22",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-02-23",
+      "max_difficulty": 800,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-02-24",
+      "max_difficulty": 400,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-02-25",
+      "max_difficulty": 700,
+      "ac_count": 1
+    },
+    {
+      "date": "2026-02-26",
+      "max_difficulty": 400,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-02-27",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-02-28",
+      "max_difficulty": 500,
+      "ac_count": 1
+    },
+    {
+      "date": "2026-03-01",
+      "max_difficulty": 900,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-03-02",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-03-03",
+      "max_difficulty": 200,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-03-04",
+      "max_difficulty": 300,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-03-05",
+      "max_difficulty": 450,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-03-06",
+      "max_difficulty": 800,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-03-07",
+      "max_difficulty": 450,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-03-08",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-03-09",
+      "max_difficulty": 500,
+      "ac_count": 5
+    },
+    {
+      "date": "2026-03-10",
+      "max_difficulty": 400,
+      "ac_count": 1
+    },
+    {
+      "date": "2026-03-11",
+      "max_difficulty": 1100,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-03-12",
+      "max_difficulty": 800,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-03-13",
+      "max_difficulty": 900,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-03-14",
+      "max_difficulty": 450,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-03-15",
+      "max_difficulty": 800,
+      "ac_count": 1
+    },
+    {
+      "date": "2026-03-16",
+      "max_difficulty": 500,
+      "ac_count": 5
+    },
+    {
+      "date": "2026-03-17",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-03-18",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-03-19",
+      "max_difficulty": 450,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-03-20",
+      "max_difficulty": 500,
+      "ac_count": 1
+    },
+    {
+      "date": "2026-03-21",
+      "max_difficulty": 600,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-03-22",
+      "max_difficulty": 200,
+      "ac_count": 5
+    },
+    {
       "date": "2026-03-23",
-      "max_difficulty": 520,
+      "max_difficulty": 450,
       "ac_count": 2
     },
     {
       "date": "2026-03-24",
+      "max_difficulty": 400,
+      "ac_count": 5
+    },
+    {
+      "date": "2026-03-25",
       "max_difficulty": 0,
       "ac_count": 0
     },
     {
-      "date": "2026-03-25",
-      "max_difficulty": 980,
-      "ac_count": 3
-    },
-    {
       "date": "2026-03-26",
-      "max_difficulty": 410,
-      "ac_count": 1
+      "max_difficulty": 0,
+      "ac_count": 0
     },
     {
       "date": "2026-03-27",
-      "max_difficulty": 670,
-      "ac_count": 2
+      "max_difficulty": 0,
+      "ac_count": 0
     },
     {
       "date": "2026-03-28",
-      "max_difficulty": 850,
-      "ac_count": 3
+      "max_difficulty": 450,
+      "ac_count": 4
     },
     {
       "date": "2026-03-29",
-      "max_difficulty": 520,
-      "ac_count": 2
+      "max_difficulty": 300,
+      "ac_count": 1
     },
     {
       "date": "2026-03-30",
-      "max_difficulty": 1100,
+      "max_difficulty": 900,
       "ac_count": 5
     },
     {
       "date": "2026-03-31",
-      "max_difficulty": 430,
+      "max_difficulty": 900,
       "ac_count": 2
     },
     {
       "date": "2026-04-01",
-      "max_difficulty": 780,
-      "ac_count": 3
+      "max_difficulty": 0,
+      "ac_count": 0
     },
     {
       "date": "2026-04-02",
-      "max_difficulty": 1250,
+      "max_difficulty": 700,
       "ac_count": 4
     },
     {
       "date": "2026-04-03",
-      "max_difficulty": 920,
-      "ac_count": 3
+      "max_difficulty": 0,
+      "ac_count": 0
     },
     {
       "date": "2026-04-04",
-      "max_difficulty": 560,
-      "ac_count": 2
+      "max_difficulty": 1000,
+      "ac_count": 1
     },
     {
       "date": "2026-04-05",
-      "max_difficulty": 810,
-      "ac_count": 3
+      "max_difficulty": 900,
+      "ac_count": 4
     },
     {
       "date": "2026-04-06",
+      "max_difficulty": 400,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-04-07",
       "max_difficulty": 450,
       "ac_count": 2
     },
     {
-      "date": "2026-04-07",
-      "max_difficulty": 970,
-      "ac_count": 4
-    },
-    {
       "date": "2026-04-08",
-      "max_difficulty": 680,
-      "ac_count": 2
+      "max_difficulty": 0,
+      "ac_count": 0
     },
     {
       "date": "2026-04-09",
-      "max_difficulty": 890,
-      "ac_count": 3
+      "max_difficulty": 300,
+      "ac_count": 2
     },
     {
       "date": "2026-04-10",
-      "max_difficulty": 520,
-      "ac_count": 2
+      "max_difficulty": 200,
+      "ac_count": 1
     },
     {
       "date": "2026-04-11",
-      "max_difficulty": 1080,
-      "ac_count": 4
+      "max_difficulty": 900,
+      "ac_count": 3
     },
     {
       "date": "2026-04-12",
-      "max_difficulty": 750,
-      "ac_count": 3
-    },
-    {
-      "date": "2026-04-13",
-      "max_difficulty": 620,
+      "max_difficulty": 1200,
       "ac_count": 2
     },
     {
+      "date": "2026-04-13",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
       "date": "2026-04-14",
-      "max_difficulty": 940,
-      "ac_count": 3
+      "max_difficulty": 0,
+      "ac_count": 0
     },
     {
       "date": "2026-04-15",
-      "max_difficulty": 1089,
+      "max_difficulty": 500,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-04-16",
+      "max_difficulty": 450,
       "ac_count": 3
     }
   ],
@@ -1062,12 +2393,12 @@
   ],
   "rating_history": [
     {
-      "epoch": 1734183600,
+      "epoch": 1726321200,
       "old_rating": 155,
-      "new_rating": 178,
-      "contest": "AtCoder Beginner Contest 384",
-      "place": 8149,
-      "performance": 53
+      "new_rating": 171,
+      "contest": "AtCoder Beginner Contest 371",
+      "place": 7612,
+      "performance": 333
     },
     {
       "epoch": 1727530800,
@@ -1078,12 +2409,116 @@
       "performance": 222
     },
     {
-      "epoch": 1726321200,
+      "epoch": 1734183600,
       "old_rating": 155,
-      "new_rating": 171,
-      "contest": "AtCoder Beginner Contest 371",
-      "place": 7612,
-      "performance": 333
+      "new_rating": 178,
+      "contest": "AtCoder Beginner Contest 384",
+      "place": 8149,
+      "performance": 53
+    },
+    {
+      "epoch": 1738000000,
+      "old_rating": 178,
+      "new_rating": 210,
+      "contest": "AtCoder Beginner Contest 389",
+      "place": 6820,
+      "performance": 480
+    },
+    {
+      "epoch": 1741200000,
+      "old_rating": 210,
+      "new_rating": 240,
+      "contest": "AtCoder Beginner Contest 393",
+      "place": 6100,
+      "performance": 520
+    },
+    {
+      "epoch": 1744400000,
+      "old_rating": 240,
+      "new_rating": 220,
+      "contest": "AtCoder Beginner Contest 397",
+      "place": 7500,
+      "performance": 180
+    },
+    {
+      "epoch": 1747600000,
+      "old_rating": 220,
+      "new_rating": 275,
+      "contest": "AtCoder Beginner Contest 401",
+      "place": 5800,
+      "performance": 590
+    },
+    {
+      "epoch": 1750800000,
+      "old_rating": 275,
+      "new_rating": 305,
+      "contest": "AtCoder Beginner Contest 405",
+      "place": 5200,
+      "performance": 540
+    },
+    {
+      "epoch": 1754000000,
+      "old_rating": 305,
+      "new_rating": 290,
+      "contest": "AtCoder Beginner Contest 410",
+      "place": 6300,
+      "performance": 250
+    },
+    {
+      "epoch": 1757200000,
+      "old_rating": 290,
+      "new_rating": 340,
+      "contest": "AtCoder Beginner Contest 414",
+      "place": 4900,
+      "performance": 620
+    },
+    {
+      "epoch": 1760400000,
+      "old_rating": 340,
+      "new_rating": 365,
+      "contest": "AtCoder Beginner Contest 418",
+      "place": 4500,
+      "performance": 580
+    },
+    {
+      "epoch": 1763600000,
+      "old_rating": 365,
+      "new_rating": 350,
+      "contest": "AtCoder Beginner Contest 422",
+      "place": 5600,
+      "performance": 310
+    },
+    {
+      "epoch": 1766800000,
+      "old_rating": 350,
+      "new_rating": 395,
+      "contest": "AtCoder Beginner Contest 428",
+      "place": 4200,
+      "performance": 640
+    },
+    {
+      "epoch": 1770000000,
+      "old_rating": 395,
+      "new_rating": 420,
+      "contest": "AtCoder Beginner Contest 434",
+      "place": 3900,
+      "performance": 610
+    },
+    {
+      "epoch": 1773200000,
+      "old_rating": 420,
+      "new_rating": 410,
+      "contest": "AtCoder Beginner Contest 440",
+      "place": 5000,
+      "performance": 370
+    },
+    {
+      "epoch": 1776142800,
+      "old_rating": 410,
+      "new_rating": 438,
+      "contest": "AtCoder Beginner Contest 446",
+      "place": 3600,
+      "performance": 650
     }
   ],
   "skill_graph": {

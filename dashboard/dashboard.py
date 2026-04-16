@@ -156,6 +156,7 @@ def on_activate(app: Gtk.Application) -> None:
     settings = webview.get_settings()
     settings.set_property('hardware-acceleration-policy',
                           WebKit.HardwareAccelerationPolicy.NEVER)
+    settings.set_property('allow-file-access-from-file-urls', True)
     webview.set_settings(settings)
     webview.load_uri(f'file://{DASHBOARD_HTML}')
 

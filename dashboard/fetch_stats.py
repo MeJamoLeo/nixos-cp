@@ -435,21 +435,30 @@ def build_hud(
         if _epoch_to_jst_date(s.get("epoch_second", 0)) == today
         and s.get("result") == "AC"
     ]
+    # 5時未満は夜更かし扱い → 早朝ACとしてカウントしない
+    MORNING_START_HOUR = 5
     first_ac_today = ""
     if today_acs:
-        earliest = min(today_acs, key=lambda s: s["epoch_second"])
-        first_ac_today = datetime.fromtimestamp(
-            earliest["epoch_second"], tz=JST
-        ).strftime("%H:%M")
+        morning_acs = [
+            s for s in today_acs
+            if datetime.fromtimestamp(
+                s["epoch_second"], tz=JST
+            ).hour >= MORNING_START_HOUR
+        ]
+        if morning_acs:
+            earliest = min(morning_acs, key=lambda s: s["epoch_second"])
+            first_ac_today = datetime.fromtimestamp(
+                earliest["epoch_second"], tz=JST
+            ).strftime("%H:%M")
 
-    # Average first AC time (last 30 days)
+    # Average first AC time (last 30 days, 5時以降のみ)
     thirty_days_ago = datetime.now(JST) - timedelta(days=30)
     by_date: dict[str, list[dict]] = {}
     for s in submissions:
         if s.get("result") != "AC":
             continue
         dt = datetime.fromtimestamp(s["epoch_second"], tz=JST)
-        if dt >= thirty_days_ago:
+        if dt >= thirty_days_ago and dt.hour >= MORNING_START_HOUR:
             by_date.setdefault(dt.strftime("%Y-%m-%d"), []).append(s)
     daily_first_minutes: list[int] = []
     for subs in by_date.values():
@@ -530,8 +539,11 @@ def build_wa_queue(
     difficulties: dict[str, Any],
     problems_list: list[dict],
     tag_overrides: dict[str, str],
+    current_rating: int = 0,
 ) -> list[dict]:
     problems_map = {p["id"]: p for p in problems_list}
+    # 実力から離れすぎた問題を除外: 解ける確率≈43% = 現レート+100
+    diff_cap = current_rating + 100 if current_rating > 0 else 9999
 
     by_problem: dict[str, list[dict]] = {}
     for s in submissions:
@@ -545,6 +557,8 @@ def build_wa_queue(
             diff = difficulties.get(pid, {}).get("difficulty") or 0
             if diff < 0:
                 diff = 0
+            if diff > diff_cap:
+                continue
             cid = problems_map.get(pid, {}).get("contest_id", "")
             tag = tag_overrides.get(pid, _guess_tag(pid, cid, diff))
             last_wa = max(
@@ -586,61 +600,88 @@ def build_difficulty_log(
     six_months_ago = now - 180 * 86400
     recent_points = [p for p in points if p["epoch"] >= six_months_ago]
 
-    # 7-day rolling average (全期間で計算、6ヶ月分を返す)
-    seven_day_avg: list[dict] = []
-    if points:
-        for i, p in enumerate(points):
-            cutoff = p["epoch"] - 7 * 86400
-            window = [
-                pp["difficulty"]
-                for pp in points[: i + 1]
-                if pp["epoch"] >= cutoff
-            ]
-            if window:
-                seven_day_avg.append({
-                    "epoch": p["epoch"],
-                    "avg": round(sum(window) / len(window)),
-                })
-    recent_avg = [a for a in seven_day_avg if a["epoch"] >= six_months_ago]
+    # Weekly difficulty sums (棒グラフ用)
+    weekly_diff_sums: list[dict] = []
+    if recent_points:
+        week_sums: dict[int, dict] = {}
+        first_epoch = recent_points[0]["epoch"]
+        for p in recent_points:
+            wk = (p["epoch"] - first_epoch) // (7 * 86400)
+            wk_epoch = first_epoch + wk * 7 * 86400
+            if wk_epoch not in week_sums:
+                week_sums[wk_epoch] = {
+                    "epoch": wk_epoch, "sum": 0, "count": 0,
+                }
+            week_sums[wk_epoch]["sum"] += p["difficulty"]
+            week_sums[wk_epoch]["count"] += 1
+        weekly_diff_sums = sorted(
+            week_sums.values(), key=lambda x: x["epoch"],
+        )
 
-    # 予測線: 直近2週間のトレンドから3ヶ月先を予測
+    # RPS-based projection model (r=0.73, discounted 50%)
+    # Population benchmark: +1 rating per 100 RPS → 0.01
+    # Conservative discount: × 0.5 → efficiency = 0.005
+    RPS_EFFICIENCY = 0.005
+
+    # Average weekly diff from recent weeks
+    avg_weekly_diff = 0
+    if weekly_diff_sums:
+        recent_weeks = weekly_diff_sums[-10:]
+        avg_weekly_diff = round(
+            sum(w["sum"] for w in recent_weeks) / len(recent_weeks)
+        )
+
+    # Try personal efficiency from own data
+    if len(ratings) >= 5 and recent_points:
+        total_diff = sum(p["difficulty"] for p in recent_points)
+        first_r = ratings[0]["NewRating"]
+        last_r = ratings[-1]["NewRating"]
+        rating_gain = last_r - first_r
+        if total_diff > 0 and rating_gain > 0:
+            personal_eff = rating_gain / total_diff
+            RPS_EFFICIENCY = personal_eff
+
+    # Effort-based projections
     projections: list[dict] = []
-    two_weeks_ago = now - 14 * 86400
-    recent_2w = [a for a in seven_day_avg if a["epoch"] >= two_weeks_ago]
-    if len(recent_2w) >= 2:
-        # 直近2週間の傾き (difficulty/day)
-        first, last = recent_2w[0], recent_2w[-1]
-        days_span = (last["epoch"] - first["epoch"]) / 86400
-        if days_span > 0:
-            slope_per_day = (last["avg"] - first["avg"]) / days_span
-            current_avg = last["avg"]
-            current_epoch = last["epoch"]
+    cur_epoch = now
+    if ratings:
+        last_ep = ratings[-1].get("EndTime", 0)
+        if isinstance(last_ep, str):
+            try:
+                last_ep = int(
+                    datetime.fromisoformat(last_ep).timestamp()
+                )
+            except ValueError:
+                last_ep = int(now)
+        cur_epoch = last_ep
 
-            # 3ヶ月先まで、週刻みで予測点を生成
-            for scenario, multiplier in [
-                ("optimistic", 1.5),
-                ("maintain", 1.0),
-                ("pessimistic", 0.3),
-            ]:
-                proj_points = []
-                for week in range(1, 14):  # 13 weeks ≈ 3 months
-                    future_epoch = current_epoch + week * 7 * 86400
-                    future_avg = current_avg + slope_per_day * week * 7 * multiplier
-                    # Clamp to reasonable range
-                    future_avg = max(0, min(2800, future_avg))
-                    proj_points.append({
-                        "epoch": round(future_epoch),
-                        "avg": round(future_avg),
-                    })
-                projections.append({
-                    "scenario": scenario,
-                    "points": proj_points,
-                })
+    for scenario, multiplier in [
+        ("optimistic", 1.5),
+        ("maintain", 1.0),
+        ("pessimistic", 0.3),
+    ]:
+        weekly_diff = round(avg_weekly_diff * multiplier)
+        proj_points = []
+        for week in range(1, 14):
+            future_epoch = cur_epoch + week * 7 * 86400
+            gain = weekly_diff * week * RPS_EFFICIENCY
+            future_r = max(0, min(2800, current_rating + gain))
+            proj_points.append({
+                "epoch": round(future_epoch),
+                "rating": round(future_r),
+            })
+        projections.append({
+            "scenario": scenario,
+            "weekly_diff": weekly_diff,
+            "points": proj_points,
+        })
 
     return {
         "points": recent_points,
-        "seven_day_avg": recent_avg,
+        "weekly_diff_sums": weekly_diff_sums,
         "current_rating": current_rating,
+        "avg_weekly_diff": avg_weekly_diff,
+        "rps_efficiency": round(RPS_EFFICIENCY, 5),
         "projections": projections,
     }
 
@@ -705,7 +746,7 @@ def build_streak_calendar(
 
     today = datetime.now(JST).date()
     calendar: list[dict] = []
-    for i in range(27, -1, -1):
+    for i in range(139, -1, -1):  # 140 days ≈ 20 weeks
         d = today - timedelta(days=i)
         ds = d.isoformat()
         calendar.append({
@@ -1042,7 +1083,10 @@ def main() -> None:
             submissions, ratings, difficulties, streak_days, max_streak
         ),
         "wa_queue": (
-            build_wa_queue(submissions, difficulties, problems_list, tag_overrides)
+            build_wa_queue(
+                submissions, difficulties, problems_list, tag_overrides,
+                current_rating=ratings[-1]["NewRating"] if ratings else 0,
+            )
             if has_submissions
             else []
         ),
