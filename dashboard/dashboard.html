@@ -340,18 +340,25 @@ function renderQualityBar(d) {
 }
 function renderSpeedBars(d) {
 	const sp=d.speed||[];if(!sp.length)return '';
-	function fmt(s){const m=Math.floor(s/60),ss=String(s%60).padStart(2,'0');return m+':'+ss;}
-	// 全コンテストの最大累積時間でバー幅を正規化
-	const maxTime=Math.max(...sp.map(c=>c.laps.length?c.laps[c.laps.length-1].cumulative:0),1);
+	function fmt(s){const m=Math.floor(s/60),sec=String(s%60).padStart(2,'0');return m+':'+sec;}
 	let h='<div class="section-label">ラップタイム</div>';
 	sp.slice(-4).forEach(c=>{
-		h+='<div style="margin-bottom:3px"><div style="font-size:var(--fs-xs);color:var(--dim);margin-bottom:1px">'+c.contest+'</div>';
-		h+='<div style="display:flex;height:16px">';
+		// コンテスト時間: duration_secondsがあれば使う、なければABC=6000,ARC=7200
+		const dur=c.duration_seconds||(c.contest.includes('ARC')?7200:6000);
+		const totalUsed=c.laps.length?c.laps[c.laps.length-1].cumulative:0;
+		const remaining=Math.max(dur-totalUsed,0);
+		h+='<div style="margin-bottom:3px"><div style="font-size:var(--fs-xs);color:var(--dim);margin-bottom:1px">'+c.contest+' <span style="color:var(--muted)">'+fmt(dur)+'</span></div>';
+		h+='<div style="display:flex;height:16px;background:var(--bar-bg)">';
 		c.laps.forEach(l=>{
 			const col=l.problem==='A'?'#335577':l.problem==='B'?'#3a7a5a':l.problem==='C'?'var(--amber)':l.problem==='D'?'var(--cyan)':'var(--green)';
-			const pct=(l.lap/maxTime*100).toFixed(1);
+			const pct=(l.lap/dur*100).toFixed(1);
 			h+='<div style="width:'+pct+'%;background:'+col+';display:flex;align-items:center;justify-content:center;font-size:var(--fs-2xs);overflow:hidden;white-space:nowrap">'+l.problem+' '+fmt(l.lap)+'</div>';
 		});
+		// 残り時間（暗いスペース）
+		if(remaining>0){
+			const pct=(remaining/dur*100).toFixed(1);
+			h+='<div style="width:'+pct+'%;display:flex;align-items:center;justify-content:center;font-size:var(--fs-2xs);color:var(--muted);overflow:hidden"></div>';
+		}
 		h+='</div></div>';
 	});
 	return h;

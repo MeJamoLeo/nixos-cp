@@ -769,12 +769,13 @@ def build_speed(
 
         if laps:
             name = contest_names.get(cid, cid)
-            # Shorten name
             short = name.replace("AtCoder Beginner Contest ", "ABC ")
             short = short.replace("AtCoder Regular Contest ", "ARC ")
+            duration = 7200 if cid.startswith("arc") else 6000
             result.append({
                 "contest": short,
                 "start_epoch": start,
+                "duration_seconds": duration,
                 "laps": laps,
             })
 
