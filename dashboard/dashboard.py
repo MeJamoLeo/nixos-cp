@@ -133,8 +133,24 @@ def _on_load_changed(
         GLib.timeout_add(5000, lambda: _debug_check(webview) or False)
 
 
-def _refresh(webview: WebKit.WebView) -> bool:
-    _inject(webview)
+_last_mtime: float = 0.0
+
+
+def _watch_stats(webview: WebKit.WebView) -> bool:
+    """Watch stats.json for changes and re-inject when modified."""
+    global _last_mtime
+    path = _resolve_stats_path()
+    if not path:
+        return True
+    try:
+        mtime = os.path.getmtime(path)
+    except OSError:
+        return True
+    if mtime > _last_mtime:
+        if _last_mtime > 0:
+            print(f'[dashboard] stats.json updated, refreshing')
+            _inject(webview)
+        _last_mtime = mtime
     return True
 
 
@@ -165,7 +181,7 @@ def on_activate(app: Gtk.Application) -> None:
     webview.set_background_color(bg)
 
     webview.connect('load-changed', _on_load_changed)
-    GLib.timeout_add_seconds(1800, _refresh, webview)
+    GLib.timeout_add_seconds(10, _watch_stats, webview)
 
     win.set_child(webview)
     win.present()

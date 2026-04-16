@@ -27,11 +27,11 @@
 
 	systemd.user.timers.fetch-stats = {
 		Unit = {
-			Description = "Fetch AtCoder stats every 30 minutes";
+			Description = "Fetch AtCoder stats every 2 minutes";
 		};
 		Timer = {
 			OnBootSec = "30s";
-			OnUnitActiveSec = "30m";
+			OnUnitActiveSec = "2m";
 			Unit = "fetch-stats.service";
 		};
 		Install = {
