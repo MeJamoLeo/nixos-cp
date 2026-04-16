@@ -899,87 +899,87 @@ def build_skill_graph(
     ac_map = _ac_problems(submissions)
     ac_set = set(ac_map.keys())
 
-    # Benchmark problems per skill (canonical/典型 problems)
-    # Sources: 典型90問, EDPC, ABS, e869120ガイド, drken精選
+    # Benchmark problems per skill: B問題(入門) + C/D問題(習得証明)
+    # Sources: 典型90問, EDPC, ABC, e869120ガイド
     BENCHMARKS: dict[str, list[str]] = {
-        # Tier 1 (灰→茶)
+        # Tier 1 (灰→茶): B1問 + C2問
         "bruteforce": [
-            "abc085_c",     # Otoshidama (ABS, 3重ループ全探索)
-            "abc087_b",     # Coins (ABS, 全列挙)
+            "abc083_b",     # Some Sums (桁和で全探索)
+            "abc150_b",     # Count ABC (部分文字列全探索)
             "abc167_c",     # Skill Up (bit全探索入門)
         ],
         "sort": [
-            "abc088_b",     # Card Game for Two (ABS, 降順ソート)
+            "abc088_b",     # Card Game for Two (降順ソート)
             "abc132_c",     # Divide the Problems (ソート+中央値)
-            "typical90_g",  # #007 CP Classes (ソート+二分探索)
+            "abc121_c",     # White Cells (ソート+数え上げ)
         ],
         "greedy": [
-            "typical90_n",  # #014 We Used to Sing (ソート+貪欲マッチング)
+            "abc086_b",     # 1+1 (基本条件判定)
+            "abc134_c",     # Exception Handling (最大値除外)
             "abc131_d",     # Megalomania (スケジューリング貪欲)
-            "typical90_av", # #048 I will not drop out (降順貪欲)
         ],
         "string": [
-            "abc049_c",     # Daydream (ABS, 文字列マッチング)
             "abc122_b",     # ATCoder (部分文字列判定)
-            "abc171_c",     # One Quadrillion (N進法変換)
+            "abc139_c",     # Lower (文字列走査)
+            "abc049_c",     # Daydream (文字列マッチング)
         ],
         "mapset": [
-            "abc085_b",     # Kagami Mochi (ABS, Set重複除去)
-            "typical90_aa", # #027 Sign Up Requests (Set基本)
+            "abc081_b",     # Shift only (基本ループ)
+            "abc141_c",     # Attack Survival (カウント)
             "abc155_c",     # Poll (Map頻度カウント)
         ],
         "gcd": [
-            "typical90_v",  # #022 Cubic Cake (GCD直接応用)
+            "abc109_b",     # Shiritori (基本判定)
             "abc118_c",     # Monsters Battle Royale (全要素GCD)
             "abc148_c",     # Snack (LCM基本)
         ],
         "simulation": [
-            "abc086_c",     # Traveling (ABS, 座標シミュレーション)
-            "abc176_c",     # Step (走査+加算シミュレーション)
-            "abc181_c",     # Collinearity (数学条件の正確な実装)
+            "abc152_b",     # Comparing Strings (基本実装)
+            "abc124_c",     # Coloring Colorfully (反転シミュレーション)
+            "abc160_c",     # Traveling Salesman around Lake (環状距離)
         ],
-        # Tier 2 (茶→緑)
+        # Tier 2 (茶→緑): C/D問題 + 典型問題
         "cumsum": [
-            "typical90_j",  # #010 Score Sum Queries (累積和基本)
+            "abc120_c",     # Unification (累積的な数え上げ)
             "abc122_c",     # GeT AC (文字列+累積和)
-            "abc186_d",     # Sum of Difference (ソート+累積和)
+            "typical90_j",  # #010 Score Sum Queries (累積和基本)
         ],
         "binsearch": [
             "typical90_a",  # #001 Yokan Party (答えで二分探索)
-            "abc077_c",     # Snuke Festival (lower_bound数え上げ)
+            "abc077_c",     # Snuke Festival (lower_bound)
             "abc174_e",     # Logs (最大値の最小化)
         ],
         "basedp": [
+            "abc153_d",     # Caracal vs Monster (再帰/分割)
             "dp_a",         # EDPC Frog 1 (DP入門)
             "dp_d",         # EDPC Knapsack 1 (ナップサック)
-            "dp_c",         # EDPC Vacation (状態付きDP)
         ],
         "bfs": [
-            "abc007_3",     # 幅優先探索 (迷路BFS入門)
+            "abc007_3",     # 幅優先探索 (迷路BFS)
             "abc088_d",     # Grid Problem (グリッドBFS)
             "abc138_d",     # Ki (木DFS)
         ],
         "twoptr": [
-            "typical90_ah", # #034 There are few types (尺取り典型)
+            "typical90_ah", # #034 There are few types (尺取り)
             "abc130_d",     # Enough Array (和の尺取り)
             "abc172_c",     # Tsundoku (2山の尺取り)
         ],
         "bit": [
-            "typical90_b",  # #002 Encyclopedia of Parentheses (bit全探索)
+            "typical90_b",  # #002 括弧列 (bit全探索)
             "abc128_c",     # Switches (bit全探索)
-            "abc147_c",     # HonestOrUnkind2 (bit全探索+条件充足)
+            "abc147_c",     # HonestOrUnkind2 (bit全探索)
         ],
         "prime": [
-            "typical90_bw", # #075 Magic For Balls (素因数分解)
-            "abc084_d",     # 2017-like Number (エラトステネス+累積和)
+            "abc142_c",     # Go to School (順列基本)
+            "abc084_d",     # 2017-like Number (篩+累積和)
             "abc172_d",     # Sum of Divisors (約数列挙)
         ],
         "complexity": [
-            "typical90_d",  # #004 Cross Sum (O(HW)前計算)
-            "typical90_bc", # #055 Select 5 (計算量削減)
-            "abc176_d",     # Wizard in Maze (0-1 BFS選択)
+            "abc079_c",     # Train Ticket (計算式探索)
+            "typical90_d",  # #004 Cross Sum (前計算で高速化)
+            "abc176_d",     # Wizard in Maze (0-1 BFS)
         ],
-        # Tier 3 (緑→水)
+        # Tier 3 (緑→水): 典型 + 応用問題
         "unionfind": [
             "typical90_l",  # #012 Red Painting (UF典型)
             "abc177_d",     # Friends (連結成分最大サイズ)
@@ -992,30 +992,30 @@ def build_skill_graph(
         ],
         "segtree": [
             "typical90_ac", # #029 Long Bricks (遅延セグ木)
-            "abc185_f",     # Range Xor Query (BIT入門)
+            "abc185_f",     # Range Xor Query (BIT)
             "dp_q",         # EDPC Flowers (BIT+DP)
         ],
         "bitdp": [
             "dp_o",         # EDPC Matching (bitDP典型)
             "abc180_e",     # TSP (巡回セールスマン)
-            "abc142_e",     # Get Everything (集合被覆bitDP)
+            "abc142_e",     # Get Everything (集合被覆)
         ],
         "mst": [
             "abc218_e",     # Destruction (MST+負辺)
-            "abc065_d",     # Built? (座標ソート+クラスカル)
+            "abc065_d",     # Built? (座標+クラスカル)
         ],
         "compress": [
-            "abc036_c",     # 座圧 (座標圧縮そのもの)
-            "abc213_c",     # Reorder Cards (行列独立圧縮)
-            "typical90_ab", # #028 Cluttered Paper (2次元圧縮+imos)
+            "abc036_c",     # 座圧 (座標圧縮)
+            "abc213_c",     # Reorder Cards (行列圧縮)
+            "typical90_ab", # #028 Cluttered Paper (2次元)
         ],
         "modinv": [
-            "typical90_bq", # #069 Colorful Blocks 2 (nCr mod p)
+            "abc156_c",     # Rally (分散計算)
             "abc145_d",     # Knight (大きなnCr)
-            "abc156_d",     # Bouquet (2^N - nCr)
+            "typical90_bq", # #069 Colorful Blocks 2 (nCr mod p)
         ],
         "imos": [
-            "abc014_c",     # AtColor (1次元imos入門)
+            "abc014_c",     # AtColor (1次元imos)
             "abc183_d",     # Water Heater (imos基本)
             "typical90_ab", # #028 Cluttered Paper (2次元imos)
         ],
