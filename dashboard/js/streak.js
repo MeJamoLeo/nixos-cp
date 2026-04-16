@@ -65,6 +65,5 @@ function renderStreakCalendar(d) {
 
 	return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><span style="font-size:var(--fs-sm);color:var(--dim)">最長 '+(h.max_streak||0)+'日</span><span class="badge badge-amber">🔥 '+(h.streak_days||0)+'日</span></div>'
 		+'<div style="display:flex;gap:2px">'+dayLabels+'<div class="streak-grid" style="flex:1">'+g+'</div></div>'
-		+s
-		+'<div style="background:#060800;border:0.5px solid #5a4000;padding:4px 6px;box-shadow:inset 2px 0 0 var(--amber)"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:var(--fs-2xs);color:#5a4000">🌅 今日の初回提出</div><div style="font-size:var(--fs-lg);font-weight:500;color:#ffcc00;line-height:1.1">'+(h.first_ac_today||'--:--')+'</div></div><div style="text-align:right"><div style="font-size:var(--fs-2xs);color:#3a2a00">avg '+(h.avg_first_ac||'--:--')+'</div></div></div></div>';
+		+s;
 }

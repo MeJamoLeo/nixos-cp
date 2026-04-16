@@ -2,8 +2,6 @@ function renderHUD(d) {
 	const h = d.hud || {}, ps = d.player_status || {}, sp = d.speed || [];
 	const last = sp.length ? sp[sp.length-1] : null;
 	const spd = last ? Math.floor(last.avg_a_seconds/60)+':'+String(last.avg_a_seconds%60).padStart(2,'0') : '--';
-	const remain = (ps.rating_max||0) - (ps.rating||0);
-	const cn = Math.ceil(remain/30)||0;
 	const fc = (d.contests||[])[0];
 	function s(l,v,sub,c) {
 		return '<div class="hud-section"><div class="hud-label">'+l+'</div><div class="hud-value" style="color:'+c+'">'+v+'</div>'+(sub?'<div class="hud-sub">'+sub+'</div>':'')+'</div>';
@@ -13,6 +11,25 @@ function renderHUD(d) {
 	const cmp = d.compare || {};
 	const monthAc = cmp.this_month_ac || 0;
 
+	// Next color band calculation using RPS efficiency
+	const colorBands=[[400,'茶','#804000'],[800,'緑','#008000'],[1200,'水','#00c0c0'],[1600,'青','#0000ff'],[2000,'黄','#c0c000'],[2400,'橙','#ff8000'],[2800,'赤','#ff0000']];
+	const curRating=ps.rating||0;
+	let nextLabel='?',nextColor='#4a6a4a',targetR=400;
+	for(let i=0;i<colorBands.length;i++){if(curRating<colorBands[i][0]){nextLabel=colorBands[i][1];nextColor=colorBands[i][2];targetR=colorBands[i][0];break;}}
+	const remain=targetR-curRating;
+	const dl=d.difficulty_log||{};
+	const avgWkDiff=dl.avg_weekly_diff||0;
+	const eff=dl.rps_efficiency||0.005;
+	let nextEstimate='';
+	if(avgWkDiff>0){
+		const wkGain=avgWkDiff*eff;
+		const weeks=Math.ceil(remain/wkGain);
+		nextEstimate=weeks<=4?weeks+'週':Math.ceil(weeks/4)+'ヶ月';
+		nextEstimate+=' (週'+avgWkDiff+'diff)';
+	}else{
+		nextEstimate='精進再開待ち';
+	}
+
 	return '<div class="hud" style="background:var(--dbg-hud)">'
 		+s('system','[ CP // ONLINE ]','','#1a5a2a')
 		+s('rating',h.rating+' <span style="color:var(--dim)">'+(h.rank_label||'')+'</span>','','var(--amber)')
@@ -21,7 +38,7 @@ function renderHUD(d) {
 		+s('月AC',monthAc+'問','','var(--blue)')
 		+s('合計AC',totalAc+'問','','var(--cyan)')
 		+s('早朝AC',h.first_ac_today||'--:--','avg '+(h.avg_first_ac||'--:--'),'#ffcc00')
-		+s('緑まで',cn*7+'日 / '+cn+'戦','','#4a6a4a')
+		+s(nextLabel+'まで','+'+remain,nextEstimate,nextColor)
 		+''
 		+(fc?'<div class="hud-boss"><div><div style="font-size:var(--fs-2xs);color:#3a2a00;letter-spacing:.12em;text-transform:uppercase">BOSS FIGHT</div><div style="font-size:var(--fs-md);color:var(--amber);font-weight:500" id="boss-name">'+fc.type+' '+fc.id.replace(/[a-z]+/,'')+'</div></div><div class="hud-boss-timer" id="boss-timer">--:--:--</div></div>':'')
 		+'</div>';
