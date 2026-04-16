@@ -2,10 +2,22 @@
 """CP Dashboard — GTK4 + WebKit6 + gtk4-layer-shell renderer for Sway BACKGROUND layer."""
 
 import os
-from ctypes import CDLL
+from ctypes import CDLL, cdll
+from ctypes.util import find_library
 
-# gtk4-layer-shell must be pre-loaded before GI import
-CDLL('libgtk4-layer-shell.so')
+# gtk4-layer-shell must be pre-loaded before GI import.
+# On NixOS, libraries are in /nix/store and not on default LD path.
+_lib = find_library('gtk4-layer-shell')
+if _lib:
+    CDLL(_lib)
+else:
+    # Fallback: try common names directly
+    for name in ('libgtk4-layer-shell.so', 'libgtk4-layer-shell.so.0'):
+        try:
+            CDLL(name)
+            break
+        except OSError:
+            continue
 
 import gi
 gi.require_version('Gtk', '4.0')
