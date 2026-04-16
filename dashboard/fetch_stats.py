@@ -703,15 +703,14 @@ def build_speed(
     submissions: list[dict],
     ratings: list[dict],
 ) -> list[dict]:
-    """A-problem solve speed from contest results."""
+    """Per-contest lap times (A, B, C, ...) from rated contests only."""
     # Build contest start times from rating history
     contest_starts: dict[str, int] = {}
+    contest_names: dict[str, str] = {}
     for r in ratings:
-        # ContestScreenName format: "abc384.contest.atcoder.jp"
         screen = r.get("ContestScreenName", "")
         cid = screen.split(".")[0] if "." in screen else ""
         end_epoch = r.get("EndTime", 0)
-        # For official key format, EndTime might be ISO string
         if isinstance(end_epoch, str):
             try:
                 end_epoch = int(
@@ -719,36 +718,66 @@ def build_speed(
                 )
             except ValueError:
                 continue
-        # Contest duration is typically 100min for ABC
+        # ABC = 100min, ARC = 120min
+        duration = 7200 if cid.startswith("arc") else 6000
         if cid:
-            contest_starts[cid] = end_epoch - 6000  # approximate start
+            contest_starts[cid] = end_epoch - duration
+            contest_names[cid] = r.get("ContestName", cid)
 
-    a_times: dict[str, list[int]] = {}
+    # Group AC submissions by contest
+    contest_acs: dict[str, list[dict]] = {}
     for s in submissions:
-        pid = s.get("problem_id", "")
-        if not pid.endswith("_a"):
-            continue
         if s.get("result") != "AC":
             continue
         cid = s.get("contest_id", "")
-        start = contest_starts.get(cid)
-        if start is None:
+        if cid not in contest_starts:
             continue
-        solve_time = s["epoch_second"] - start
-        if 0 < solve_time < 600:
-            month = datetime.fromtimestamp(
-                s["epoch_second"], tz=JST
-            ).strftime("%Y-%m")
-            a_times.setdefault(month, []).append(solve_time)
+        contest_acs.setdefault(cid, []).append(s)
 
     result = []
-    for month in sorted(a_times.keys()):
-        times = a_times[month]
-        avg = sum(times) // len(times)
-        result.append({
-            "month": month,
-            "avg_a_seconds": avg,
-        })
+    for cid in sorted(contest_starts.keys(), key=lambda c: contest_starts[c]):
+        start = contest_starts[cid]
+        acs = contest_acs.get(cid, [])
+        if not acs:
+            continue
+
+        # First AC per problem, sorted by AC time
+        first_ac: dict[str, int] = {}
+        for s in sorted(acs, key=lambda x: x["epoch_second"]):
+            pid = s.get("problem_id", "")
+            if pid not in first_ac:
+                first_ac[pid] = s["epoch_second"]
+
+        # Sort by AC time → lap order
+        sorted_acs = sorted(first_ac.items(), key=lambda x: x[1])
+
+        laps = []
+        prev_time = start
+        for pid, ac_time in sorted_acs:
+            cumulative = ac_time - start
+            lap = ac_time - prev_time
+            if cumulative <= 0 or cumulative > 10800:
+                continue
+            # Problem label: last part after underscore (a, b, c, ...)
+            label = pid.rsplit("_", 1)[-1].upper() if "_" in pid else pid
+            laps.append({
+                "problem": label,
+                "cumulative": cumulative,
+                "lap": lap,
+            })
+            prev_time = ac_time
+
+        if laps:
+            name = contest_names.get(cid, cid)
+            # Shorten name
+            short = name.replace("AtCoder Beginner Contest ", "ABC ")
+            short = short.replace("AtCoder Regular Contest ", "ARC ")
+            result.append({
+                "contest": short,
+                "start_epoch": start,
+                "laps": laps,
+            })
+
     return result[-6:]
 
 

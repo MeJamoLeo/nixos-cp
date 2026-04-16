@@ -194,12 +194,32 @@
     {"date": "2026-04-15", "max_difficulty": 1089, "ac_count": 3}
   ],
   "speed": [
-    {"month": "2025-11", "avg_a_seconds": 165},
-    {"month": "2025-12", "avg_a_seconds": 148},
-    {"month": "2026-01", "avg_a_seconds": 138},
-    {"month": "2026-02", "avg_a_seconds": 116},
-    {"month": "2026-03", "avg_a_seconds": 104},
-    {"month": "2026-04", "avg_a_seconds": 102}
+    {"contest": "ABC 448", "start_epoch": 1742104800, "laps": [
+      {"problem": "A", "cumulative": 95, "lap": 95},
+      {"problem": "B", "cumulative": 380, "lap": 285},
+      {"problem": "C", "cumulative": 1450, "lap": 1070}
+    ]},
+    {"contest": "ABC 449", "start_epoch": 1742709600, "laps": [
+      {"problem": "A", "cumulative": 78, "lap": 78},
+      {"problem": "B", "cumulative": 310, "lap": 232},
+      {"problem": "C", "cumulative": 1680, "lap": 1370},
+      {"problem": "D", "cumulative": 3200, "lap": 1520}
+    ]},
+    {"contest": "ABC 450", "start_epoch": 1743314400, "laps": [
+      {"problem": "A", "cumulative": 82, "lap": 82},
+      {"problem": "B", "cumulative": 345, "lap": 263}
+    ]},
+    {"contest": "ABC 451", "start_epoch": 1743919200, "laps": [
+      {"problem": "A", "cumulative": 105, "lap": 105},
+      {"problem": "B", "cumulative": 302, "lap": 197},
+      {"problem": "C", "cumulative": 920, "lap": 618}
+    ]},
+    {"contest": "ABC 452", "start_epoch": 1744524000, "laps": [
+      {"problem": "A", "cumulative": 83, "lap": 83},
+      {"problem": "B", "cumulative": 255, "lap": 172},
+      {"problem": "C", "cumulative": 750, "lap": 495},
+      {"problem": "D", "cumulative": 2800, "lap": 2050}
+    ]}
   ],
   "contests": [
     {

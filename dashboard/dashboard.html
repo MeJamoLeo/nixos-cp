@@ -340,10 +340,18 @@ function renderQualityBar(d) {
 }
 function renderSpeedBars(d) {
 	const sp=d.speed||[];if(!sp.length)return '';
-	const mx=Math.max(...sp.map(s=>s.avg_a_seconds));
-	let h='<div class="section-label">A問題速度 <span class="badge badge-cyan">↓最速</span></div>';
-	sp.forEach((s,i)=>{const last=i===sp.length-1,m=Math.floor(s.avg_a_seconds/60),sec=String(s.avg_a_seconds%60).padStart(2,'0'),t=m+':'+sec,p=Math.round(s.avg_a_seconds/mx*100),c=last?'var(--cyan)':(i<sp.length/2?'#335577':'#3a7a9a'),lb=s.month.replace(/^\d{4}-0?/,'')+'月';
-	h+='<div class="speed-row'+(last?' active':'')+'"><span class="speed-label"'+(last?' style="color:var(--cyan)"':'')+'>'+lb+'</span><div class="speed-bar"><div class="speed-bar-fill" style="width:'+p+'%;background:'+c+'"><span class="speed-bar-text">'+t+'</span></div></div><span class="speed-value"'+(last?' style="color:var(--cyan)"':'')+'>'+(last?'↓':'')+t+'</span></div>';});
+	function fmt(s){const m=Math.floor(s/60),ss=String(s%60).padStart(2,'0');return m+':'+ss;}
+	let h='<div class="section-label">ラップタイム</div>';
+	sp.slice(-4).forEach((c,i)=>{
+		const last=i===Math.min(sp.length,4)-1;
+		h+='<div style="margin-bottom:3px"><div style="font-size:var(--fs-xs);color:'+(last?'var(--cyan)':'var(--dim)')+';margin-bottom:1px">'+c.contest+'</div>';
+		h+='<div style="display:flex;gap:3px">';
+		c.laps.forEach(l=>{
+			const col=l.problem==='A'?'#335577':l.problem==='B'?'#3a7a5a':l.problem==='C'?'var(--amber)':l.problem==='D'?'var(--cyan)':'var(--green)';
+			h+='<div style="flex:'+Math.max(l.lap,60)+';background:'+col+';padding:1px 2px;font-size:var(--fs-2xs);text-align:center;opacity:0.8">'+l.problem+' '+fmt(l.lap)+'</div>';
+		});
+		h+='</div></div>';
+	});
 	return h;
 }
 function renderContestList(d) {
