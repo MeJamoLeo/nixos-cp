@@ -50,11 +50,15 @@ def _inject(webview: WebKit2.WebView) -> None:
     # WebKit2GTKがgeometry hints(-1)を負の値として解釈するため
     # CSS全体の寸法が負になる。get_allocation()の正しい値を
     # html/bodyに直接px指定して強制上書きする。
+    # さらに全てのCSS変数をabsolute pxに変換し、
+    # フォントサイズも直接style属性で強制する。
     parts.append(
-        f"document.documentElement.style.width='{w}px';"
-        f"document.documentElement.style.height='{h}px';"
-        f"document.body.style.width='{w}px';"
-        f"document.body.style.height='{h}px';"
+        f"document.documentElement.style.cssText="
+        f"'width:{w}px !important;height:{h}px !important;"
+        f"overflow:hidden;font-size:80px !important;';"
+        f"document.body.style.cssText="
+        f"'width:{w}px !important;height:{h}px !important;"
+        f"margin:0;padding:0;overflow:hidden;font-size:80px !important;';"
     )
     parts.append('hydrate();')
     js = 'try {' + ''.join(parts) + '} catch(e) {}'
@@ -196,6 +200,8 @@ def main() -> None:
                           WebKit2.HardwareAccelerationPolicy.NEVER)
     settings.set_property('default-font-size', 80)
     settings.set_property('default-monospace-font-size', 64)
+    settings.set_property('enable-page-caching', False)
+    settings.set_property('enable-smooth-scrolling', False)
     webview.set_settings(settings)
     webview.load_uri(f'file://{DASHBOARD_HTML}')
     webview.set_background_color(
