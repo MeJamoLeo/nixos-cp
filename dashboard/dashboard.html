@@ -448,11 +448,18 @@ function renderSkillGraph(d) {
 		depthRadii[i] = 30 + i * (260 / maxDepth);
 	}
 
-	// 葉ノード（子を持たないノード）を特定
-	const childIds = new Set(nodes.filter(n => n.parent).map(n => n.parent));
-	const leaves = nodes.filter(n => !childIds.has(n.id) && n.tier > 0);
+	// DFS順で葉ノードを収集（同じサブツリーの葉が隣接→線の交差を防ぐ）
+	const childMap = {};
+	nodes.forEach(n => { if (n.parent) (childMap[n.parent] = childMap[n.parent] || []).push(n.id); });
+	const childIds = new Set(Object.keys(childMap));
+	const leaves = [];
+	function dfs(id) {
+		if (!childMap[id]) { if (byId[id].tier > 0) leaves.push(byId[id]); return; }
+		childMap[id].forEach(cid => dfs(cid));
+	}
+	dfs('base');
 
-	// 葉ノードを均等配置
+	// 葉ノードをDFS順で均等配置
 	const nodeAngles = {};
 	leaves.forEach((n, i) => {
 		const angle = (i / leaves.length) * Math.PI * 2 - Math.PI/2;
