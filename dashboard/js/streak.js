@@ -38,7 +38,12 @@ function renderStreakCalendar(d) {
 		s+='<text x="'+X(i)+'" y="'+(yB+10)+'" fill="#1a2a2a" font-size="5" text-anchor="middle" font-family="monospace">'+label+'</text>';
 	}
 
+	// Dots with known difficulty
 	dots.forEach(p=>{const cx=X(p.day),cy=Y(p.hour),col=ratingColor(p.diff);s+='<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="3" fill="'+col+'" opacity="0.85"/>';});
+
+	// White outline dots for days with AC but no difficulty data
+	const dotDays=new Set();dots.forEach(p=>dotDays.add(p.day));
+	cal.forEach(c=>{if(c.ac_count===0||c.max_difficulty>0)return;const dt=new Date(c.date+'T12:00:00');const ep=Math.floor(dt.getTime()/1000);const dayIdx=Math.floor((ep-startEp)/86400);if(dayIdx<0||dayIdx>=SPAN)return;if(dotDays.has(dayIdx))return;const cx=X(dayIdx),cy=Y(7);s+='<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="3" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1" opacity="0.8"/>';});
 
 	const earlyY1=Y(0),earlyY2=Y(3);
 	s+='<rect x="'+xL+'" y="'+earlyY1+'" width="'+(xR-xL)+'" height="'+(earlyY2-earlyY1)+'" fill="#5a4000" opacity="0.04"/>';
