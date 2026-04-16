@@ -31,7 +31,7 @@ function renderHUD(d) {
 	}
 
 	return '<div class="hud" style="background:var(--dbg-hud)">'
-		+s('system','[ CP // ONLINE ]','','#1a5a2a')
+		+s('user',(d.user||'---'),'','#1a5a2a')
 		+s('rating',h.rating+' <span style="color:var(--dim)">'+(h.rank_label||'')+'</span>','','var(--amber)')
 		+s('streak','🔥 '+(h.streak_days||0)+'日','','#ff8030')
 		+s('today ac',todayAc+'問','total '+(totalAc),'var(--green)')
