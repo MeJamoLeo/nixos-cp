@@ -343,7 +343,7 @@ function renderDifficultyLog(d) {
 	const nowEpoch=frh.length?frh[frh.length-1].epoch:(pts.length?pts[pts.length-1].epoch:mE);
 	const nowWk=Math.floor((nowEpoch-mE)/WEEK);
 
-	let s='<svg width="100%" height="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">';
+	let s='<svg width="100%" height="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">';
 
 	// Rating band backgrounds (AtCoder colors)
 	const bands=[[0,'#808080'],[400,'#804000'],[800,'#008000'],[1200,'#00c0c0'],[1600,'#0000ff'],[2000,'#c0c000'],[2400,'#ff8000'],[2800,'#ff0000']];
