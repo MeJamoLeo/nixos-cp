@@ -6,6 +6,7 @@
 		../../home/git.nix
 		../../home/starship.nix
 		../../modules/sway.nix
+		../../modules/nvim
 	];
 
 	home.username = "treo";

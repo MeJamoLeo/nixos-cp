@@ -7,9 +7,13 @@
 			url = "github:nix-community/home-manager/release-24.11";
 			inputs.nixpkgs.follows = "nixpkgs";
 		};
+		nixvim = {
+			url = "github:nix-community/nixvim/nixos-24.11";
+			inputs.nixpkgs.follows = "nixpkgs";
+		};
 	};
 
-	outputs = { self, nixpkgs, home-manager, ... }: {
+	outputs = { self, nixpkgs, home-manager, nixvim, ... }: {
 		nixosConfigurations.x1carbon = nixpkgs.lib.nixosSystem {
 			system = "x86_64-linux";
 			modules = [
@@ -19,6 +23,9 @@
 						home-manager.useGlobalPkgs = true;
 						home-manager.useUserPackages = true;
 						home-manager.users.treo = import ./hosts/x1carbon/home.nix;
+						home-manager.sharedModules = [
+							nixvim.homeManagerModules.nixvim
+						];
 					}
 			];
 		};
