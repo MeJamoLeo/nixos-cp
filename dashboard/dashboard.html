@@ -530,21 +530,9 @@ function renderSkillGraph(d) {
 	nodes.forEach(n => {
 		if (!n.parent || !pos[n.id] || !pos[n.parent]) return;
 		const p1 = pos[n.parent], p2 = pos[n.id];
-		const parentNode = byId[n.parent];
 		const prog = n.progress ? n.progress[0] / n.progress[1] : 0;
 		const opacity = prog > 0 ? 0.4 + prog * 0.6 : 0.1;
-		const sameTier = parentNode && parentNode.tier === n.tier;
-		if (sameTier) {
-			// 同ティア間: 中心に向かってカーブさせる
-			const mx = (p1.x + p2.x) / 2, my = (p1.y + p2.y) / 2;
-			const dx = mx - cx, dy = my - cy;
-			const dist = Math.sqrt(dx*dx + dy*dy) || 1;
-			const pull = 30; // 中心方向への引き込み量
-			const cpx = mx - dx/dist * pull, cpy = my - dy/dist * pull;
-			s += '<path d="M'+p1.x.toFixed(1)+','+p1.y.toFixed(1)+' Q'+cpx.toFixed(1)+','+cpy.toFixed(1)+' '+p2.x.toFixed(1)+','+p2.y.toFixed(1)+'" fill="none" stroke="'+nodeStroke+'" stroke-width="0.6" stroke-dasharray="3,2" opacity="'+opacity.toFixed(2)+'"/>';
-		} else {
-			s += '<line x1="'+p1.x.toFixed(1)+'" y1="'+p1.y.toFixed(1)+'" x2="'+p2.x.toFixed(1)+'" y2="'+p2.y.toFixed(1)+'" stroke="'+nodeStroke+'" stroke-width="0.8" opacity="'+opacity.toFixed(2)+'"/>';
-		}
+		s += '<line x1="'+p1.x.toFixed(1)+'" y1="'+p1.y.toFixed(1)+'" x2="'+p2.x.toFixed(1)+'" y2="'+p2.y.toFixed(1)+'" stroke="'+nodeStroke+'" stroke-width="0.8" opacity="'+opacity.toFixed(2)+'"/>';
 	});
 
 	// Nodes
