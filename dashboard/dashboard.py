@@ -46,6 +46,16 @@ def _inject(webview: WebKit2.WebView) -> None:
         except OSError:
             pass
 
+    # layer-shellのviewportバグ回避:
+    # WebKit2GTKがgeometry hints(-1)を負の値として解釈するため
+    # CSS全体の寸法が負になる。get_allocation()の正しい値を
+    # html/bodyに直接px指定して強制上書きする。
+    parts.append(
+        f"document.documentElement.style.width='{w}px';"
+        f"document.documentElement.style.height='{h}px';"
+        f"document.body.style.width='{w}px';"
+        f"document.body.style.height='{h}px';"
+    )
     parts.append('hydrate();')
     js = 'try {' + ''.join(parts) + '} catch(e) {}'
     webview.run_javascript(js, None, None, None)
