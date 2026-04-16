@@ -533,8 +533,8 @@ def build_wa_queue(
     current_rating: int = 0,
 ) -> list[dict]:
     problems_map = {p["id"]: p for p in problems_list}
-    # 実力から離れすぎた問題を除外: 現レート+400が上限
-    diff_cap = current_rating + 400 if current_rating > 0 else 9999
+    # 実力から離れすぎた問題を除外: 解ける確率≈33% = 現レート+200
+    diff_cap = current_rating + 200 if current_rating > 0 else 9999
 
     by_problem: dict[str, list[dict]] = {}
     for s in submissions:
