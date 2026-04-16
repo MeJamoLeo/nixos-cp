@@ -65,6 +65,12 @@
 				"${mod}+grave" = "exec ~/nixos-cp/dashboard/switch_user.sh next";
 			};
 
+			input = {
+				"type:keyboard" = {
+					xkb_options = "ctrl:swapcaps";
+				};
+			};
+
 			gaps = {
 				inner = 10;
 				outer = 12;

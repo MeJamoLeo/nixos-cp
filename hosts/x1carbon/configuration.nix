@@ -33,6 +33,15 @@
   # SSH
   services.openssh.enable = true;
 
+  # Fingerprint
+  services.fprintd.enable = true;
+  security.pam.services.login.fprintAuth = true;
+  security.pam.services.sudo.fprintAuth = true;
+
+  # CapsLock/Ctrl swap at TTY level
+  console.useXkbConfig = true;
+  services.xserver.xkb.options = "ctrl:swapcaps";
+
   # Sway
   programs.sway.enable = true;
   programs.zsh.enable = true;
