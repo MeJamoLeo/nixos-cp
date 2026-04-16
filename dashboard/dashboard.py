@@ -154,6 +154,18 @@ def _refresh(webview: WebKit2.WebView) -> bool:
     return True
 
 
+def _get_monitor_size() -> tuple[int, int]:
+    """Get primary monitor size in logical pixels."""
+    display = Gdk.Display.get_default()
+    if display:
+        monitor = display.get_primary_monitor() or display.get_monitor(0)
+        if monitor:
+            geom = monitor.get_geometry()
+            return geom.width, geom.height
+    # fallback: X1 Carbon Nano at scale 1
+    return 2160, 1350
+
+
 def main() -> None:
     win = Gtk.Window()
     win.set_title("dashboard")
@@ -166,7 +178,19 @@ def main() -> None:
     GtkLayerShell.set_anchor(win, GtkLayerShell.Edge.RIGHT,  True)
     GtkLayerShell.set_exclusive_zone(win, -1)
 
+    # GtkFixed wrapper: layer-shellのgeometry hints(-1)が
+    # WebKit2GTKの内部viewport計算を壊す問題を回避。
+    # WebViewを直接windowに入れず、Fixedコンテナ経由で
+    # 明示的なサイズを渡すことで正のviewportを維持する。
+    mon_w, mon_h = _get_monitor_size()
+    print(f'[dashboard] monitor size: {mon_w}x{mon_h}')
+
+    fixed = Gtk.Fixed()
+    win.add(fixed)
+
     webview = WebKit2.WebView()
+    webview.set_size_request(mon_w, mon_h)
+
     settings = webview.get_settings()
     settings.set_property('hardware-acceleration-policy',
                           WebKit2.HardwareAccelerationPolicy.NEVER)
@@ -181,7 +205,7 @@ def main() -> None:
     webview.connect('load-changed', _on_load_changed)
     GLib.timeout_add_seconds(1800, _refresh, webview)
 
-    win.add(webview)
+    fixed.put(webview, 0, 0)
     win.connect('destroy', Gtk.main_quit)
     win.show_all()
     Gtk.main()
