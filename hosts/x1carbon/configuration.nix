@@ -35,6 +35,7 @@
   # Sway
   programs.sway.enable = true;
   programs.zsh.enable = true;
+  programs.firefox.enable = true;
 
   # GNOMEの代わりにgreetd
   services.greetd = {
