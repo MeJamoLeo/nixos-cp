@@ -157,7 +157,7 @@ function renderCompare(d) {
 	h += '</div>';
 
 	const sp = d.speed || [];
-	const recent = rh.slice(-8).reverse();
+	const recent = rh.slice(-20).reverse();
 	if (recent.length) {
 		h += '<div class="section-label" style="margin-top:4px">直近コンテスト</div>';
 		recent.forEach(r => {

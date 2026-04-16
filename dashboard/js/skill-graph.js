@@ -8,7 +8,7 @@ function renderSkillGraph(d) {
 	nodes.forEach(n => byId[n.id] = n);
 
 	const W = 600, H = 600, cx = W/2, cy = H/2;
-	const radii = [0, 105, 195, 275];
+	const radii = [0, 80, 150, 215, 275];
 	const tierGroups = {};
 	nodes.forEach(n => { (tierGroups[n.tier] = tierGroups[n.tier] || []).push(n); });
 
@@ -97,8 +97,9 @@ function renderSkillGraph(d) {
 	s += '</defs>';
 
 	// ティアゾーン（AtCoderカラー帯 — リング型で重ならない）
-	const acBands = {1:'#c06000', 2:'#008000', 3:'#00c0c0'};
-	[1, 2, 3].forEach(t => {
+	const acBands = {1:'#c06000', 2:'#008000', 3:'#00c0c0', 4:'#0060ff'};
+	[1, 2, 3, 4].forEach(t => {
+		if (!radii[t]) return;
 		const inner = t === 1 ? 0 : radii[t-1] + 20;
 		const outer = radii[t] + 20;
 		// clipPathでリング（ドーナツ）を作る
@@ -108,7 +109,8 @@ function renderSkillGraph(d) {
 		s += '"/></clipPath></defs>';
 		s += '<circle cx="'+cx+'" cy="'+cy+'" r="'+outer+'" fill="'+(acBands[t]||'#1a1a1a')+'" opacity="0.08" clip-path="url(#'+clipId+')"/>';
 	});
-	[1, 2, 3].forEach(t => {
+	[1, 2, 3, 4].forEach(t => {
+		if (!radii[t]) return;
 		const r = (radii[t-1] + radii[t]) / 2 + 10;
 		s += '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+(acBands[t]||'#1a1a1a')+'" stroke-width="0.5" stroke-dasharray="4,6" opacity="0.25"/>';
 	});

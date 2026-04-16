@@ -1023,6 +1023,36 @@ def build_skill_graph(
             "abc183_d",     # Water Heater (imos基本)
             "typical90_ab", # #028 Cluttered Paper (2次元imos)
         ],
+        # Tier 4 (水色→青)
+        "digitdp": [
+            "dp_s",         # EDPC Digit Sum (桁DP入門)
+            "typical90_bl", # #064 Uplift (桁DP応用)
+            "abc154_e",     # Almost Everywhere Zero (桁DP)
+        ],
+        "treedp": [
+            "dp_p",         # EDPC Independent Set (木DP入門)
+            "dp_v",         # EDPC Subtree (木DP応用)
+            "typical90_z",  # #026 Independent Set on a Tree
+        ],
+        "lca": [
+            "abc014_d",     # 閉路 (LCA基本)
+            "abc133_f",     # Colorful Tree (LCA+重み)
+            "typical90_bf", # #082 Counting Numbers (ダブリング)
+        ],
+        "scc": [
+            "typical90_bu", # #073 We Need Bothabc (2-SAT/SCC)
+            "abc245_f",     # Endless Walk (SCC)
+        ],
+        "lazysegtree": [
+            "abc153_f",     # Silver Fox vs Monster (遅延セグ木)
+            "abc174_f",     # Range Set Query (BIT応用)
+            "typical90_ac", # #029 Long Bricks (遅延セグ木, T3と共有)
+        ],
+        "strhash": [
+            "abc141_e",     # Who Says a Pun? (ローリングハッシュ)
+            "abc284_f",     # ABCBAC (ハッシュ判定)
+            "typical90_ao", # #041 Piles in AtCoder Farm (凸包/幾何)
+        ],
     }
 
     # Build nodes: progress = [AC'd benchmarks, total benchmarks]
@@ -1052,6 +1082,12 @@ def build_skill_graph(
         {"id": "compress",   "label": "座標圧縮",   "tier": 3, "parent": "binsearch"},
         {"id": "modinv",     "label": "mod逆元",    "tier": 3, "parent": "prime"},
         {"id": "imos",       "label": "imos法",      "tier": 3, "parent": "cumsum"},
+        {"id": "digitdp",   "label": "桁DP",       "tier": 4, "parent": "basedp"},
+        {"id": "treedp",    "label": "木DP",       "tier": 4, "parent": "basedp"},
+        {"id": "lca",       "label": "LCA",        "tier": 4, "parent": "dijkstra"},
+        {"id": "scc",       "label": "強連結成分",  "tier": 4, "parent": "dijkstra"},
+        {"id": "lazysegtree","label": "遅延セグ木", "tier": 4, "parent": "segtree"},
+        {"id": "strhash",   "label": "文字列Hash", "tier": 4, "parent": "compress"},
     ]
 
     nodes = []
@@ -1085,6 +1121,7 @@ def build_skill_graph(
             {"tier": 1, "label": "灰→茶", "color": "#804000"},
             {"tier": 2, "label": "茶→緑", "color": "#008000"},
             {"tier": 3, "label": "緑→水", "color": "#00C0C0"},
+            {"tier": 4, "label": "水→青", "color": "#0000FF"},
         ],
     }
 
