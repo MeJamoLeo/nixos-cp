@@ -86,7 +86,7 @@ body {
 	color: var(--text);
 	-webkit-font-smoothing: antialiased;
 	display: grid;
-	grid-template-rows: 7% 93%;
+	grid-template-rows: 4% 96%;
 	gap: 6px;
 	padding: 3px;
 	min-width: 0;
@@ -142,10 +142,10 @@ body {
    COMPONENTS — HUD
    ============================================================ */
 .hud { background: var(--panel); border: 0.5px solid var(--border); display: flex; align-items: stretch; overflow: hidden; justify-content: space-between; }
-.hud-section { display: flex; flex-direction: column; justify-content: flex-start; padding: 2px 8px; border-right: 0.5px solid var(--border); min-width: 0; flex: 1; }
-.hud-label { font-size: var(--fs-sm); color: #8aaa9a; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 1px; text-align: left; }
-.hud-value { font-size: var(--fs-lg); font-weight: 500; line-height: 1.1; white-space: nowrap; text-align: center; }
-.hud-sub { font-size: var(--fs-xs); color: var(--dim); }
+.hud-section { display: flex; flex-direction: column; justify-content: flex-start; padding: 1px 6px; border-right: 0.5px solid var(--border); min-width: 0; flex: 1; }
+.hud-label { font-size: var(--fs-2xs); color: #8aaa9a; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 1px; text-align: left; }
+.hud-value { font-size: var(--fs-md); font-weight: 500; line-height: 1.1; white-space: nowrap; text-align: center; }
+.hud-sub { font-size: 9px; color: var(--dim); }
 .hud-spacer { flex: 1; }
 .hud-boss { display: flex; align-items: center; gap: 8px; padding: 0 12px; background: #060800; border-left: 0.5px solid #2a1800; flex-shrink: 0; }
 .hud-boss-timer { font-size: var(--fs-xl); font-weight: 500; color: #ffb030; }
