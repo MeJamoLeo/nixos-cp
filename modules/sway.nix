@@ -77,6 +77,9 @@
 
 				"${mod}+shift+q" = "exit";
 
+				# Apps
+				"Mod1+Mod4+b" = "exec firefox";
+
 				# Dashboard: cycle watchlist users
 				"${mod}+F12" = "exec ~/nixos-cp/dashboard/switch_user.sh next";
 			};
