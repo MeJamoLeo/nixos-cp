@@ -83,7 +83,7 @@
 				outer = 12;
 			};
 
-			output."eDP-1".scale = "2";
+			output."eDP-1".scale = "1";
 
 			terminal = "kitty";
 
