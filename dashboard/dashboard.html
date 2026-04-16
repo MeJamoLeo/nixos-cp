@@ -380,10 +380,10 @@ function renderDifficultyLog(d) {
 	const mults=[{mult:1.5,color:'var(--green)',scenario:'optimistic'},{mult:1.0,color:'var(--amber)',scenario:'maintain'},{mult:0.3,color:'var(--dim)',scenario:'pessimistic'}];
 	mults.forEach(m=>{const wd=Math.round(avgWkDiff*m.mult);const pr=proj.find(p=>p.scenario===m.scenario);const er=pr&&pr.points.length?pr.points[pr.points.length-1].rating:0;effortMap.push({mult:m.mult,color:m.color,weeklyDiff:wd,endRating:er});});
 
-	// Ghost bars on today's week
+	// Ghost bars on today's week with inline labels
 	if(avgWkDiff>0){
 		const todayWk=Math.floor((Date.now()/1000-mE)/WEEK);
-		effortMap.forEach(t=>{const y=YS(t.weeklyDiff),h=yB-y,x=Xw(todayWk);s+='<rect x="'+(x-barW/2).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+t.color+'" opacity="0.08" rx="1"/>';s+='<line x1="'+(x-barW/2).toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+(x+barW/2).toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="'+t.color+'" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.5"/>';});
+		effortMap.forEach(t=>{if(!t.weeklyDiff||!t.endRating)return;const y=YS(t.weeklyDiff),h=yB-y,x=Xw(todayWk),prc=ratingColor(t.endRating);s+='<rect x="'+(x-barW/2).toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+h.toFixed(1)+'" fill="'+t.color+'" opacity="0.08" rx="1"/>';s+='<line x1="'+(x-barW/2).toFixed(1)+'" y1="'+y.toFixed(1)+'" x2="'+(x+barW/2).toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="'+t.color+'" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.5"/>';s+='<text x="'+(x+barW/2+3).toFixed(1)+'" y="'+(y+3).toFixed(1)+'" fill="'+t.color+'" font-size="6" font-family="monospace" opacity="0.7">'+t.weeklyDiff+' → <tspan fill="'+prc+'">'+t.endRating+'</tspan></text>';});
 	}
 
 	// Rating line (connect contest dots)
@@ -407,13 +407,7 @@ function renderDifficultyLog(d) {
 	s+='<text x="'+xR+'" y="'+labelY+'" fill="var(--dim)" font-size="7" text-anchor="end" font-family="monospace">'+fmtDate(xE)+'</text>';
 	s+='</svg>';
 
-	// Legend: effort→outcome
-	let legend='<div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:3px"><span style="font-size:var(--fs-2xs);color:#1a5a3a">█ 週diff</span><span style="font-size:var(--fs-2xs);color:var(--amber)">— レート</span>';
-	effortMap.forEach(e=>{if(e.weeklyDiff>0&&e.endRating>0){const rc=ratingColor(e.endRating);legend+='<span style="font-size:var(--fs-2xs);color:'+e.color+'">┄ 週'+e.weeklyDiff+' → <span style="color:'+rc+'">'+e.endRating+'</span></span>';}});
-	legend+='</div>';
-
 	return '<div class="panel" data-label="DIFFICULTY LOG" style="background:var(--dbg-difflog)"><div class="panel-inner">'
-		+legend
 		+'<div style="flex:1;min-height:0">'+s+'</div></div></div>';
 }
 function renderTagACRate(d) {
