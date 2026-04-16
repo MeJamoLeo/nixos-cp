@@ -891,85 +891,137 @@ def build_skill_graph(
     problems_list: list[dict],
     ratings: list[dict],
 ) -> dict:
-    """Build skill tree with progress computed from AC data.
+    """Build skill tree with progress from benchmark problem ACs.
 
-    Progress for each skill = number of distinct AC'd problems
-    matching the skill's difficulty range and problem patterns,
-    capped at a target count per skill.
+    Each skill has canonical problems. Progress = how many you've AC'd.
     """
     current_rating = ratings[-1]["NewRating"] if ratings else 0
-
-    # AC'd problems with their difficulty
     ac_map = _ac_problems(submissions)
-    problems_map = {p["id"]: p for p in problems_list}
-    ac_with_diff: list[dict] = []
-    for pid, s in ac_map.items():
-        diff = difficulties.get(pid, {}).get("difficulty")
-        if diff is None:
-            continue
-        if diff < 0:
-            diff = 0
-        cid = problems_map.get(pid, {}).get("contest_id", "")
-        ac_with_diff.append({
-            "pid": pid,
-            "cid": cid,
-            "diff": round(diff),
-        })
+    ac_set = set(ac_map.keys())
 
-    # Skill definitions: difficulty range + contest/problem patterns
-    # target = number of ACs to consider "mastered"
-    SKILLS = {
-        # Tier 1 (灰→茶): diff 0-799
-        "bruteforce":  {"diff_min": 0,   "diff_max": 799,  "target": 20, "patterns": ["_a", "_b", "_c"]},
-        "sort":        {"diff_min": 0,   "diff_max": 599,  "target": 15, "patterns": ["_a", "_b"]},
-        "greedy":      {"diff_min": 200, "diff_max": 999,  "target": 10, "patterns": ["_c", "_d"]},
-        "string":      {"diff_min": 0,   "diff_max": 799,  "target": 10, "patterns": ["_b", "_c"]},
-        "mapset":      {"diff_min": 0,   "diff_max": 599,  "target": 10, "patterns": ["_b", "_c"]},
-        "gcd":         {"diff_min": 100, "diff_max": 799,  "target": 8,  "patterns": ["_b", "_c"]},
-        "simulation":  {"diff_min": 0,   "diff_max": 599,  "target": 20, "patterns": ["_a", "_b"]},
-        # Tier 2 (茶→緑): diff 400-1199
-        "cumsum":      {"diff_min": 400, "diff_max": 1199, "target": 8,  "patterns": ["_c", "_d"]},
-        "binsearch":   {"diff_min": 400, "diff_max": 1199, "target": 8,  "patterns": ["_c", "_d"]},
-        "basedp":      {"diff_min": 400, "diff_max": 1199, "target": 10, "patterns": ["_c", "_d", "_e"], "contest_patterns": ["edpc", "dp"]},
-        "bfs":         {"diff_min": 400, "diff_max": 1199, "target": 8,  "patterns": ["_c", "_d", "_e"]},
-        "twoptr":      {"diff_min": 600, "diff_max": 1199, "target": 5,  "patterns": ["_d", "_e"]},
-        "bit":         {"diff_min": 400, "diff_max": 1199, "target": 5,  "patterns": ["_c", "_d"]},
-        "prime":       {"diff_min": 400, "diff_max": 1199, "target": 5,  "patterns": ["_c", "_d"]},
-        "complexity":  {"diff_min": 400, "diff_max": 999,  "target": 10, "patterns": ["_c", "_d"]},
-        # Tier 3 (緑→水): diff 800-1599
-        "unionfind":   {"diff_min": 800, "diff_max": 1599, "target": 5,  "patterns": ["_d", "_e"]},
-        "dijkstra":    {"diff_min": 800, "diff_max": 1599, "target": 5,  "patterns": ["_d", "_e"]},
-        "segtree":     {"diff_min": 800, "diff_max": 1599, "target": 5,  "patterns": ["_d", "_e", "_f"]},
-        "bitdp":       {"diff_min": 800, "diff_max": 1599, "target": 5,  "patterns": ["_e", "_f"]},
-        "mst":         {"diff_min": 800, "diff_max": 1599, "target": 3,  "patterns": ["_d", "_e"]},
-        "compress":    {"diff_min": 800, "diff_max": 1599, "target": 3,  "patterns": ["_d", "_e"]},
-        "modinv":      {"diff_min": 800, "diff_max": 1599, "target": 3,  "patterns": ["_d", "_e"]},
-        "imos":        {"diff_min": 600, "diff_max": 1399, "target": 3,  "patterns": ["_d", "_e"]},
+    # Benchmark problems per skill (canonical/典型 problems)
+    # Sources: 典型90問, EDPC, ABS, e869120ガイド, drken精選
+    BENCHMARKS: dict[str, list[str]] = {
+        # Tier 1 (灰→茶)
+        "bruteforce": [
+            "abc085_c",     # Otoshidama (ABS, 3重ループ全探索)
+            "abc087_b",     # Coins (ABS, 全列挙)
+            "abc167_c",     # Skill Up (bit全探索入門)
+        ],
+        "sort": [
+            "abc088_b",     # Card Game for Two (ABS, 降順ソート)
+            "abc132_c",     # Divide the Problems (ソート+中央値)
+            "typical90_g",  # #007 CP Classes (ソート+二分探索)
+        ],
+        "greedy": [
+            "typical90_n",  # #014 We Used to Sing (ソート+貪欲マッチング)
+            "abc131_d",     # Megalomania (スケジューリング貪欲)
+            "typical90_av", # #048 I will not drop out (降順貪欲)
+        ],
+        "string": [
+            "abc049_c",     # Daydream (ABS, 文字列マッチング)
+            "abc122_b",     # ATCoder (部分文字列判定)
+            "abc171_c",     # One Quadrillion (N進法変換)
+        ],
+        "mapset": [
+            "abc085_b",     # Kagami Mochi (ABS, Set重複除去)
+            "typical90_aa", # #027 Sign Up Requests (Set基本)
+            "abc155_c",     # Poll (Map頻度カウント)
+        ],
+        "gcd": [
+            "typical90_v",  # #022 Cubic Cake (GCD直接応用)
+            "abc118_c",     # Monsters Battle Royale (全要素GCD)
+            "abc148_c",     # Snack (LCM基本)
+        ],
+        "simulation": [
+            "abc086_c",     # Traveling (ABS, 座標シミュレーション)
+            "abc176_c",     # Step (走査+加算シミュレーション)
+            "abc181_c",     # Collinearity (数学条件の正確な実装)
+        ],
+        # Tier 2 (茶→緑)
+        "cumsum": [
+            "typical90_j",  # #010 Score Sum Queries (累積和基本)
+            "abc122_c",     # GeT AC (文字列+累積和)
+            "abc186_d",     # Sum of Difference (ソート+累積和)
+        ],
+        "binsearch": [
+            "typical90_a",  # #001 Yokan Party (答えで二分探索)
+            "abc077_c",     # Snuke Festival (lower_bound数え上げ)
+            "abc174_e",     # Logs (最大値の最小化)
+        ],
+        "basedp": [
+            "dp_a",         # EDPC Frog 1 (DP入門)
+            "dp_d",         # EDPC Knapsack 1 (ナップサック)
+            "dp_c",         # EDPC Vacation (状態付きDP)
+        ],
+        "bfs": [
+            "abc007_3",     # 幅優先探索 (迷路BFS入門)
+            "abc088_d",     # Grid Problem (グリッドBFS)
+            "abc138_d",     # Ki (木DFS)
+        ],
+        "twoptr": [
+            "typical90_ah", # #034 There are few types (尺取り典型)
+            "abc130_d",     # Enough Array (和の尺取り)
+            "abc172_c",     # Tsundoku (2山の尺取り)
+        ],
+        "bit": [
+            "typical90_b",  # #002 Encyclopedia of Parentheses (bit全探索)
+            "abc128_c",     # Switches (bit全探索)
+            "abc147_c",     # HonestOrUnkind2 (bit全探索+条件充足)
+        ],
+        "prime": [
+            "typical90_bw", # #075 Magic For Balls (素因数分解)
+            "abc084_d",     # 2017-like Number (エラトステネス+累積和)
+            "abc172_d",     # Sum of Divisors (約数列挙)
+        ],
+        "complexity": [
+            "typical90_d",  # #004 Cross Sum (O(HW)前計算)
+            "typical90_bc", # #055 Select 5 (計算量削減)
+            "abc176_d",     # Wizard in Maze (0-1 BFS選択)
+        ],
+        # Tier 3 (緑→水)
+        "unionfind": [
+            "typical90_l",  # #012 Red Painting (UF典型)
+            "abc177_d",     # Friends (連結成分最大サイズ)
+            "abc157_d",     # Friend Suggestions (サイズ付きUF)
+        ],
+        "dijkstra": [
+            "typical90_m",  # #013 Passing (2回ダイクストラ)
+            "abc176_d",     # Wizard in Maze (0-1 BFS)
+            "abc192_e",     # Train (拡張ダイクストラ)
+        ],
+        "segtree": [
+            "typical90_ac", # #029 Long Bricks (遅延セグ木)
+            "abc185_f",     # Range Xor Query (BIT入門)
+            "dp_q",         # EDPC Flowers (BIT+DP)
+        ],
+        "bitdp": [
+            "dp_o",         # EDPC Matching (bitDP典型)
+            "abc180_e",     # TSP (巡回セールスマン)
+            "abc142_e",     # Get Everything (集合被覆bitDP)
+        ],
+        "mst": [
+            "abc218_e",     # Destruction (MST+負辺)
+            "abc065_d",     # Built? (座標ソート+クラスカル)
+        ],
+        "compress": [
+            "abc036_c",     # 座圧 (座標圧縮そのもの)
+            "abc213_c",     # Reorder Cards (行列独立圧縮)
+            "typical90_ab", # #028 Cluttered Paper (2次元圧縮+imos)
+        ],
+        "modinv": [
+            "typical90_bq", # #069 Colorful Blocks 2 (nCr mod p)
+            "abc145_d",     # Knight (大きなnCr)
+            "abc156_d",     # Bouquet (2^N - nCr)
+        ],
+        "imos": [
+            "abc014_c",     # AtColor (1次元imos入門)
+            "abc183_d",     # Water Heater (imos基本)
+            "typical90_ab", # #028 Cluttered Paper (2次元imos)
+        ],
     }
 
-    # Count matching ACs per skill
-    skill_counts: dict[str, int] = {}
-    for skill_id, spec in SKILLS.items():
-        count = 0
-        for ac in ac_with_diff:
-            if ac["diff"] < spec["diff_min"] or ac["diff"] > spec["diff_max"]:
-                continue
-            pid_lower = ac["pid"].lower()
-            cid_lower = ac["cid"].lower()
-            # Check problem suffix pattern
-            pattern_match = any(pid_lower.endswith(p) for p in spec["patterns"])
-            # Check contest pattern (optional)
-            contest_match = True
-            if "contest_patterns" in spec:
-                contest_match = any(cp in cid_lower or cp in pid_lower for cp in spec["contest_patterns"])
-                # For DP skill, also count if pattern matches even without contest pattern
-                if not contest_match:
-                    pattern_match = False
-            if pattern_match:
-                count += 1
-        skill_counts[skill_id] = count
-
-    # Build nodes with real progress
+    # Build nodes: progress = [AC'd benchmarks, total benchmarks]
     TREE = [
         {"id": "base",       "label": "基礎",       "tier": 0, "parent": None},
         {"id": "bruteforce", "label": "全探索",     "tier": 1, "parent": "base"},
@@ -1001,15 +1053,23 @@ def build_skill_graph(
     for n in TREE:
         sid = n["id"]
         if sid == "base":
-            # Base is always complete if user has any ACs
             progress = [len(ac_map), len(ac_map)] if ac_map else [0, 1]
         else:
-            target = SKILLS.get(sid, {}).get("target", 5)
-            count = min(skill_counts.get(sid, 0), target)
-            progress = [count, target]
-        node = {"id": sid, "label": n["label"], "tier": n["tier"], "progress": progress}
+            benchmarks = BENCHMARKS.get(sid, [])
+            solved = [p for p in benchmarks if p in ac_set]
+            progress = [len(solved), len(benchmarks)]
+        node = {
+            "id": sid, "label": n["label"], "tier": n["tier"],
+            "progress": progress,
+        }
         if n["parent"]:
             node["parent"] = n["parent"]
+        # Include benchmark details for tooltip/debug
+        if sid in BENCHMARKS:
+            node["benchmarks"] = [
+                {"id": p, "ac": p in ac_set}
+                for p in BENCHMARKS[sid]
+            ]
         nodes.append(node)
 
     return {
