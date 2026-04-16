@@ -773,14 +773,143 @@ def build_rating_log(ratings: list[dict]) -> list[dict]:
     return result
 
 
-def build_skill_graph() -> dict:
-    path = Path.home() / ".cp" / "skill_graph.json"
-    if path.exists():
-        try:
-            return json.loads(path.read_text())
-        except (json.JSONDecodeError, OSError):
-            pass
-    return {"nodes": []}
+def build_skill_graph(
+    submissions: list[dict],
+    difficulties: dict[str, Any],
+    problems_list: list[dict],
+    ratings: list[dict],
+) -> dict:
+    """Build skill tree with progress computed from AC data.
+
+    Progress for each skill = number of distinct AC'd problems
+    matching the skill's difficulty range and problem patterns,
+    capped at a target count per skill.
+    """
+    current_rating = ratings[-1]["NewRating"] if ratings else 0
+
+    # AC'd problems with their difficulty
+    ac_map = _ac_problems(submissions)
+    problems_map = {p["id"]: p for p in problems_list}
+    ac_with_diff: list[dict] = []
+    for pid, s in ac_map.items():
+        diff = difficulties.get(pid, {}).get("difficulty")
+        if diff is None:
+            continue
+        if diff < 0:
+            diff = 0
+        cid = problems_map.get(pid, {}).get("contest_id", "")
+        ac_with_diff.append({
+            "pid": pid,
+            "cid": cid,
+            "diff": round(diff),
+        })
+
+    # Skill definitions: difficulty range + contest/problem patterns
+    # target = number of ACs to consider "mastered"
+    SKILLS = {
+        # Tier 1 (灰→茶): diff 0-799
+        "bruteforce":  {"diff_min": 0,   "diff_max": 799,  "target": 20, "patterns": ["_a", "_b", "_c"]},
+        "sort":        {"diff_min": 0,   "diff_max": 599,  "target": 15, "patterns": ["_a", "_b"]},
+        "greedy":      {"diff_min": 200, "diff_max": 999,  "target": 10, "patterns": ["_c", "_d"]},
+        "string":      {"diff_min": 0,   "diff_max": 799,  "target": 10, "patterns": ["_b", "_c"]},
+        "mapset":      {"diff_min": 0,   "diff_max": 599,  "target": 10, "patterns": ["_b", "_c"]},
+        "gcd":         {"diff_min": 100, "diff_max": 799,  "target": 8,  "patterns": ["_b", "_c"]},
+        "simulation":  {"diff_min": 0,   "diff_max": 599,  "target": 20, "patterns": ["_a", "_b"]},
+        # Tier 2 (茶→緑): diff 400-1199
+        "cumsum":      {"diff_min": 400, "diff_max": 1199, "target": 8,  "patterns": ["_c", "_d"]},
+        "binsearch":   {"diff_min": 400, "diff_max": 1199, "target": 8,  "patterns": ["_c", "_d"]},
+        "basedp":      {"diff_min": 400, "diff_max": 1199, "target": 10, "patterns": ["_c", "_d", "_e"], "contest_patterns": ["edpc", "dp"]},
+        "bfs":         {"diff_min": 400, "diff_max": 1199, "target": 8,  "patterns": ["_c", "_d", "_e"]},
+        "twoptr":      {"diff_min": 600, "diff_max": 1199, "target": 5,  "patterns": ["_d", "_e"]},
+        "bit":         {"diff_min": 400, "diff_max": 1199, "target": 5,  "patterns": ["_c", "_d"]},
+        "prime":       {"diff_min": 400, "diff_max": 1199, "target": 5,  "patterns": ["_c", "_d"]},
+        "complexity":  {"diff_min": 400, "diff_max": 999,  "target": 10, "patterns": ["_c", "_d"]},
+        # Tier 3 (緑→水): diff 800-1599
+        "unionfind":   {"diff_min": 800, "diff_max": 1599, "target": 5,  "patterns": ["_d", "_e"]},
+        "dijkstra":    {"diff_min": 800, "diff_max": 1599, "target": 5,  "patterns": ["_d", "_e"]},
+        "segtree":     {"diff_min": 800, "diff_max": 1599, "target": 5,  "patterns": ["_d", "_e", "_f"]},
+        "bitdp":       {"diff_min": 800, "diff_max": 1599, "target": 5,  "patterns": ["_e", "_f"]},
+        "mst":         {"diff_min": 800, "diff_max": 1599, "target": 3,  "patterns": ["_d", "_e"]},
+        "compress":    {"diff_min": 800, "diff_max": 1599, "target": 3,  "patterns": ["_d", "_e"]},
+        "modinv":      {"diff_min": 800, "diff_max": 1599, "target": 3,  "patterns": ["_d", "_e"]},
+        "imos":        {"diff_min": 600, "diff_max": 1399, "target": 3,  "patterns": ["_d", "_e"]},
+    }
+
+    # Count matching ACs per skill
+    skill_counts: dict[str, int] = {}
+    for skill_id, spec in SKILLS.items():
+        count = 0
+        for ac in ac_with_diff:
+            if ac["diff"] < spec["diff_min"] or ac["diff"] > spec["diff_max"]:
+                continue
+            pid_lower = ac["pid"].lower()
+            cid_lower = ac["cid"].lower()
+            # Check problem suffix pattern
+            pattern_match = any(pid_lower.endswith(p) for p in spec["patterns"])
+            # Check contest pattern (optional)
+            contest_match = True
+            if "contest_patterns" in spec:
+                contest_match = any(cp in cid_lower or cp in pid_lower for cp in spec["contest_patterns"])
+                # For DP skill, also count if pattern matches even without contest pattern
+                if not contest_match:
+                    pattern_match = False
+            if pattern_match:
+                count += 1
+        skill_counts[skill_id] = count
+
+    # Build nodes with real progress
+    TREE = [
+        {"id": "base",       "label": "基礎",       "tier": 0, "parent": None},
+        {"id": "bruteforce", "label": "全探索",     "tier": 1, "parent": "base"},
+        {"id": "sort",       "label": "ソート",     "tier": 1, "parent": "base"},
+        {"id": "greedy",     "label": "貪欲法",     "tier": 1, "parent": "base"},
+        {"id": "string",     "label": "文字列",     "tier": 1, "parent": "base"},
+        {"id": "mapset",     "label": "Map/Set",    "tier": 1, "parent": "base"},
+        {"id": "gcd",        "label": "GCD/LCM",    "tier": 1, "parent": "base"},
+        {"id": "simulation", "label": "実装力",     "tier": 1, "parent": "base"},
+        {"id": "cumsum",     "label": "累積和",     "tier": 2, "parent": "bruteforce"},
+        {"id": "binsearch",  "label": "二分探索",   "tier": 2, "parent": "sort"},
+        {"id": "basedp",     "label": "基礎DP",     "tier": 2, "parent": "bruteforce"},
+        {"id": "bfs",        "label": "BFS/DFS",    "tier": 2, "parent": "bruteforce"},
+        {"id": "twoptr",     "label": "尺取り法",   "tier": 2, "parent": "sort"},
+        {"id": "bit",        "label": "ビット演算", "tier": 2, "parent": "bruteforce"},
+        {"id": "prime",      "label": "素数/約数",  "tier": 2, "parent": "gcd"},
+        {"id": "complexity", "label": "計算量",     "tier": 2, "parent": "sort"},
+        {"id": "unionfind",  "label": "Union-Find", "tier": 3, "parent": "bfs"},
+        {"id": "dijkstra",   "label": "最短路",     "tier": 3, "parent": "bfs"},
+        {"id": "segtree",    "label": "セグ木/BIT", "tier": 3, "parent": "cumsum"},
+        {"id": "bitdp",      "label": "bitDP",      "tier": 3, "parent": "bit"},
+        {"id": "mst",        "label": "MST",        "tier": 3, "parent": "bfs"},
+        {"id": "compress",   "label": "座標圧縮",   "tier": 3, "parent": "binsearch"},
+        {"id": "modinv",     "label": "mod逆元",    "tier": 3, "parent": "prime"},
+        {"id": "imos",       "label": "imos法",      "tier": 3, "parent": "cumsum"},
+    ]
+
+    nodes = []
+    for n in TREE:
+        sid = n["id"]
+        if sid == "base":
+            # Base is always complete if user has any ACs
+            progress = [len(ac_map), len(ac_map)] if ac_map else [0, 1]
+        else:
+            target = SKILLS.get(sid, {}).get("target", 5)
+            count = min(skill_counts.get(sid, 0), target)
+            progress = [count, target]
+        node = {"id": sid, "label": n["label"], "tier": n["tier"], "progress": progress}
+        if n["parent"]:
+            node["parent"] = n["parent"]
+        nodes.append(node)
+
+    return {
+        "rating": current_rating,
+        "nodes": nodes,
+        "tiers": [
+            {"tier": 0, "label": "基礎", "color": "#808080"},
+            {"tier": 1, "label": "灰→茶", "color": "#804000"},
+            {"tier": 2, "label": "茶→緑", "color": "#008000"},
+            {"tier": 3, "label": "緑→水", "color": "#00C0C0"},
+        ],
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -864,7 +993,9 @@ def main() -> None:
         ),
         "contests": upcoming,
         "rating_history": build_rating_log(ratings),
-        "skill_graph": build_skill_graph(),
+        "skill_graph": build_skill_graph(
+            submissions, difficulties, problems_list, ratings
+        ),
     }
 
     # Atomic write
