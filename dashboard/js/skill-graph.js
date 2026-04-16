@@ -97,7 +97,7 @@ function renderSkillGraph(d) {
 	s += '</defs>';
 
 	// ティアゾーン（AtCoderカラー帯 — Difficulty Logと統一）
-	const acBands = {1:'#804000', 2:'#008000', 3:'#00c0c0'};
+	const acBands = {1:'#c06000', 2:'#008000', 3:'#00c0c0'};
 	[3, 2, 1].forEach(t => {
 		const outer = radii[t] + 20;
 		s += '<circle cx="'+cx+'" cy="'+cy+'" r="'+outer+'" fill="'+(acBands[t]||'#1a1a1a')+'" opacity="0.06"/>';
