@@ -566,9 +566,14 @@ function renderSkillGraph(d) {
 			s += '<text x="'+p.x.toFixed(1)+'" y="'+(p.y+1).toFixed(1)+'" fill="'+nodeStroke+'" font-size="9" text-anchor="middle" dominant-baseline="middle">✓</text>';
 		}
 
-		// Label
-		const labelY = p.y + r + 9;
-		s += '<text x="'+p.x.toFixed(1)+'" y="'+labelY.toFixed(1)+'" fill="'+(prog > 0 ? '#8ababa' : '#2a4a4a')+'" font-size="7" text-anchor="middle" font-family="monospace">'+n.label+'</text>';
+		// Label — 中心から離れる方向に配置
+		const dx = p.x - cx, dy = p.y - cy;
+		const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+		const labelDist = r + 8;
+		const lx = n.tier === 0 ? p.x : p.x + dx/dist * labelDist;
+		const ly = n.tier === 0 ? p.y + r + 9 : p.y + dy/dist * labelDist + 3;
+		const anchor = n.tier === 0 ? 'middle' : (dx > 20 ? 'start' : dx < -20 ? 'end' : 'middle');
+		s += '<text x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'" fill="'+(prog > 0 ? '#8ababa' : '#2a4a4a')+'" font-size="7" text-anchor="'+anchor+'" font-family="monospace">'+n.label+'</text>';
 
 		// Progress text
 		if (n.progress && !done) {
