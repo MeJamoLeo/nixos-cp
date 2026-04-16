@@ -409,9 +409,9 @@ function renderSkillGraph(d) {
 	const byId = {};
 	nodes.forEach(n => byId[n.id] = n);
 
-	// Radial layout
-	const W = 480, H = 360, cx = W/2, cy = H/2;
-	const radii = [0, 80, 155, 225];
+	// Radial layout — 各ティアの円周上に均等配置
+	const W = 600, H = 600, cx = W/2, cy = H/2;
+	const radii = [0, 100, 200, 280];
 	const tierGroups = {};
 	nodes.forEach(n => { (tierGroups[n.tier] = tierGroups[n.tier] || []).push(n); });
 
@@ -419,27 +419,12 @@ function renderSkillGraph(d) {
 	const center = nodes.find(n => n.tier === 0);
 	if (center) pos[center.id] = {x: cx, y: cy};
 
-	const t1 = tierGroups[1] || [];
-	t1.forEach((n, i) => {
-		const angle = (i / t1.length) * Math.PI * 2 - Math.PI/2;
-		pos[n.id] = {x: cx + Math.cos(angle) * radii[1], y: cy + Math.sin(angle) * radii[1]};
-	});
-
-	[2, 3].forEach(tier => {
-		const tn = tierGroups[tier] || [];
-		const byParent = {};
-		tn.forEach(n => { (byParent[n.parent] = byParent[n.parent] || []).push(n); });
-		Object.keys(byParent).forEach(pid => {
-			const grp = byParent[pid];
-			const pp = pos[pid];
-			if (!pp) return;
-			const parentAngle = Math.atan2(pp.y - cy, pp.x - cx);
-			const spread = Math.PI * 0.5;
-			grp.forEach((n, i) => {
-				const offset = grp.length === 1 ? 0 : (i / (grp.length - 1) - 0.5) * spread;
-				const angle = parentAngle + offset;
-				pos[n.id] = {x: cx + Math.cos(angle) * radii[tier], y: cy + Math.sin(angle) * radii[tier]};
-			});
+	// 各ティアのノードをその円周上に均等配置
+	[1, 2, 3].forEach(tier => {
+		const grp = tierGroups[tier] || [];
+		grp.forEach((n, i) => {
+			const angle = (i / grp.length) * Math.PI * 2 - Math.PI/2;
+			pos[n.id] = {x: cx + Math.cos(angle) * radii[tier], y: cy + Math.sin(angle) * radii[tier]};
 		});
 	});
 
