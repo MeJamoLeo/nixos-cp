@@ -54,6 +54,9 @@
     ];
   };
 
+  # TLP power management
+  services.tlp.enable = true;
+
   # Sway
   programs.sway.enable = true;
   programs.zsh.enable = true;
