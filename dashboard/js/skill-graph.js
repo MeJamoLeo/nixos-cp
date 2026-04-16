@@ -96,20 +96,20 @@ function renderSkillGraph(d) {
 	});
 	s += '</defs>';
 
+	// ティアゾーン（AtCoderカラー帯 — Difficulty Logと統一）
+	const acBands = {1:'#804000', 2:'#008000', 3:'#00c0c0'};
 	[3, 2, 1].forEach(t => {
 		const outer = radii[t] + 20;
-		const col = tierColor[t] || '#1a1a1a';
-		s += '<circle cx="'+cx+'" cy="'+cy+'" r="'+outer+'" fill="'+col+'" opacity="0.06"/>';
+		s += '<circle cx="'+cx+'" cy="'+cy+'" r="'+outer+'" fill="'+(acBands[t]||'#1a1a1a')+'" opacity="0.06"/>';
 	});
 	[1, 2, 3].forEach(t => {
 		const r = (radii[t-1] + radii[t]) / 2 + 10;
-		const col = tierColor[t] || '#1a1a1a';
-		s += '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="0.5" stroke-dasharray="4,6" opacity="0.25"/>';
+		s += '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+(acBands[t]||'#1a1a1a')+'" stroke-width="0.5" stroke-dasharray="4,6" opacity="0.25"/>';
 	});
 	tiers.forEach(t => {
 		if (t.tier === 0) return;
 		const r = (radii[t.tier-1] + radii[t.tier]) / 2 + 10;
-		s += '<text x="'+(cx+r-5)+'" y="'+(cy-4)+'" fill="'+t.color+'" font-size="7" font-family="monospace" opacity="0.5">'+t.label+'</text>';
+		s += '<text x="'+(cx+r-5)+'" y="'+(cy-4)+'" fill="'+(acBands[t.tier]||t.color)+'" font-size="7" font-family="monospace" opacity="0.5">'+t.label+'</text>';
 	});
 
 	nodes.forEach(n => {
