@@ -11,7 +11,7 @@
   networking.hostName = "x1carbon";
   networking.networkmanager.enable = true;
 
-  time.timeZone = "America/Chicago";
+  time.timeZone = "Asia/Tokyo";
 
   i18n.defaultLocale = "en_US.UTF-8";
 
@@ -43,6 +43,16 @@
   # CapsLock/Ctrl swap at TTY level
   console.useXkbConfig = true;
   services.xserver.xkb.options = "ctrl:swapcaps";
+
+  # Japanese input (fcitx5 + mozc)
+  i18n.inputMethod = {
+    type = "fcitx5";
+    enable = true;
+    fcitx5.addons = with pkgs; [
+      fcitx5-mozc
+      fcitx5-gtk
+    ];
+  };
 
   # Sway
   programs.sway.enable = true;
