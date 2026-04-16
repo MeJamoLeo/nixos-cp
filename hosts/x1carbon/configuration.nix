@@ -36,6 +36,8 @@
   programs.sway.enable = true;
   programs.zsh.enable = true;
   programs.firefox.enable = true;
+  # programs.chromium.enable = true;
+  # programs.qutebrowser.enable = true;
 
   # GNOMEの代わりにgreetd
   services.greetd = {
