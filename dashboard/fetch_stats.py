@@ -884,6 +884,28 @@ def build_rating_log(ratings: list[dict]) -> list[dict]:
     return result
 
 
+def build_compare(submissions: list[dict]) -> dict:
+    """Build month-over-month AC comparison."""
+    ac_map = _ac_problems(submissions)
+    now = datetime.now(JST)
+    this_month = now.strftime("%Y-%m")
+    last_month = (now.replace(day=1) - timedelta(days=1)).strftime("%Y-%m")
+
+    this_count = 0
+    last_count = 0
+    for pid, s in ac_map.items():
+        d = _epoch_to_jst_date(s.get("epoch_second", 0))
+        if d.startswith(this_month):
+            this_count += 1
+        elif d.startswith(last_month):
+            last_count += 1
+
+    return {
+        "this_month_ac": this_count,
+        "last_month_ac": last_count,
+    }
+
+
 def build_skill_graph(
     submissions: list[dict],
     difficulties: dict[str, Any],
@@ -1222,6 +1244,7 @@ def main() -> None:
             build_speed(submissions, ratings) if has_submissions else []
         ),
         "contests": upcoming,
+        "compare": build_compare(submissions) if has_submissions else {},
         "rating_history": build_rating_log(ratings),
         "skill_graph": build_skill_graph(
             submissions, difficulties, problems_list, ratings
