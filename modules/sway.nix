@@ -76,6 +76,9 @@
 				"${mod}+shift+Return" = "exec kitty";
 
 				"${mod}+shift+q" = "exit";
+
+				# Dashboard: cycle watchlist users
+				"${mod}+F12" = "exec ~/nixos-cp/dashboard/switch_user.sh next";
 			};
 
 			gaps = {

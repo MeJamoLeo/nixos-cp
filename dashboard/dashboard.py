@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
-"""CP Dashboard — GTK4 + WebKit6 + gtk4-layer-shell renderer for Sway BACKGROUND layer."""
+"""CP Dashboard — GTK4 + WebKit6 + gtk4-layer-shell renderer for Sway BACKGROUND layer.
 
+Supports watchlist: preloads stats for multiple users, switch via external signal.
+"""
+
+import json
 import os
-from ctypes import CDLL, cdll
+import subprocess
+import threading
+from ctypes import CDLL
 from ctypes.util import find_library
 
 # gtk4-layer-shell must be pre-loaded before GI import.
-# On NixOS, libraries are in /nix/store and not on default LD path.
 _lib = find_library('gtk4-layer-shell')
 if _lib:
     CDLL(_lib)
 else:
-    # Fallback: try common names directly
     for name in ('libgtk4-layer-shell.so', 'libgtk4-layer-shell.so.0'):
         try:
             CDLL(name)
@@ -27,120 +31,142 @@ from gi.repository import Gtk, Gdk, GLib, WebKit, Gtk4LayerShell
 
 DASHBOARD_DIR = os.path.dirname(os.path.abspath(__file__))
 DASHBOARD_HTML = os.path.join(DASHBOARD_DIR, 'dashboard.html')
-DUMMY_STATS_JSON = os.path.join(DASHBOARD_DIR, 'dummy_stats.json')
-STATS_JSON = os.path.expanduser('~/.cache/cp-dashboard/stats.json')
+WATCHLIST_JSON = os.path.join(DASHBOARD_DIR, 'watchlist.json')
+CACHE_DIR = os.path.expanduser('~/.cache/cp-dashboard')
+SWITCH_FILE = os.path.join(CACHE_DIR, 'switch_user')
+
+# ---------------------------------------------------------------------------
+# Watchlist & user data cache
+# ---------------------------------------------------------------------------
+
+_user_data: dict[str, str] = {}  # username -> JSON string
+_current_user: str = ''
+_watchlist: list[str] = []
 
 
-def _resolve_stats_path() -> str | None:
-    if os.path.exists(STATS_JSON):
-        return STATS_JSON
-    if os.path.exists(DUMMY_STATS_JSON):
-        return DUMMY_STATS_JSON
-    return None
+def _load_watchlist() -> list[str]:
+    try:
+        with open(WATCHLIST_JSON) as f:
+            return json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return ['MeJamoLeo']
 
 
-def _inject(webview: WebKit.WebView) -> None:
-    """Inject viewport size + stats data, then call hydrate()."""
-    w = webview.get_width()
-    h = webview.get_height()
-    print(f'[dashboard] webview size: {w}x{h}')
+def _stats_path(username: str) -> str:
+    return os.path.join(CACHE_DIR, f'stats_{username}.json')
 
-    parts = [f'window.__VP = {{w:{w}, h:{h}}};']
 
-    path = _resolve_stats_path()
-    if path:
+def _fetch_user(username: str) -> None:
+    """Fetch stats for a user (runs in background thread)."""
+    out = _stats_path(username)
+    try:
+        subprocess.run(
+            ['nix-shell', '--run',
+             f'python fetch_stats.py --user {username} --output {out}'],
+            cwd=DASHBOARD_DIR,
+            capture_output=True, timeout=120,
+        )
+        if os.path.exists(out):
+            with open(out) as f:
+                _user_data[username] = f.read()
+            print(f'[dashboard] fetched {username}')
+    except Exception as e:
+        print(f'[dashboard] fetch error {username}: {e}')
+
+
+def _prefetch_all() -> None:
+    """Fetch primary user first, then others in background."""
+    global _current_user
+    if not _watchlist:
+        return
+    _current_user = _watchlist[0]
+
+    # Primary user: blocking fetch (need it for initial display)
+    primary = _watchlist[0]
+    path = _stats_path(primary)
+    # Use cached if fresh enough (< 5 min)
+    if os.path.exists(path):
         try:
             with open(path) as f:
-                parts.append(f'window.__CP_DATA = {f.read()};')
+                _user_data[primary] = f.read()
+            print(f'[dashboard] loaded cached {primary}')
         except OSError:
             pass
 
-    parts.append('hydrate();')
-    js = 'try {' + ''.join(parts) + '} catch(e) {}'
+    # Fetch all users in background threads
+    for user in _watchlist:
+        t = threading.Thread(target=_fetch_user, args=(user,), daemon=True)
+        t.start()
+
+
+# ---------------------------------------------------------------------------
+# WebView injection
+# ---------------------------------------------------------------------------
+
+def _inject(webview: WebKit.WebView, username: str | None = None) -> None:
+    """Inject stats data for given user and call hydrate()."""
+    user = username or _current_user
+    data = _user_data.get(user)
+    if not data:
+        return
+
+    w = webview.get_width()
+    h = webview.get_height()
+
+    js = (
+        'try {'
+        f'window.__VP = {{w:{w}, h:{h}}};'
+        f'window.__CP_DATA = {data};'
+        'hydrate();'
+        '} catch(e) {}'
+    )
     webview.evaluate_javascript(js, -1, None, None, None, None, None)
 
 
-def _debug_check(webview: WebKit.WebView) -> bool:
-    """デバッグ情報を取得してファイルに書き出す"""
-    debug_js = """
-    (function() {
-        var info = {};
-        info.dpr = window.devicePixelRatio;
-        info.innerW = window.innerWidth;
-        info.innerH = window.innerHeight;
-        info.screenW = screen.width;
-        info.screenH = screen.height;
+# ---------------------------------------------------------------------------
+# Switch user detection
+# ---------------------------------------------------------------------------
 
-        var body = document.body;
-        if (body) {
-            var cs = getComputedStyle(body);
-            info.bodyFontSize = cs.fontSize;
-            info.bodyWidth = cs.width;
-            info.bodyHeight = cs.height;
-            info.bodyOffsetW = body.offsetWidth;
-            info.bodyOffsetH = body.offsetHeight;
-        }
-
-        var rating = document.querySelector('.ps-rating');
-        if (rating) {
-            var rcs = getComputedStyle(rating);
-            info.ratingFontSize = rcs.fontSize;
-            info.ratingOffsetH = rating.offsetHeight;
-            info.ratingOffsetW = rating.offsetWidth;
-            info.ratingText = rating.textContent;
-        }
-
-        var hud = document.querySelector('.hud');
-        if (hud) {
-            info.hudOffsetH = hud.offsetHeight;
-        }
-
-        var label = document.querySelector('.hud-label');
-        if (label) {
-            var lcs = getComputedStyle(label);
-            info.labelFontSize = lcs.fontSize;
-            info.labelOffsetH = label.offsetHeight;
-        }
-
-        var root = getComputedStyle(document.documentElement);
-        info.varFs3xl = root.getPropertyValue('--fs-3xl');
-        info.varFsSm = root.getPropertyValue('--fs-sm');
-        info.varFsLg = root.getPropertyValue('--fs-lg');
-
-        return JSON.stringify(info, null, 2);
-    })();
-    """
-    def _on_debug(wv, result, _ud=None):
-        try:
-            js_val = wv.evaluate_javascript_finish(result)
-            text = js_val.to_string() if js_val else 'null'
-            print(f'[DEBUG] {text}')
-            with open('/tmp/debug_info.json', 'w') as f:
-                f.write(text)
-        except Exception as e:
-            print(f'[DEBUG ERROR] {e}')
-
-    webview.evaluate_javascript(debug_js, -1, None, None, None, _on_debug, None)
-    return False
+def _check_switch(webview: WebKit.WebView) -> bool:
+    """Check if a user switch was requested via SWITCH_FILE."""
+    global _current_user
+    if not os.path.exists(SWITCH_FILE):
+        return True
+    try:
+        with open(SWITCH_FILE) as f:
+            requested = f.read().strip()
+        os.remove(SWITCH_FILE)
+        if requested and requested != _current_user:
+            if requested in _user_data:
+                _current_user = requested
+                print(f'[dashboard] switching to {requested}')
+                _inject(webview, requested)
+            elif requested == 'next':
+                # Cycle to next user
+                idx = _watchlist.index(_current_user) if _current_user in _watchlist else -1
+                next_user = _watchlist[(idx + 1) % len(_watchlist)]
+                if next_user in _user_data:
+                    _current_user = next_user
+                    print(f'[dashboard] cycling to {next_user}')
+                    _inject(webview, next_user)
+    except (OSError, ValueError):
+        pass
+    return True
 
 
-def _on_load_changed(
-    webview: WebKit.WebView,
-    event: WebKit.LoadEvent,
-) -> None:
-    if event == WebKit.LoadEvent.FINISHED:
-        GLib.timeout_add(200, lambda: _inject(webview) or False)
-        GLib.timeout_add(5000, lambda: _debug_check(webview) or False)
-
+# ---------------------------------------------------------------------------
+# Auto-refresh: watch primary user's stats file for changes
+# ---------------------------------------------------------------------------
 
 _last_mtime: float = 0.0
 
 
 def _watch_stats(webview: WebKit.WebView) -> bool:
-    """Watch stats.json for changes and re-inject when modified."""
+    """Watch primary user's stats file for changes."""
     global _last_mtime
-    path = _resolve_stats_path()
-    if not path:
+    primary = _watchlist[0] if _watchlist else ''
+    path = _stats_path(primary)
+    if not os.path.exists(path):
         return True
     try:
         mtime = os.path.getmtime(path)
@@ -148,10 +174,29 @@ def _watch_stats(webview: WebKit.WebView) -> bool:
         return True
     if mtime > _last_mtime:
         if _last_mtime > 0:
-            print(f'[dashboard] stats.json updated, refreshing')
-            _inject(webview)
+            # Reload the data
+            try:
+                with open(path) as f:
+                    _user_data[primary] = f.read()
+                if _current_user == primary:
+                    print(f'[dashboard] stats updated, refreshing')
+                    _inject(webview, primary)
+            except OSError:
+                pass
         _last_mtime = mtime
     return True
+
+
+# ---------------------------------------------------------------------------
+# GTK setup
+# ---------------------------------------------------------------------------
+
+def _on_load_changed(
+    webview: WebKit.WebView,
+    event: WebKit.LoadEvent,
+) -> None:
+    if event == WebKit.LoadEvent.FINISHED:
+        GLib.timeout_add(200, lambda: _inject(webview) or False)
 
 
 def on_activate(app: Gtk.Application) -> None:
@@ -175,19 +220,25 @@ def on_activate(app: Gtk.Application) -> None:
     webview.set_settings(settings)
     webview.load_uri(f'file://{DASHBOARD_HTML}')
 
-    # GTK4: set_background_color → WebView背景はCSS側で制御
     bg = Gdk.RGBA()
     bg.red, bg.green, bg.blue, bg.alpha = 0.008, 0.016, 0.016, 1.0
     webview.set_background_color(bg)
 
     webview.connect('load-changed', _on_load_changed)
     GLib.timeout_add_seconds(10, _watch_stats, webview)
+    GLib.timeout_add(500, _check_switch, webview)  # check switch every 500ms
 
     win.set_child(webview)
     win.present()
 
 
 def main() -> None:
+    global _watchlist
+    os.makedirs(CACHE_DIR, exist_ok=True)
+    _watchlist = _load_watchlist()
+    print(f'[dashboard] watchlist: {_watchlist}')
+    _prefetch_all()
+
     app = Gtk.Application(application_id='com.treo.cpdashboard')
     app.connect('activate', on_activate)
     app.run(None)
