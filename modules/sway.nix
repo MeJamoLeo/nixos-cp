@@ -62,7 +62,7 @@
 				"${mod}+shift+q" = "exit";
 
 				# Dashboard: cycle watchlist users
-				"${mod}+F12" = "exec ~/nixos-cp/dashboard/switch_user.sh next";
+				"${mod}+grave" = "exec ~/nixos-cp/dashboard/switch_user.sh next";
 			};
 
 			gaps = {
