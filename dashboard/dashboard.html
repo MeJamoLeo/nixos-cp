@@ -322,7 +322,7 @@ function renderDifficultyLog(d) {
 	const weekRate={};
 	frh.forEach(r=>{const wk=Math.floor((r.epoch-mE)/WEEK);weekRate[wk]=r;});
 
-	const W=560,H=150,xL=44,xR=550,yT=12,yB=130;
+	const W=560,H=160,xL=44,xR=550,yT=6,yB=142;
 	const colW=(xR-xL)/totalWeeks;
 	const Xw=wk=>xL+(wk+0.5)*colW;
 
@@ -364,16 +364,17 @@ function renderDifficultyLog(d) {
 	if(rWeeks.length>1){
 		s+='<polyline points="'+rWeeks.map(wk=>Xw(wk).toFixed(1)+','+YR(weekRate[wk].new_rating).toFixed(1)).join(' ')+'" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-linejoin="round"/>';
 	}
-	rWeeks.forEach(wk=>{const r=weekRate[wk],delta=r.new_rating-r.old_rating,col=delta>=0?'var(--green)':'var(--red)';s+='<circle cx="'+Xw(wk).toFixed(1)+'" cy="'+YR(r.new_rating).toFixed(1)+'" r="2.5" fill="'+col+'" stroke="var(--amber)" stroke-width="0.5"/>';const sign=delta>=0?'+':'';s+='<text x="'+Xw(wk).toFixed(1)+'" y="'+(YR(r.new_rating)-5).toFixed(1)+'" fill="'+col+'" font-size="6" text-anchor="middle" font-family="monospace">'+sign+delta+'</text>';});
+	rWeeks.forEach((wk,i)=>{const r=weekRate[wk],delta=r.new_rating-r.old_rating,col=delta>=0?'var(--green)':'var(--red)';const cx=Xw(wk).toFixed(1),cy=YR(r.new_rating).toFixed(1);s+='<circle cx="'+cx+'" cy="'+cy+'" r="2.5" fill="'+col+'" stroke="var(--amber)" stroke-width="0.5"/>';const sign=delta>=0?'+':'';s+='<text x="'+cx+'" y="'+(YR(r.new_rating)-8).toFixed(1)+'" fill="'+col+'" font-size="6" text-anchor="middle" font-family="monospace">'+sign+delta+'</text>';s+='<text x="'+cx+'" y="'+(YR(r.new_rating)+10).toFixed(1)+'" fill="var(--amber)" font-size="6" text-anchor="middle" font-family="monospace" opacity="0.8">'+r.new_rating+'</text>';});
 
-	// Projections (rating-based)
-	const projStyles={optimistic:{color:'var(--green)',dash:'4,3'},maintain:{color:'var(--amber)',dash:'4,3'},pessimistic:{color:'var(--dim)',dash:'4,3'}};
-	proj.forEach(pr=>{const st=projStyles[pr.scenario]||{color:'#555',dash:'4,3'};if(!frh.length||!pr.points.length)return;const lastR=frh[frh.length-1];let polyPts=Xw(nowWk).toFixed(1)+','+YR(lastR.new_rating).toFixed(1);pr.points.forEach(p=>{const wk=Math.floor((p.epoch-mE)/WEEK);polyPts+=' '+Xw(wk).toFixed(1)+','+YR(p.rating).toFixed(1);});s+='<polyline points="'+polyPts+'" fill="none" stroke="'+st.color+'" stroke-width="1" stroke-dasharray="'+st.dash+'" opacity="0.7"/>';});
+	// Projections (rating-based) with end labels
+	const projStyles={optimistic:{color:'var(--green)',dash:'4,3',label:'楽観'},maintain:{color:'var(--amber)',dash:'4,3',label:'維持'},pessimistic:{color:'var(--dim)',dash:'4,3',label:'悲観'}};
+	proj.forEach(pr=>{const st=projStyles[pr.scenario]||{color:'#555',dash:'4,3',label:''};if(!frh.length||!pr.points.length)return;const lastR=frh[frh.length-1];let polyPts=Xw(nowWk).toFixed(1)+','+YR(lastR.new_rating).toFixed(1);pr.points.forEach(p=>{const wk=Math.floor((p.epoch-mE)/WEEK);polyPts+=' '+Xw(wk).toFixed(1)+','+YR(p.rating).toFixed(1);});s+='<polyline points="'+polyPts+'" fill="none" stroke="'+st.color+'" stroke-width="1" stroke-dasharray="'+st.dash+'" opacity="0.7"/>';const last=pr.points[pr.points.length-1],lwk=Math.floor((last.epoch-mE)/WEEK);s+='<text x="'+(Xw(lwk)+4).toFixed(1)+'" y="'+(YR(last.rating)+3).toFixed(1)+'" fill="'+st.color+'" font-size="6" font-family="monospace">'+last.rating+'</text>';});
 
-	// X labels
-	s+='<text x="'+xL+'" y="146" fill="#0c1e1e" font-size="7" text-anchor="start" font-family="monospace">'+(new Date(mE*1000).getMonth()+1)+'月</text>';
-	s+='<text x="'+Xw(nowWk).toFixed(1)+'" y="146" fill="var(--cyan)" font-size="7" text-anchor="middle" font-family="monospace">今</text>';
-	s+='<text x="'+xR+'" y="146" fill="var(--dim)" font-size="7" text-anchor="end" font-family="monospace">+3ヶ月</text>';
+	// X labels (concrete dates)
+	function fmtDate(ep){const d=new Date(ep*1000);return(d.getMonth()+1)+'/'+d.getDate();}
+	s+='<text x="'+xL+'" y="156" fill="#0c1e1e" font-size="7" text-anchor="start" font-family="monospace">'+fmtDate(mE)+'</text>';
+	s+='<text x="'+Xw(nowWk).toFixed(1)+'" y="156" fill="var(--cyan)" font-size="7" text-anchor="middle" font-family="monospace">'+fmtDate(nowEpoch)+' (今)</text>';
+	s+='<text x="'+xR+'" y="156" fill="var(--dim)" font-size="7" text-anchor="end" font-family="monospace">'+fmtDate(xE)+'</text>';
 	s+='</svg>';
 
 	return '<div class="panel" data-label="DIFFICULTY LOG" style="background:var(--dbg-difflog)"><div class="panel-inner">'
