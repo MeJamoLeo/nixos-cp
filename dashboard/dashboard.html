@@ -410,11 +410,58 @@ function renderPeerTable(d) {
 function renderStreakCalendar(d) {
 	const cal=d.streak_calendar||[], h=d.hud||{};
 	const now=new Date(),ts=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
-	let g='';cal.forEach(c=>{if(c.ac_count===0){g+='<div class="streak-cell streak-none'+(c.date===ts?' streak-today':'')+'"></div>';}else{const sc=ratingColor(c.max_difficulty);g+='<div class="streak-cell'+(c.date===ts?' streak-today':'')+'" style="background:'+sc+';opacity:0.9"></div>';}});
-	for(let i=cal.length;i<28;i++)g+='<div class="streak-cell streak-none" style="opacity:.15"></div>';
+
+	// Isometric 3D cityscape streak
+	const W=280,H=200;
+	const days=cal.length||28;
+	// Max difficulty sum for height scaling
+	const maxAc=Math.max(...cal.map(c=>c.ac_count||0),1);
+	const maxDiff=Math.max(...cal.map(c=>c.max_difficulty||0),1);
+
+	// Isometric projection helpers
+	const tileW=8,tileH=4; // half-width/height of tile diamond
+	const cols=7,rows=Math.ceil(days/cols);
+	const ox=W/2,oy=30; // origin (top center)
+	function isoX(col,row){return ox+(col-row)*tileW;}
+	function isoY(col,row){return oy+(col+row)*tileH;}
+
+	let s='<svg width="100%" height="100%" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">';
+
+	// Draw back to front (top-left to bottom-right) for correct overlap
+	for(let i=0;i<days;i++){
+		const row=Math.floor(i/cols),col=i%cols;
+		const c=cal[i]||{ac_count:0,max_difficulty:0,date:''};
+		const isToday=c.date===ts;
+		const barH=c.ac_count>0?8+Math.round((c.max_difficulty/1600)*50):0;
+		const color=c.ac_count>0?ratingColor(c.max_difficulty):'#0c1818';
+		const x=isoX(col,row),y=isoY(col,row);
+
+		if(barH>0){
+			// Top face (diamond)
+			const top='M'+x+','+(y-barH)+' L'+(x+tileW)+','+(y-barH+tileH)+' L'+x+','+(y-barH+2*tileH)+' L'+(x-tileW)+','+(y-barH+tileH)+' Z';
+			// Right face
+			const right='M'+(x+tileW)+','+(y-barH+tileH)+' L'+(x+tileW)+','+(y+tileH)+' L'+x+','+(y+2*tileH)+' L'+x+','+(y-barH+2*tileH)+' Z';
+			// Left face
+			const left='M'+(x-tileW)+','+(y-barH+tileH)+' L'+x+','+(y-barH+2*tileH)+' L'+x+','+(y+2*tileH)+' L'+(x-tileW)+','+(y+tileH)+' Z';
+
+			// Shade faces: top=bright, right=mid, left=dark
+			s+='<path d="'+left+'" fill="'+color+'" opacity="0.4"/>';
+			s+='<path d="'+right+'" fill="'+color+'" opacity="0.6"/>';
+			s+='<path d="'+top+'" fill="'+color+'" opacity="0.9"/>';
+
+			if(isToday){s+='<path d="'+top+'" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.7"/>';}
+		} else {
+			// Empty tile (flat diamond)
+			const flat='M'+x+','+(y)+' L'+(x+tileW)+','+(y+tileH)+' L'+x+','+(y+2*tileH)+' L'+(x-tileW)+','+(y+tileH)+' Z';
+			s+='<path d="'+flat+'" fill="#0c1818" opacity="'+(isToday?'0.6':'0.2')+'"/>';
+			if(isToday){s+='<path d="'+flat+'" fill="none" stroke="#ffffff" stroke-width="0.5" opacity="0.4"/>';}
+		}
+	}
+
+	s+='</svg>';
+
 	return '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><span style="font-size:var(--fs-sm);color:var(--dim)">最長 '+(h.max_streak||0)+'日</span><span class="badge badge-amber">🔥 '+(h.streak_days||0)+'日</span></div>'
-		+'<div style="font-size:var(--fs-2xs);color:var(--muted);display:grid;grid-template-columns:repeat(7,1fr);text-align:center;margin-bottom:2px"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>'
-		+'<div class="streak-grid">'+g+'</div>'
+		+s
 		+'<div style="display:flex;gap:4px;margin:3px 0;font-size:var(--fs-2xs);color:var(--muted)"><span>● なし</span><span style="color:#808080">● 灰</span><span style="color:#804000">● 茶</span><span style="color:#008000">● 緑</span><span style="color:#00c0c0">● 水</span></div>'
 		+'<div style="background:#060800;border:0.5px solid #5a4000;padding:4px 6px;box-shadow:inset 2px 0 0 var(--amber)"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:var(--fs-2xs);color:#5a4000">🌅 今日の初回提出</div><div style="font-size:var(--fs-lg);font-weight:500;color:#ffcc00;line-height:1.1">'+(h.first_ac_today||'--:--')+'</div></div><div style="text-align:right"><div style="font-size:var(--fs-2xs);color:#3a2a00">avg '+(h.avg_first_ac||'--:--')+'</div></div></div></div>';
 }
