@@ -22,233 +22,996 @@
     "streak_days": 23,
     "max_streak": 31,
     "today_acs": [
-      {"problem_id": "abc390_c", "difficulty": 489, "xp": 489},
-      {"problem_id": "abc390_d", "difficulty": 912, "xp": 912},
-      {"problem_id": "abc388_e", "difficulty": 1089, "xp": 1089}
+      {
+        "problem_id": "abc390_c",
+        "difficulty": 489,
+        "xp": 489
+      },
+      {
+        "problem_id": "abc390_d",
+        "difficulty": 912,
+        "xp": 912
+      },
+      {
+        "problem_id": "abc388_e",
+        "difficulty": 1089,
+        "xp": 1089
+      }
     ]
   },
   "wa_queue": [
-    {"problem_id": "abc385_e", "wa_count": 3, "tag": "BFS", "difficulty": 1089, "last_wa_epoch": 1744560000},
-    {"problem_id": "abc382_d", "wa_count": 2, "tag": "DP", "difficulty": 912, "last_wa_epoch": 1744300000},
-    {"problem_id": "abc379_d", "wa_count": 1, "tag": "累積和", "difficulty": 756, "last_wa_epoch": 1744100000},
-    {"problem_id": "abc376_c", "wa_count": 1, "tag": "実装", "difficulty": 633, "last_wa_epoch": 1743900000},
-    {"problem_id": "abc372_e", "wa_count": 1, "tag": "グラフ", "difficulty": 1124, "last_wa_epoch": 1743700000},
-    {"problem_id": "abc369_d", "wa_count": 2, "tag": "DP", "difficulty": 845, "last_wa_epoch": 1743500000},
-    {"problem_id": "abc366_c", "wa_count": 1, "tag": "数学", "difficulty": 567, "last_wa_epoch": 1743300000},
-    {"problem_id": "abc362_e", "wa_count": 1, "tag": "BFS/DFS", "difficulty": 998, "last_wa_epoch": 1743100000}
+    {
+      "problem_id": "abc385_e",
+      "wa_count": 3,
+      "tag": "BFS",
+      "difficulty": 1089,
+      "last_wa_epoch": 1744560000
+    },
+    {
+      "problem_id": "abc382_d",
+      "wa_count": 2,
+      "tag": "DP",
+      "difficulty": 912,
+      "last_wa_epoch": 1744300000
+    },
+    {
+      "problem_id": "abc379_d",
+      "wa_count": 1,
+      "tag": "累積和",
+      "difficulty": 756,
+      "last_wa_epoch": 1744100000
+    },
+    {
+      "problem_id": "abc376_c",
+      "wa_count": 1,
+      "tag": "実装",
+      "difficulty": 633,
+      "last_wa_epoch": 1743900000
+    },
+    {
+      "problem_id": "abc372_e",
+      "wa_count": 1,
+      "tag": "グラフ",
+      "difficulty": 1124,
+      "last_wa_epoch": 1743700000
+    },
+    {
+      "problem_id": "abc369_d",
+      "wa_count": 2,
+      "tag": "DP",
+      "difficulty": 845,
+      "last_wa_epoch": 1743500000
+    },
+    {
+      "problem_id": "abc366_c",
+      "wa_count": 1,
+      "tag": "数学",
+      "difficulty": 567,
+      "last_wa_epoch": 1743300000
+    },
+    {
+      "problem_id": "abc362_e",
+      "wa_count": 1,
+      "tag": "BFS/DFS",
+      "difficulty": 998,
+      "last_wa_epoch": 1743100000
+    }
   ],
   "difficulty_log": {
     "points": [
-      {"epoch": 1734220800, "difficulty": 180},
-      {"epoch": 1734307200, "difficulty": 220},
-      {"epoch": 1734480000, "difficulty": 150},
-      {"epoch": 1734652800, "difficulty": 280},
-      {"epoch": 1734825600, "difficulty": 310},
-      {"epoch": 1735084800, "difficulty": 200},
-      {"epoch": 1735257600, "difficulty": 350},
-      {"epoch": 1735430400, "difficulty": 290},
-      {"epoch": 1735603200, "difficulty": 420},
-      {"epoch": 1735862400, "difficulty": 380},
-      {"epoch": 1736035200, "difficulty": 310},
-      {"epoch": 1736208000, "difficulty": 450},
-      {"epoch": 1736380800, "difficulty": 280},
-      {"epoch": 1736553600, "difficulty": 520},
-      {"epoch": 1736726400, "difficulty": 390},
-      {"epoch": 1736899200, "difficulty": 470},
-      {"epoch": 1737158400, "difficulty": 350},
-      {"epoch": 1737331200, "difficulty": 540},
-      {"epoch": 1737504000, "difficulty": 420},
-      {"epoch": 1737676800, "difficulty": 580},
-      {"epoch": 1737849600, "difficulty": 460},
-      {"epoch": 1738108800, "difficulty": 510},
-      {"epoch": 1738281600, "difficulty": 620},
-      {"epoch": 1738454400, "difficulty": 380},
-      {"epoch": 1738627200, "difficulty": 550},
-      {"epoch": 1738800000, "difficulty": 670},
-      {"epoch": 1738972800, "difficulty": 480},
-      {"epoch": 1739232000, "difficulty": 590},
-      {"epoch": 1739404800, "difficulty": 720},
-      {"epoch": 1739577600, "difficulty": 530},
-      {"epoch": 1739750400, "difficulty": 650},
-      {"epoch": 1739923200, "difficulty": 480},
-      {"epoch": 1740182400, "difficulty": 710},
-      {"epoch": 1740355200, "difficulty": 560},
-      {"epoch": 1740528000, "difficulty": 780},
-      {"epoch": 1740700800, "difficulty": 620},
-      {"epoch": 1740873600, "difficulty": 690},
-      {"epoch": 1741132800, "difficulty": 530},
-      {"epoch": 1741305600, "difficulty": 750},
-      {"epoch": 1741478400, "difficulty": 810},
-      {"epoch": 1741651200, "difficulty": 580},
-      {"epoch": 1741824000, "difficulty": 720},
-      {"epoch": 1741996800, "difficulty": 650},
-      {"epoch": 1742256000, "difficulty": 830},
-      {"epoch": 1742428800, "difficulty": 710},
-      {"epoch": 1742601600, "difficulty": 560},
-      {"epoch": 1742774400, "difficulty": 880},
-      {"epoch": 1742947200, "difficulty": 620},
-      {"epoch": 1743120000, "difficulty": 750},
-      {"epoch": 1743379200, "difficulty": 690},
-      {"epoch": 1743552000, "difficulty": 840},
-      {"epoch": 1743724800, "difficulty": 560},
-      {"epoch": 1743897600, "difficulty": 920},
-      {"epoch": 1744070400, "difficulty": 710},
-      {"epoch": 1744243200, "difficulty": 800},
-      {"epoch": 1744329600, "difficulty": 650},
-      {"epoch": 1744416000, "difficulty": 880},
-      {"epoch": 1744502400, "difficulty": 730},
-      {"epoch": 1744588800, "difficulty": 950},
-      {"epoch": 1744675200, "difficulty": 810},
-      {"epoch": 1744761600, "difficulty": 690},
-      {"epoch": 1744848000, "difficulty": 1020},
-      {"epoch": 1744934400, "difficulty": 760},
-      {"epoch": 1745020800, "difficulty": 890},
-      {"epoch": 1745107200, "difficulty": 720},
-      {"epoch": 1745193600, "difficulty": 980},
-      {"epoch": 1745280000, "difficulty": 850},
-      {"epoch": 1745366400, "difficulty": 1100},
-      {"epoch": 1745452800, "difficulty": 670},
-      {"epoch": 1745539200, "difficulty": 930},
-      {"epoch": 1745625600, "difficulty": 780},
-      {"epoch": 1745712000, "difficulty": 1050},
-      {"epoch": 1745798400, "difficulty": 820},
-      {"epoch": 1745884800, "difficulty": 960},
-      {"epoch": 1745971200, "difficulty": 700},
-      {"epoch": 1746057600, "difficulty": 1120},
-      {"epoch": 1746144000, "difficulty": 850},
-      {"epoch": 1746230400, "difficulty": 940},
-      {"epoch": 1746316800, "difficulty": 780},
-      {"epoch": 1746403200, "difficulty": 1080},
-      {"epoch": 1746489600, "difficulty": 910},
-      {"epoch": 1746576000, "difficulty": 1150},
-      {"epoch": 1746662400, "difficulty": 830},
-      {"epoch": 1746748800, "difficulty": 970},
-      {"epoch": 1746835200, "difficulty": 1060},
-      {"epoch": 1746921600, "difficulty": 890},
-      {"epoch": 1747008000, "difficulty": 1130},
-      {"epoch": 1747094400, "difficulty": 950},
-      {"epoch": 1747180800, "difficulty": 1080},
-      {"epoch": 1747267200, "difficulty": 1200}
+      {
+        "epoch": 1763269200,
+        "difficulty": 180
+      },
+      {
+        "epoch": 1763355600,
+        "difficulty": 220
+      },
+      {
+        "epoch": 1763528400,
+        "difficulty": 150
+      },
+      {
+        "epoch": 1763701200,
+        "difficulty": 280
+      },
+      {
+        "epoch": 1763874000,
+        "difficulty": 310
+      },
+      {
+        "epoch": 1764133200,
+        "difficulty": 200
+      },
+      {
+        "epoch": 1764306000,
+        "difficulty": 350
+      },
+      {
+        "epoch": 1764478800,
+        "difficulty": 290
+      },
+      {
+        "epoch": 1764651600,
+        "difficulty": 420
+      },
+      {
+        "epoch": 1764910800,
+        "difficulty": 380
+      },
+      {
+        "epoch": 1765083600,
+        "difficulty": 310
+      },
+      {
+        "epoch": 1765256400,
+        "difficulty": 450
+      },
+      {
+        "epoch": 1765429200,
+        "difficulty": 280
+      },
+      {
+        "epoch": 1765602000,
+        "difficulty": 520
+      },
+      {
+        "epoch": 1765774800,
+        "difficulty": 390
+      },
+      {
+        "epoch": 1765947600,
+        "difficulty": 470
+      },
+      {
+        "epoch": 1766206800,
+        "difficulty": 350
+      },
+      {
+        "epoch": 1766379600,
+        "difficulty": 540
+      },
+      {
+        "epoch": 1766552400,
+        "difficulty": 420
+      },
+      {
+        "epoch": 1766725200,
+        "difficulty": 580
+      },
+      {
+        "epoch": 1766898000,
+        "difficulty": 460
+      },
+      {
+        "epoch": 1767157200,
+        "difficulty": 510
+      },
+      {
+        "epoch": 1767330000,
+        "difficulty": 620
+      },
+      {
+        "epoch": 1767502800,
+        "difficulty": 380
+      },
+      {
+        "epoch": 1767675600,
+        "difficulty": 550
+      },
+      {
+        "epoch": 1767848400,
+        "difficulty": 670
+      },
+      {
+        "epoch": 1768021200,
+        "difficulty": 480
+      },
+      {
+        "epoch": 1768280400,
+        "difficulty": 590
+      },
+      {
+        "epoch": 1768453200,
+        "difficulty": 720
+      },
+      {
+        "epoch": 1768626000,
+        "difficulty": 530
+      },
+      {
+        "epoch": 1768798800,
+        "difficulty": 650
+      },
+      {
+        "epoch": 1768971600,
+        "difficulty": 480
+      },
+      {
+        "epoch": 1769230800,
+        "difficulty": 710
+      },
+      {
+        "epoch": 1769403600,
+        "difficulty": 560
+      },
+      {
+        "epoch": 1769576400,
+        "difficulty": 780
+      },
+      {
+        "epoch": 1769749200,
+        "difficulty": 620
+      },
+      {
+        "epoch": 1769922000,
+        "difficulty": 690
+      },
+      {
+        "epoch": 1770181200,
+        "difficulty": 530
+      },
+      {
+        "epoch": 1770354000,
+        "difficulty": 750
+      },
+      {
+        "epoch": 1770526800,
+        "difficulty": 810
+      },
+      {
+        "epoch": 1770699600,
+        "difficulty": 580
+      },
+      {
+        "epoch": 1770872400,
+        "difficulty": 720
+      },
+      {
+        "epoch": 1771045200,
+        "difficulty": 650
+      },
+      {
+        "epoch": 1771304400,
+        "difficulty": 830
+      },
+      {
+        "epoch": 1771477200,
+        "difficulty": 710
+      },
+      {
+        "epoch": 1771650000,
+        "difficulty": 560
+      },
+      {
+        "epoch": 1771822800,
+        "difficulty": 880
+      },
+      {
+        "epoch": 1771995600,
+        "difficulty": 620
+      },
+      {
+        "epoch": 1772168400,
+        "difficulty": 750
+      },
+      {
+        "epoch": 1772427600,
+        "difficulty": 690
+      },
+      {
+        "epoch": 1772600400,
+        "difficulty": 840
+      },
+      {
+        "epoch": 1772773200,
+        "difficulty": 560
+      },
+      {
+        "epoch": 1772946000,
+        "difficulty": 920
+      },
+      {
+        "epoch": 1773118800,
+        "difficulty": 710
+      },
+      {
+        "epoch": 1773291600,
+        "difficulty": 800
+      },
+      {
+        "epoch": 1773378000,
+        "difficulty": 650
+      },
+      {
+        "epoch": 1773464400,
+        "difficulty": 880
+      },
+      {
+        "epoch": 1773550800,
+        "difficulty": 730
+      },
+      {
+        "epoch": 1773637200,
+        "difficulty": 950
+      },
+      {
+        "epoch": 1773723600,
+        "difficulty": 810
+      },
+      {
+        "epoch": 1773810000,
+        "difficulty": 690
+      },
+      {
+        "epoch": 1773896400,
+        "difficulty": 1020
+      },
+      {
+        "epoch": 1773982800,
+        "difficulty": 760
+      },
+      {
+        "epoch": 1774069200,
+        "difficulty": 890
+      },
+      {
+        "epoch": 1774155600,
+        "difficulty": 720
+      },
+      {
+        "epoch": 1774242000,
+        "difficulty": 980
+      },
+      {
+        "epoch": 1774328400,
+        "difficulty": 850
+      },
+      {
+        "epoch": 1774414800,
+        "difficulty": 1100
+      },
+      {
+        "epoch": 1774501200,
+        "difficulty": 670
+      },
+      {
+        "epoch": 1774587600,
+        "difficulty": 930
+      },
+      {
+        "epoch": 1774674000,
+        "difficulty": 780
+      },
+      {
+        "epoch": 1774760400,
+        "difficulty": 1050
+      },
+      {
+        "epoch": 1774846800,
+        "difficulty": 820
+      },
+      {
+        "epoch": 1774933200,
+        "difficulty": 960
+      },
+      {
+        "epoch": 1775019600,
+        "difficulty": 700
+      },
+      {
+        "epoch": 1775106000,
+        "difficulty": 1120
+      },
+      {
+        "epoch": 1775192400,
+        "difficulty": 850
+      },
+      {
+        "epoch": 1775278800,
+        "difficulty": 940
+      },
+      {
+        "epoch": 1775365200,
+        "difficulty": 780
+      },
+      {
+        "epoch": 1775451600,
+        "difficulty": 1080
+      },
+      {
+        "epoch": 1775538000,
+        "difficulty": 910
+      },
+      {
+        "epoch": 1775624400,
+        "difficulty": 1150
+      },
+      {
+        "epoch": 1775710800,
+        "difficulty": 830
+      },
+      {
+        "epoch": 1775797200,
+        "difficulty": 970
+      },
+      {
+        "epoch": 1775883600,
+        "difficulty": 1060
+      },
+      {
+        "epoch": 1775970000,
+        "difficulty": 890
+      },
+      {
+        "epoch": 1776056400,
+        "difficulty": 1130
+      },
+      {
+        "epoch": 1776142800,
+        "difficulty": 950
+      },
+      {
+        "epoch": 1776229200,
+        "difficulty": 1080
+      },
+      {
+        "epoch": 1776315600,
+        "difficulty": 1200
+      }
     ],
     "seven_day_avg": [
-      {"epoch": 1734825600, "avg": 225},
-      {"epoch": 1735430400, "avg": 280},
-      {"epoch": 1736035200, "avg": 340},
-      {"epoch": 1736726400, "avg": 380},
-      {"epoch": 1737331200, "avg": 420},
-      {"epoch": 1737849600, "avg": 460},
-      {"epoch": 1738454400, "avg": 490},
-      {"epoch": 1739232000, "avg": 540},
-      {"epoch": 1739923200, "avg": 580},
-      {"epoch": 1740528000, "avg": 630},
-      {"epoch": 1741305600, "avg": 660},
-      {"epoch": 1741996800, "avg": 700},
-      {"epoch": 1742601600, "avg": 720},
-      {"epoch": 1743379200, "avg": 750},
-      {"epoch": 1743897600, "avg": 770},
-      {"epoch": 1744502400, "avg": 800},
-      {"epoch": 1745107200, "avg": 830},
-      {"epoch": 1745712000, "avg": 870},
-      {"epoch": 1746316800, "avg": 900},
-      {"epoch": 1746921600, "avg": 940},
-      {"epoch": 1747267200, "avg": 970}
+      {
+        "epoch": 1763874000,
+        "avg": 225
+      },
+      {
+        "epoch": 1764478800,
+        "avg": 280
+      },
+      {
+        "epoch": 1765083600,
+        "avg": 340
+      },
+      {
+        "epoch": 1765774800,
+        "avg": 380
+      },
+      {
+        "epoch": 1766379600,
+        "avg": 420
+      },
+      {
+        "epoch": 1766898000,
+        "avg": 460
+      },
+      {
+        "epoch": 1767502800,
+        "avg": 490
+      },
+      {
+        "epoch": 1768280400,
+        "avg": 540
+      },
+      {
+        "epoch": 1768971600,
+        "avg": 580
+      },
+      {
+        "epoch": 1769576400,
+        "avg": 630
+      },
+      {
+        "epoch": 1770354000,
+        "avg": 660
+      },
+      {
+        "epoch": 1771045200,
+        "avg": 700
+      },
+      {
+        "epoch": 1771650000,
+        "avg": 720
+      },
+      {
+        "epoch": 1772427600,
+        "avg": 750
+      },
+      {
+        "epoch": 1772946000,
+        "avg": 770
+      },
+      {
+        "epoch": 1773550800,
+        "avg": 800
+      },
+      {
+        "epoch": 1774155600,
+        "avg": 830
+      },
+      {
+        "epoch": 1774760400,
+        "avg": 870
+      },
+      {
+        "epoch": 1775365200,
+        "avg": 900
+      },
+      {
+        "epoch": 1775970000,
+        "avg": 940
+      },
+      {
+        "epoch": 1776315600,
+        "avg": 970
+      }
     ],
     "current_rating": 438,
     "projections": [
-      {"scenario": "optimistic", "points": [
-        {"epoch": 1745020800, "avg": 520}, {"epoch": 1745625600, "avg": 545},
-        {"epoch": 1746230400, "avg": 575}, {"epoch": 1746835200, "avg": 610},
-        {"epoch": 1747440000, "avg": 650}, {"epoch": 1748044800, "avg": 690},
-        {"epoch": 1748649600, "avg": 735}, {"epoch": 1749254400, "avg": 780},
-        {"epoch": 1749859200, "avg": 825}, {"epoch": 1750464000, "avg": 870},
-        {"epoch": 1751068800, "avg": 910}, {"epoch": 1751673600, "avg": 950},
-        {"epoch": 1752278400, "avg": 985}
-      ]},
-      {"scenario": "maintain", "points": [
-        {"epoch": 1745020800, "avg": 510}, {"epoch": 1745625600, "avg": 525},
-        {"epoch": 1746230400, "avg": 540}, {"epoch": 1746835200, "avg": 555},
-        {"epoch": 1747440000, "avg": 570}, {"epoch": 1748044800, "avg": 585},
-        {"epoch": 1748649600, "avg": 600}, {"epoch": 1749254400, "avg": 615},
-        {"epoch": 1749859200, "avg": 630}, {"epoch": 1750464000, "avg": 645},
-        {"epoch": 1751068800, "avg": 660}, {"epoch": 1751673600, "avg": 675},
-        {"epoch": 1752278400, "avg": 690}
-      ]},
-      {"scenario": "pessimistic", "points": [
-        {"epoch": 1745020800, "avg": 505}, {"epoch": 1745625600, "avg": 510},
-        {"epoch": 1746230400, "avg": 512}, {"epoch": 1746835200, "avg": 515},
-        {"epoch": 1747440000, "avg": 517}, {"epoch": 1748044800, "avg": 518},
-        {"epoch": 1748649600, "avg": 519}, {"epoch": 1749254400, "avg": 520},
-        {"epoch": 1749859200, "avg": 520}, {"epoch": 1750464000, "avg": 520},
-        {"epoch": 1751068800, "avg": 520}, {"epoch": 1751673600, "avg": 520},
-        {"epoch": 1752278400, "avg": 520}
-      ]}
+      {
+        "scenario": "optimistic",
+        "points": [
+          {
+            "epoch": 1776920400,
+            "avg": 1037
+          },
+          {
+            "epoch": 1777525200,
+            "avg": 1104
+          },
+          {
+            "epoch": 1778130000,
+            "avg": 1170
+          },
+          {
+            "epoch": 1778734800,
+            "avg": 1237
+          },
+          {
+            "epoch": 1779339600,
+            "avg": 1304
+          },
+          {
+            "epoch": 1779944400,
+            "avg": 1371
+          },
+          {
+            "epoch": 1780549200,
+            "avg": 1438
+          },
+          {
+            "epoch": 1781154000,
+            "avg": 1505
+          },
+          {
+            "epoch": 1781758800,
+            "avg": 1571
+          },
+          {
+            "epoch": 1782363600,
+            "avg": 1638
+          },
+          {
+            "epoch": 1782968400,
+            "avg": 1705
+          },
+          {
+            "epoch": 1783573200,
+            "avg": 1772
+          },
+          {
+            "epoch": 1784178000,
+            "avg": 1839
+          }
+        ]
+      },
+      {
+        "scenario": "maintain",
+        "points": [
+          {
+            "epoch": 1776920400,
+            "avg": 1015
+          },
+          {
+            "epoch": 1777525200,
+            "avg": 1059
+          },
+          {
+            "epoch": 1778130000,
+            "avg": 1104
+          },
+          {
+            "epoch": 1778734800,
+            "avg": 1148
+          },
+          {
+            "epoch": 1779339600,
+            "avg": 1193
+          },
+          {
+            "epoch": 1779944400,
+            "avg": 1237
+          },
+          {
+            "epoch": 1780549200,
+            "avg": 1282
+          },
+          {
+            "epoch": 1781154000,
+            "avg": 1326
+          },
+          {
+            "epoch": 1781758800,
+            "avg": 1371
+          },
+          {
+            "epoch": 1782363600,
+            "avg": 1415
+          },
+          {
+            "epoch": 1782968400,
+            "avg": 1460
+          },
+          {
+            "epoch": 1783573200,
+            "avg": 1505
+          },
+          {
+            "epoch": 1784178000,
+            "avg": 1549
+          }
+        ]
+      },
+      {
+        "scenario": "pessimistic",
+        "points": [
+          {
+            "epoch": 1776920400,
+            "avg": 983
+          },
+          {
+            "epoch": 1777525200,
+            "avg": 997
+          },
+          {
+            "epoch": 1778130000,
+            "avg": 1010
+          },
+          {
+            "epoch": 1778734800,
+            "avg": 1023
+          },
+          {
+            "epoch": 1779339600,
+            "avg": 1037
+          },
+          {
+            "epoch": 1779944400,
+            "avg": 1050
+          },
+          {
+            "epoch": 1780549200,
+            "avg": 1064
+          },
+          {
+            "epoch": 1781154000,
+            "avg": 1077
+          },
+          {
+            "epoch": 1781758800,
+            "avg": 1090
+          },
+          {
+            "epoch": 1782363600,
+            "avg": 1104
+          },
+          {
+            "epoch": 1782968400,
+            "avg": 1117
+          },
+          {
+            "epoch": 1783573200,
+            "avg": 1130
+          },
+          {
+            "epoch": 1784178000,
+            "avg": 1144
+          }
+        ]
+      }
     ]
   },
   "tag_ac_rate": [
-    {"tag": "実装", "ac_rate": 0.88, "total": 85, "ac": 75},
-    {"tag": "累積和", "ac_rate": 0.75, "total": 24, "ac": 18},
-    {"tag": "DP", "ac_rate": 0.61, "total": 36, "ac": 22},
-    {"tag": "グラフ", "ac_rate": 0.48, "total": 21, "ac": 10},
-    {"tag": "BFS/DFS", "ac_rate": 0.40, "total": 15, "ac": 6},
-    {"tag": "数学", "ac_rate": 0.33, "total": 18, "ac": 6}
+    {
+      "tag": "実装",
+      "ac_rate": 0.88,
+      "total": 85,
+      "ac": 75
+    },
+    {
+      "tag": "累積和",
+      "ac_rate": 0.75,
+      "total": 24,
+      "ac": 18
+    },
+    {
+      "tag": "DP",
+      "ac_rate": 0.61,
+      "total": 36,
+      "ac": 22
+    },
+    {
+      "tag": "グラフ",
+      "ac_rate": 0.48,
+      "total": 21,
+      "ac": 10
+    },
+    {
+      "tag": "BFS/DFS",
+      "ac_rate": 0.4,
+      "total": 15,
+      "ac": 6
+    },
+    {
+      "tag": "数学",
+      "ac_rate": 0.33,
+      "total": 18,
+      "ac": 6
+    }
   ],
   "streak_calendar": [
-    {"date": "2026-03-19", "max_difficulty": 450, "ac_count": 2},
-    {"date": "2026-03-20", "max_difficulty": 620, "ac_count": 3},
-    {"date": "2026-03-21", "max_difficulty": 0, "ac_count": 0},
-    {"date": "2026-03-22", "max_difficulty": 890, "ac_count": 4},
-    {"date": "2026-03-23", "max_difficulty": 520, "ac_count": 2},
-    {"date": "2026-03-24", "max_difficulty": 0, "ac_count": 0},
-    {"date": "2026-03-25", "max_difficulty": 980, "ac_count": 3},
-    {"date": "2026-03-26", "max_difficulty": 410, "ac_count": 1},
-    {"date": "2026-03-27", "max_difficulty": 670, "ac_count": 2},
-    {"date": "2026-03-28", "max_difficulty": 850, "ac_count": 3},
-    {"date": "2026-03-29", "max_difficulty": 520, "ac_count": 2},
-    {"date": "2026-03-30", "max_difficulty": 1100, "ac_count": 5},
-    {"date": "2026-03-31", "max_difficulty": 430, "ac_count": 2},
-    {"date": "2026-04-01", "max_difficulty": 780, "ac_count": 3},
-    {"date": "2026-04-02", "max_difficulty": 1250, "ac_count": 4},
-    {"date": "2026-04-03", "max_difficulty": 920, "ac_count": 3},
-    {"date": "2026-04-04", "max_difficulty": 560, "ac_count": 2},
-    {"date": "2026-04-05", "max_difficulty": 810, "ac_count": 3},
-    {"date": "2026-04-06", "max_difficulty": 450, "ac_count": 2},
-    {"date": "2026-04-07", "max_difficulty": 970, "ac_count": 4},
-    {"date": "2026-04-08", "max_difficulty": 680, "ac_count": 2},
-    {"date": "2026-04-09", "max_difficulty": 890, "ac_count": 3},
-    {"date": "2026-04-10", "max_difficulty": 520, "ac_count": 2},
-    {"date": "2026-04-11", "max_difficulty": 1080, "ac_count": 4},
-    {"date": "2026-04-12", "max_difficulty": 750, "ac_count": 3},
-    {"date": "2026-04-13", "max_difficulty": 620, "ac_count": 2},
-    {"date": "2026-04-14", "max_difficulty": 940, "ac_count": 3},
-    {"date": "2026-04-15", "max_difficulty": 1089, "ac_count": 3}
+    {
+      "date": "2026-03-19",
+      "max_difficulty": 450,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-03-20",
+      "max_difficulty": 620,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-03-21",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-03-22",
+      "max_difficulty": 890,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-03-23",
+      "max_difficulty": 520,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-03-24",
+      "max_difficulty": 0,
+      "ac_count": 0
+    },
+    {
+      "date": "2026-03-25",
+      "max_difficulty": 980,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-03-26",
+      "max_difficulty": 410,
+      "ac_count": 1
+    },
+    {
+      "date": "2026-03-27",
+      "max_difficulty": 670,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-03-28",
+      "max_difficulty": 850,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-03-29",
+      "max_difficulty": 520,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-03-30",
+      "max_difficulty": 1100,
+      "ac_count": 5
+    },
+    {
+      "date": "2026-03-31",
+      "max_difficulty": 430,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-04-01",
+      "max_difficulty": 780,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-04-02",
+      "max_difficulty": 1250,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-04-03",
+      "max_difficulty": 920,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-04-04",
+      "max_difficulty": 560,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-04-05",
+      "max_difficulty": 810,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-04-06",
+      "max_difficulty": 450,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-04-07",
+      "max_difficulty": 970,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-04-08",
+      "max_difficulty": 680,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-04-09",
+      "max_difficulty": 890,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-04-10",
+      "max_difficulty": 520,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-04-11",
+      "max_difficulty": 1080,
+      "ac_count": 4
+    },
+    {
+      "date": "2026-04-12",
+      "max_difficulty": 750,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-04-13",
+      "max_difficulty": 620,
+      "ac_count": 2
+    },
+    {
+      "date": "2026-04-14",
+      "max_difficulty": 940,
+      "ac_count": 3
+    },
+    {
+      "date": "2026-04-15",
+      "max_difficulty": 1089,
+      "ac_count": 3
+    }
   ],
   "speed": [
-    {"contest": "ABC 448", "start_epoch": 1742104800, "laps": [
-      {"problem": "A", "cumulative": 95, "lap": 95},
-      {"problem": "B", "cumulative": 380, "lap": 285},
-      {"problem": "C", "cumulative": 1450, "lap": 1070}
-    ]},
-    {"contest": "ABC 449", "start_epoch": 1742709600, "laps": [
-      {"problem": "A", "cumulative": 78, "lap": 78},
-      {"problem": "B", "cumulative": 310, "lap": 232},
-      {"problem": "C", "cumulative": 1680, "lap": 1370},
-      {"problem": "D", "cumulative": 3200, "lap": 1520}
-    ]},
-    {"contest": "ABC 450", "start_epoch": 1743314400, "laps": [
-      {"problem": "A", "cumulative": 82, "lap": 82},
-      {"problem": "B", "cumulative": 345, "lap": 263}
-    ]},
-    {"contest": "ABC 451", "start_epoch": 1743919200, "laps": [
-      {"problem": "A", "cumulative": 105, "lap": 105},
-      {"problem": "B", "cumulative": 302, "lap": 197},
-      {"problem": "C", "cumulative": 920, "lap": 618}
-    ]},
-    {"contest": "ABC 452", "start_epoch": 1744524000, "laps": [
-      {"problem": "A", "cumulative": 83, "lap": 83},
-      {"problem": "B", "cumulative": 255, "lap": 172},
-      {"problem": "C", "cumulative": 750, "lap": 495},
-      {"problem": "D", "cumulative": 2800, "lap": 2050}
-    ]}
+    {
+      "contest": "ABC 448",
+      "start_epoch": 1742104800,
+      "laps": [
+        {
+          "problem": "A",
+          "cumulative": 95,
+          "lap": 95
+        },
+        {
+          "problem": "B",
+          "cumulative": 380,
+          "lap": 285
+        },
+        {
+          "problem": "C",
+          "cumulative": 1450,
+          "lap": 1070
+        }
+      ]
+    },
+    {
+      "contest": "ABC 449",
+      "start_epoch": 1742709600,
+      "laps": [
+        {
+          "problem": "A",
+          "cumulative": 78,
+          "lap": 78
+        },
+        {
+          "problem": "B",
+          "cumulative": 310,
+          "lap": 232
+        },
+        {
+          "problem": "C",
+          "cumulative": 1680,
+          "lap": 1370
+        },
+        {
+          "problem": "D",
+          "cumulative": 3200,
+          "lap": 1520
+        }
+      ]
+    },
+    {
+      "contest": "ABC 450",
+      "start_epoch": 1743314400,
+      "laps": [
+        {
+          "problem": "A",
+          "cumulative": 82,
+          "lap": 82
+        },
+        {
+          "problem": "B",
+          "cumulative": 345,
+          "lap": 263
+        }
+      ]
+    },
+    {
+      "contest": "ABC 451",
+      "start_epoch": 1743919200,
+      "laps": [
+        {
+          "problem": "A",
+          "cumulative": 105,
+          "lap": 105
+        },
+        {
+          "problem": "B",
+          "cumulative": 302,
+          "lap": 197
+        },
+        {
+          "problem": "C",
+          "cumulative": 920,
+          "lap": 618
+        }
+      ]
+    },
+    {
+      "contest": "ABC 452",
+      "start_epoch": 1744524000,
+      "laps": [
+        {
+          "problem": "A",
+          "cumulative": 83,
+          "lap": 83
+        },
+        {
+          "problem": "B",
+          "cumulative": 255,
+          "lap": 172
+        },
+        {
+          "problem": "C",
+          "cumulative": 750,
+          "lap": 495
+        },
+        {
+          "problem": "D",
+          "cumulative": 2800,
+          "lap": 2050
+        }
+      ]
+    }
   ],
   "contests": [
     {
@@ -298,78 +1061,348 @@
     }
   ],
   "rating_history": [
-    {"epoch": 1734183600, "old_rating": 155, "new_rating": 178, "contest": "AtCoder Beginner Contest 384", "place": 8149, "performance": 53},
-    {"epoch": 1727530800, "old_rating": 171, "new_rating": 179, "contest": "AtCoder Beginner Contest 373", "place": 8327, "performance": 222},
-    {"epoch": 1726321200, "old_rating": 155, "new_rating": 171, "contest": "AtCoder Beginner Contest 371", "place": 7612, "performance": 333}
+    {
+      "epoch": 1734183600,
+      "old_rating": 155,
+      "new_rating": 178,
+      "contest": "AtCoder Beginner Contest 384",
+      "place": 8149,
+      "performance": 53
+    },
+    {
+      "epoch": 1727530800,
+      "old_rating": 171,
+      "new_rating": 179,
+      "contest": "AtCoder Beginner Contest 373",
+      "place": 8327,
+      "performance": 222
+    },
+    {
+      "epoch": 1726321200,
+      "old_rating": 155,
+      "new_rating": 171,
+      "contest": "AtCoder Beginner Contest 371",
+      "place": 7612,
+      "performance": 333
+    }
   ],
   "skill_graph": {
     "rating": 438,
     "nodes": [
-      {"id": "base", "label": "基礎", "tier": 0, "progress": [5,5],
-       "src": "アルゴ式 ロジック実装初級, 典型90問 ★2"},
-
-      {"id": "bruteforce", "label": "全探索",   "tier": 1, "progress": [4,5], "parent": "base",
-       "src": "典型90問(14問), AtCoderTags:Searching/Brute-Force"},
-      {"id": "sort",       "label": "ソート",   "tier": 1, "progress": [5,5], "parent": "base",
-       "src": "典型90問 #007,#014, アルゴ式 ソートの基礎"},
-      {"id": "greedy",     "label": "貪欲法",   "tier": 1, "progress": [3,5], "parent": "base",
-       "src": "AtCoderTags:Greedy(263問), 典型90問 #006,#014,#048"},
-      {"id": "string",     "label": "文字列",   "tier": 1, "progress": [3,5], "parent": "base",
-       "src": "AtCoderTags:String(201問), アルゴ式 文字と文字列"},
-      {"id": "mapset",     "label": "Map/Set",  "tier": 1, "progress": [4,5], "parent": "base",
-       "src": "典型90問 #027, アルゴ式 集合と辞書"},
-      {"id": "gcd",        "label": "GCD/LCM",  "tier": 1, "progress": [3,5], "parent": "base",
-       "src": "典型90問 #022,#038, AtCoderTags:Mathematics/Number"},
-      {"id": "simulation",  "label": "実装力",  "tier": 1, "progress": [3,5], "parent": "base",
-       "src": "レーティング別: 茶色の鍵は実装速度と正確性"},
-
-      {"id": "cumsum",     "label": "累積和",     "tier": 2, "progress": [2,5], "parent": "bruteforce",
-       "src": "典型90問 #004,#010,#028,#081, AtCoderTags:Technique/Cumulative-Sum"},
-      {"id": "binsearch",  "label": "二分探索",   "tier": 2, "progress": [2,5], "parent": "sort",
-       "src": "典型90問 #001,#007(8問), アルゴ式 二分探索法(12課題)"},
-      {"id": "basedp",     "label": "基礎DP",     "tier": 2, "progress": [2,5], "parent": "bruteforce",
-       "src": "AtCoderTags:DP(515問最多), 典型90問(18問), アルゴ式 動的計画法(13課題)"},
-      {"id": "bfs",        "label": "BFS/DFS",    "tier": 2, "progress": [2,5], "parent": "bruteforce",
-       "src": "典型90問 #003,#043,#072, アルゴ式 グラフ探索(34課題)"},
-      {"id": "twoptr",     "label": "尺取り法",   "tier": 2, "progress": [1,5], "parent": "sort",
-       "src": "典型90問 #009,#034, AtCoderTags:Technique/Two-Pointers"},
-      {"id": "bit",        "label": "ビット演算", "tier": 2, "progress": [1,5], "parent": "bruteforce",
-       "src": "典型90問 #002,#063, アルゴ式 ビット(18課題)"},
-      {"id": "prime",      "label": "素数/約数",  "tier": 2, "progress": [1,5], "parent": "gcd",
-       "src": "典型90問 #030,#075, アルゴ式 約数と素数(24課題)"},
-      {"id": "complexity",  "label": "計算量",    "tier": 2, "progress": [2,5], "parent": "sort",
-       "src": "レーティング別: 緑色はO(N²)vsO(NlogN)の判断が必須"},
-
-      {"id": "unionfind",  "label": "Union-Find", "tier": 3, "progress": [0,5], "parent": "bfs",
-       "src": "典型90問 #012,#049,#068, e869120水色ガイド必須DS, AtCoderTags:Data-Structure/Union-Find-Tree"},
-      {"id": "dijkstra",   "label": "最短路",     "tier": 3, "progress": [0,5], "parent": "bfs",
-       "src": "典型90問 #013,#087, e869120水色12アルゴ, AtCoderTags:Graph/Shortest-Path"},
-      {"id": "segtree",    "label": "セグ木/BIT", "tier": 3, "progress": [0,5], "parent": "cumsum",
-       "src": "典型90問 #029,#037, e869120水色必須DS, AtCoderTags:Data-Structure/Segment-Tree+BIT"},
-      {"id": "bitdp",      "label": "bitDP",      "tier": 3, "progress": [0,5], "parent": "bit",
-       "src": "典型90問 #023,#045, AtCoderTags:DP/Bit-DP"},
-      {"id": "mst",        "label": "MST",        "tier": 3, "progress": [0,5], "parent": "bfs",
-       "src": "典型90問 #049, e869120水色12アルゴ(Kruskal), AtCoderTags:Graph/Minimum-Spanning-Tree"},
-      {"id": "compress",   "label": "座標圧縮",   "tier": 3, "progress": [0,5], "parent": "binsearch",
-       "src": "典型90問 #029, AtCoderTags:Technique/Compress"},
-      {"id": "modinv",     "label": "mod逆元",    "tier": 3, "progress": [0,5], "parent": "prime",
-       "src": "典型90問 #069, e869120水色12アルゴ, アルゴ式 高等アルゴリズム"},
-      {"id": "imos",       "label": "imos法",      "tier": 3, "progress": [0,5], "parent": "cumsum",
-       "src": "典型90問 #028, AtCoderTags:Technique/imos, e869120水色12アルゴ"}
+      {
+        "id": "base",
+        "label": "基礎",
+        "tier": 0,
+        "progress": [
+          5,
+          5
+        ],
+        "src": "アルゴ式 ロジック実装初級, 典型90問 ★2"
+      },
+      {
+        "id": "bruteforce",
+        "label": "全探索",
+        "tier": 1,
+        "progress": [
+          4,
+          5
+        ],
+        "parent": "base",
+        "src": "典型90問(14問), AtCoderTags:Searching/Brute-Force"
+      },
+      {
+        "id": "sort",
+        "label": "ソート",
+        "tier": 1,
+        "progress": [
+          5,
+          5
+        ],
+        "parent": "base",
+        "src": "典型90問 #007,#014, アルゴ式 ソートの基礎"
+      },
+      {
+        "id": "greedy",
+        "label": "貪欲法",
+        "tier": 1,
+        "progress": [
+          3,
+          5
+        ],
+        "parent": "base",
+        "src": "AtCoderTags:Greedy(263問), 典型90問 #006,#014,#048"
+      },
+      {
+        "id": "string",
+        "label": "文字列",
+        "tier": 1,
+        "progress": [
+          3,
+          5
+        ],
+        "parent": "base",
+        "src": "AtCoderTags:String(201問), アルゴ式 文字と文字列"
+      },
+      {
+        "id": "mapset",
+        "label": "Map/Set",
+        "tier": 1,
+        "progress": [
+          4,
+          5
+        ],
+        "parent": "base",
+        "src": "典型90問 #027, アルゴ式 集合と辞書"
+      },
+      {
+        "id": "gcd",
+        "label": "GCD/LCM",
+        "tier": 1,
+        "progress": [
+          3,
+          5
+        ],
+        "parent": "base",
+        "src": "典型90問 #022,#038, AtCoderTags:Mathematics/Number"
+      },
+      {
+        "id": "simulation",
+        "label": "実装力",
+        "tier": 1,
+        "progress": [
+          3,
+          5
+        ],
+        "parent": "base",
+        "src": "レーティング別: 茶色の鍵は実装速度と正確性"
+      },
+      {
+        "id": "cumsum",
+        "label": "累積和",
+        "tier": 2,
+        "progress": [
+          2,
+          5
+        ],
+        "parent": "bruteforce",
+        "src": "典型90問 #004,#010,#028,#081, AtCoderTags:Technique/Cumulative-Sum"
+      },
+      {
+        "id": "binsearch",
+        "label": "二分探索",
+        "tier": 2,
+        "progress": [
+          2,
+          5
+        ],
+        "parent": "sort",
+        "src": "典型90問 #001,#007(8問), アルゴ式 二分探索法(12課題)"
+      },
+      {
+        "id": "basedp",
+        "label": "基礎DP",
+        "tier": 2,
+        "progress": [
+          2,
+          5
+        ],
+        "parent": "bruteforce",
+        "src": "AtCoderTags:DP(515問最多), 典型90問(18問), アルゴ式 動的計画法(13課題)"
+      },
+      {
+        "id": "bfs",
+        "label": "BFS/DFS",
+        "tier": 2,
+        "progress": [
+          2,
+          5
+        ],
+        "parent": "bruteforce",
+        "src": "典型90問 #003,#043,#072, アルゴ式 グラフ探索(34課題)"
+      },
+      {
+        "id": "twoptr",
+        "label": "尺取り法",
+        "tier": 2,
+        "progress": [
+          1,
+          5
+        ],
+        "parent": "sort",
+        "src": "典型90問 #009,#034, AtCoderTags:Technique/Two-Pointers"
+      },
+      {
+        "id": "bit",
+        "label": "ビット演算",
+        "tier": 2,
+        "progress": [
+          1,
+          5
+        ],
+        "parent": "bruteforce",
+        "src": "典型90問 #002,#063, アルゴ式 ビット(18課題)"
+      },
+      {
+        "id": "prime",
+        "label": "素数/約数",
+        "tier": 2,
+        "progress": [
+          1,
+          5
+        ],
+        "parent": "gcd",
+        "src": "典型90問 #030,#075, アルゴ式 約数と素数(24課題)"
+      },
+      {
+        "id": "complexity",
+        "label": "計算量",
+        "tier": 2,
+        "progress": [
+          2,
+          5
+        ],
+        "parent": "sort",
+        "src": "レーティング別: 緑色はO(N²)vsO(NlogN)の判断が必須"
+      },
+      {
+        "id": "unionfind",
+        "label": "Union-Find",
+        "tier": 3,
+        "progress": [
+          0,
+          5
+        ],
+        "parent": "bfs",
+        "src": "典型90問 #012,#049,#068, e869120水色ガイド必須DS, AtCoderTags:Data-Structure/Union-Find-Tree"
+      },
+      {
+        "id": "dijkstra",
+        "label": "最短路",
+        "tier": 3,
+        "progress": [
+          0,
+          5
+        ],
+        "parent": "bfs",
+        "src": "典型90問 #013,#087, e869120水色12アルゴ, AtCoderTags:Graph/Shortest-Path"
+      },
+      {
+        "id": "segtree",
+        "label": "セグ木/BIT",
+        "tier": 3,
+        "progress": [
+          0,
+          5
+        ],
+        "parent": "cumsum",
+        "src": "典型90問 #029,#037, e869120水色必須DS, AtCoderTags:Data-Structure/Segment-Tree+BIT"
+      },
+      {
+        "id": "bitdp",
+        "label": "bitDP",
+        "tier": 3,
+        "progress": [
+          0,
+          5
+        ],
+        "parent": "bit",
+        "src": "典型90問 #023,#045, AtCoderTags:DP/Bit-DP"
+      },
+      {
+        "id": "mst",
+        "label": "MST",
+        "tier": 3,
+        "progress": [
+          0,
+          5
+        ],
+        "parent": "bfs",
+        "src": "典型90問 #049, e869120水色12アルゴ(Kruskal), AtCoderTags:Graph/Minimum-Spanning-Tree"
+      },
+      {
+        "id": "compress",
+        "label": "座標圧縮",
+        "tier": 3,
+        "progress": [
+          0,
+          5
+        ],
+        "parent": "binsearch",
+        "src": "典型90問 #029, AtCoderTags:Technique/Compress"
+      },
+      {
+        "id": "modinv",
+        "label": "mod逆元",
+        "tier": 3,
+        "progress": [
+          0,
+          5
+        ],
+        "parent": "prime",
+        "src": "典型90問 #069, e869120水色12アルゴ, アルゴ式 高等アルゴリズム"
+      },
+      {
+        "id": "imos",
+        "label": "imos法",
+        "tier": 3,
+        "progress": [
+          0,
+          5
+        ],
+        "parent": "cumsum",
+        "src": "典型90問 #028, AtCoderTags:Technique/imos, e869120水色12アルゴ"
+      }
     ],
     "tiers": [
-      {"tier": 0, "label": "基礎", "color": "#808080"},
-      {"tier": 1, "label": "灰→茶", "color": "#804000"},
-      {"tier": 2, "label": "茶→緑", "color": "#008000"},
-      {"tier": 3, "label": "緑→水", "color": "#00C0C0"}
+      {
+        "tier": 0,
+        "label": "基礎",
+        "color": "#808080"
+      },
+      {
+        "tier": 1,
+        "label": "灰→茶",
+        "color": "#804000"
+      },
+      {
+        "tier": 2,
+        "label": "茶→緑",
+        "color": "#008000"
+      },
+      {
+        "tier": 3,
+        "label": "緑→水",
+        "color": "#00C0C0"
+      }
     ]
   },
   "peers": [
-    {"user": "user_4821", "rating": 488, "monthly_ac": 62},
-    {"user": "k_solver", "rating": 471, "monthly_ac": 55},
-    {"user": "MeJamoLeo", "rating": 438, "monthly_ac": 47, "is_self": true},
-    {"user": "cpp_study", "rating": 415, "monthly_ac": 38},
-    {"user": "algo_daily", "rating": 392, "monthly_ac": 31}
+    {
+      "user": "user_4821",
+      "rating": 488,
+      "monthly_ac": 62
+    },
+    {
+      "user": "k_solver",
+      "rating": 471,
+      "monthly_ac": 55
+    },
+    {
+      "user": "MeJamoLeo",
+      "rating": 438,
+      "monthly_ac": 47,
+      "is_self": true
+    },
+    {
+      "user": "cpp_study",
+      "rating": 415,
+      "monthly_ac": 38
+    },
+    {
+      "user": "algo_daily",
+      "rating": 392,
+      "monthly_ac": 31
+    }
   ],
   "quality": {
     "first_sight": 21,
@@ -378,9 +1411,27 @@
     "editorial": 17
   },
   "quests": [
-    {"label": "①", "title": "abc385_e 復習", "detail": "WA×3 · BFS/DFS · diff1089", "xp": 800, "type": "review"},
-    {"label": "⚔️", "title": "ABC 452 本番", "detail": "今夜 21:00 · BOSS FIGHT", "xp": 0, "type": "boss"},
-    {"label": "②", "title": "EDPC-G を解く", "detail": "DP · diff推定 900", "xp": 650, "type": "normal"}
+    {
+      "label": "①",
+      "title": "abc385_e 復習",
+      "detail": "WA×3 · BFS/DFS · diff1089",
+      "xp": 800,
+      "type": "review"
+    },
+    {
+      "label": "⚔️",
+      "title": "ABC 452 本番",
+      "detail": "今夜 21:00 · BOSS FIGHT",
+      "xp": 0,
+      "type": "boss"
+    },
+    {
+      "label": "②",
+      "title": "EDPC-G を解く",
+      "detail": "DP · diff推定 900",
+      "xp": 650,
+      "type": "normal"
+    }
   ],
   "insight": {
     "tag": "BFS/DFS",
@@ -391,23 +1442,75 @@
     "unlocked": 18,
     "total": 40,
     "list": [
-      {"icon": "🏆", "label": "茶色昇格", "status": "gold"},
-      {"icon": "🔥", "label": "20日連続", "status": "done"},
-      {"icon": "⚡", "label": "A問題2分", "status": "done"},
-      {"icon": "🌅", "label": "早朝×5", "status": "new"},
-      {"icon": "💎", "label": "diff1000+", "status": "done"},
-      {"icon": "📚", "label": "EDPC 5問", "status": "done"},
-      {"icon": "🌿", "label": "緑昇格", "status": "lock"},
-      {"icon": "🚀", "label": "diff1200+", "status": "lock"}
+      {
+        "icon": "🏆",
+        "label": "茶色昇格",
+        "status": "gold"
+      },
+      {
+        "icon": "🔥",
+        "label": "20日連続",
+        "status": "done"
+      },
+      {
+        "icon": "⚡",
+        "label": "A問題2分",
+        "status": "done"
+      },
+      {
+        "icon": "🌅",
+        "label": "早朝×5",
+        "status": "new"
+      },
+      {
+        "icon": "💎",
+        "label": "diff1000+",
+        "status": "done"
+      },
+      {
+        "icon": "📚",
+        "label": "EDPC 5問",
+        "status": "done"
+      },
+      {
+        "icon": "🌿",
+        "label": "緑昇格",
+        "status": "lock"
+      },
+      {
+        "icon": "🚀",
+        "label": "diff1200+",
+        "status": "lock"
+      }
     ]
   },
   "first_ac_rate": 0.43,
   "combo": 3,
   "recommend": [
-    {"problem_id": "abc380_d", "tag": "DP", "difficulty": 520, "url": "https://atcoder.jp/contests/abc380/tasks/abc380_d"},
-    {"problem_id": "abc377_c", "tag": "実装", "difficulty": 480, "url": "https://atcoder.jp/contests/abc377/tasks/abc377_c"},
-    {"problem_id": "abc374_d", "tag": "二分探索", "difficulty": 560, "url": "https://atcoder.jp/contests/abc374/tasks/abc374_d"},
-    {"problem_id": "abc371_d", "tag": "累積和", "difficulty": 510, "url": "https://atcoder.jp/contests/abc371/tasks/abc371_d"}
+    {
+      "problem_id": "abc380_d",
+      "tag": "DP",
+      "difficulty": 520,
+      "url": "https://atcoder.jp/contests/abc380/tasks/abc380_d"
+    },
+    {
+      "problem_id": "abc377_c",
+      "tag": "実装",
+      "difficulty": 480,
+      "url": "https://atcoder.jp/contests/abc377/tasks/abc377_c"
+    },
+    {
+      "problem_id": "abc374_d",
+      "tag": "二分探索",
+      "difficulty": 560,
+      "url": "https://atcoder.jp/contests/abc374/tasks/abc374_d"
+    },
+    {
+      "problem_id": "abc371_d",
+      "tag": "累積和",
+      "difficulty": 510,
+      "url": "https://atcoder.jp/contests/abc371/tasks/abc371_d"
+    }
   ],
   "compare": {
     "last_month_ac": 38,
