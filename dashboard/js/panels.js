@@ -37,7 +37,7 @@ function renderHUD(d) {
 		+s('today ac',todayAc+'問','total '+(totalAc),'var(--green)')
 		+s('月AC',monthAc+'問','','var(--blue)')
 		+s('合計AC',totalAc+'問','','var(--cyan)')
-		+s('早朝AC',h.first_ac_today||'--:--','avg '+(h.avg_first_ac||'--:--'),'#ffcc00')
+		+s('初AC',h.first_ac_today||'--:--','avg '+(h.avg_first_ac||'--:--'),'#ffcc00')
 		+s(nextLabel+'まで','+'+remain,nextEstimate,nextColor)
 		+''
 		+(fc?'<div class="hud-boss"><div><div style="font-size:var(--fs-2xs);color:#3a2a00;letter-spacing:.12em;text-transform:uppercase">BOSS FIGHT</div><div style="font-size:var(--fs-md);color:var(--amber);font-weight:500" id="boss-name">'+fc.type+' '+fc.id.replace(/[a-z]+/,'')+'</div></div><div class="hud-boss-timer" id="boss-timer">--:--:--</div></div>':'')

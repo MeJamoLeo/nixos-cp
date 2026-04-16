@@ -435,30 +435,22 @@ def build_hud(
         if _epoch_to_jst_date(s.get("epoch_second", 0)) == today
         and s.get("result") == "AC"
     ]
-    # 5時未満は夜更かし扱い → 早朝ACとしてカウントしない
-    MORNING_START_HOUR = 5
+    # 今日の最初のAC時刻
     first_ac_today = ""
     if today_acs:
-        morning_acs = [
-            s for s in today_acs
-            if datetime.fromtimestamp(
-                s["epoch_second"], tz=JST
-            ).hour >= MORNING_START_HOUR
-        ]
-        if morning_acs:
-            earliest = min(morning_acs, key=lambda s: s["epoch_second"])
-            first_ac_today = datetime.fromtimestamp(
-                earliest["epoch_second"], tz=JST
-            ).strftime("%H:%M")
+        earliest = min(today_acs, key=lambda s: s["epoch_second"])
+        first_ac_today = datetime.fromtimestamp(
+            earliest["epoch_second"], tz=JST
+        ).strftime("%H:%M")
 
-    # Average first AC time (last 30 days, 5時以降のみ)
+    # Average first AC time (last 30 days)
     thirty_days_ago = datetime.now(JST) - timedelta(days=30)
     by_date: dict[str, list[dict]] = {}
     for s in submissions:
         if s.get("result") != "AC":
             continue
         dt = datetime.fromtimestamp(s["epoch_second"], tz=JST)
-        if dt >= thirty_days_ago and dt.hour >= MORNING_START_HOUR:
+        if dt >= thirty_days_ago:
             by_date.setdefault(dt.strftime("%Y-%m-%d"), []).append(s)
     daily_first_minutes: list[int] = []
     for subs in by_date.values():
