@@ -295,6 +295,7 @@ function renderWAQueue(d) {
 	});
 	return '<div class="panel" data-label="WA QUEUE" style="flex:1;background:var(--dbg-waqueue)"><div class="panel-inner"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><span style="font-size:var(--fs-xs);color:var(--dim)">復習待ち '+wq.length+'問</span><span class="badge badge-amber">優先順</span></div>'+items+'</div></div>';
 }
+function ratingColor(r){if(r>=2800)return'#ff0000';if(r>=2400)return'#ff8000';if(r>=2000)return'#c0c000';if(r>=1600)return'#0000ff';if(r>=1200)return'#00c0c0';if(r>=800)return'#008000';if(r>=400)return'#804000';return'#808080';}
 function renderDifficultyLog(d) {
 	const dl=d.difficulty_log||{}, rh=d.rating_history||[], pts=dl.points||[];
 	const proj=dl.projections||[], cr=dl.current_rating||0;
@@ -350,7 +351,7 @@ function renderDifficultyLog(d) {
 	for(let v=200;v<maxR;v+=200){const y=YR(v);s+='<line x1="'+xL+'" y1="'+y+'" x2="'+xR+'" y2="'+y+'" stroke="#0c1c1c" stroke-width="0.5"/><text x="38" y="'+(y+2)+'" fill="#0c1e1e" font-size="7" text-anchor="end" font-family="monospace">'+v+'</text>';}
 
 	// Current rating line
-	if(cr>0){const y=YR(cr);s+='<line x1="'+xL+'" y1="'+y+'" x2="'+xR+'" y2="'+y+'" stroke="#4a2a00" stroke-width="0.5" stroke-dasharray="3,3"/><text x="552" y="'+(y+3)+'" fill="#4a2a00" font-size="7" font-family="monospace">'+cr+'</text>';}
+	if(cr>0){const y=YR(cr),rc=ratingColor(cr);s+='<line x1="'+xL+'" y1="'+y+'" x2="'+xR+'" y2="'+y+'" stroke="'+rc+'" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.5"/><text x="552" y="'+(y+3)+'" fill="'+rc+'" font-size="7" font-family="monospace">'+cr+'</text>';}
 
 	// Now line
 	s+='<line x1="'+Xw(nowWk).toFixed(1)+'" y1="'+yT+'" x2="'+Xw(nowWk).toFixed(1)+'" y2="'+yB+'" stroke="var(--dim)" stroke-width="0.5" stroke-dasharray="2,3"/>';
@@ -364,16 +365,16 @@ function renderDifficultyLog(d) {
 	if(rWeeks.length>1){
 		s+='<polyline points="'+rWeeks.map(wk=>Xw(wk).toFixed(1)+','+YR(weekRate[wk].new_rating).toFixed(1)).join(' ')+'" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-linejoin="round"/>';
 	}
-	rWeeks.forEach((wk,i)=>{const r=weekRate[wk],delta=r.new_rating-r.old_rating,col=delta>=0?'var(--green)':'var(--red)';const cx=Xw(wk).toFixed(1),cy=YR(r.new_rating).toFixed(1);s+='<circle cx="'+cx+'" cy="'+cy+'" r="2.5" fill="'+col+'" stroke="var(--amber)" stroke-width="0.5"/>';const sign=delta>=0?'+':'';s+='<text x="'+cx+'" y="'+(YR(r.new_rating)-8).toFixed(1)+'" fill="'+col+'" font-size="6" text-anchor="middle" font-family="monospace">'+sign+delta+'</text>';s+='<text x="'+cx+'" y="'+(YR(r.new_rating)+10).toFixed(1)+'" fill="var(--amber)" font-size="6" text-anchor="middle" font-family="monospace" opacity="0.8">'+r.new_rating+'</text>';});
+	rWeeks.forEach((wk,i)=>{const r=weekRate[wk],delta=r.new_rating-r.old_rating,col=delta>=0?'var(--green)':'var(--red)',rc=ratingColor(r.new_rating);const cx=Xw(wk).toFixed(1),cy=YR(r.new_rating).toFixed(1);s+='<circle cx="'+cx+'" cy="'+cy+'" r="2.5" fill="'+rc+'" stroke="'+rc+'" stroke-width="0.5" opacity="0.9"/>';const sign=delta>=0?'+':'';s+='<text x="'+cx+'" y="'+(YR(r.new_rating)-8).toFixed(1)+'" fill="'+col+'" font-size="6" text-anchor="middle" font-family="monospace">'+sign+delta+'</text>';s+='<text x="'+cx+'" y="'+(YR(r.new_rating)+10).toFixed(1)+'" fill="'+rc+'" font-size="6" text-anchor="middle" font-family="monospace" opacity="0.9">'+r.new_rating+'</text>';});
 
 	// Projections (rating-based) with end labels
 	const projStyles={optimistic:{color:'var(--green)',dash:'4,3',label:'楽観'},maintain:{color:'var(--amber)',dash:'4,3',label:'維持'},pessimistic:{color:'var(--dim)',dash:'4,3',label:'悲観'}};
-	proj.forEach(pr=>{const st=projStyles[pr.scenario]||{color:'#555',dash:'4,3',label:''};if(!frh.length||!pr.points.length)return;const lastR=frh[frh.length-1];let polyPts=Xw(nowWk).toFixed(1)+','+YR(lastR.new_rating).toFixed(1);pr.points.forEach(p=>{const wk=Math.floor((p.epoch-mE)/WEEK);polyPts+=' '+Xw(wk).toFixed(1)+','+YR(p.rating).toFixed(1);});s+='<polyline points="'+polyPts+'" fill="none" stroke="'+st.color+'" stroke-width="1" stroke-dasharray="'+st.dash+'" opacity="0.7"/>';const last=pr.points[pr.points.length-1],lwk=Math.floor((last.epoch-mE)/WEEK);s+='<text x="'+(Xw(lwk)+4).toFixed(1)+'" y="'+(YR(last.rating)+3).toFixed(1)+'" fill="'+st.color+'" font-size="6" font-family="monospace">'+last.rating+'</text>';});
+	proj.forEach(pr=>{const st=projStyles[pr.scenario]||{color:'#555',dash:'4,3',label:''};if(!frh.length||!pr.points.length)return;const lastR=frh[frh.length-1];let polyPts=Xw(nowWk).toFixed(1)+','+YR(lastR.new_rating).toFixed(1);pr.points.forEach(p=>{const wk=Math.floor((p.epoch-mE)/WEEK);polyPts+=' '+Xw(wk).toFixed(1)+','+YR(p.rating).toFixed(1);});s+='<polyline points="'+polyPts+'" fill="none" stroke="'+st.color+'" stroke-width="1" stroke-dasharray="'+st.dash+'" opacity="0.7"/>';const last=pr.points[pr.points.length-1],lwk=Math.floor((last.epoch-mE)/WEEK),prc=ratingColor(last.rating);s+='<text x="'+(Xw(lwk)+4).toFixed(1)+'" y="'+(YR(last.rating)+3).toFixed(1)+'" fill="'+prc+'" font-size="6" font-family="monospace">'+last.rating+'</text>';});
 
 	// X labels (concrete dates)
 	function fmtDate(ep){const d=new Date(ep*1000);return(d.getMonth()+1)+'/'+d.getDate();}
 	s+='<text x="'+xL+'" y="156" fill="#0c1e1e" font-size="7" text-anchor="start" font-family="monospace">'+fmtDate(mE)+'</text>';
-	s+='<text x="'+Xw(nowWk).toFixed(1)+'" y="156" fill="var(--cyan)" font-size="7" text-anchor="middle" font-family="monospace">'+fmtDate(nowEpoch)+' (今)</text>';
+	s+='<text x="'+Xw(nowWk).toFixed(1)+'" y="156" fill="var(--cyan)" font-size="7" text-anchor="middle" font-family="monospace">'+fmtDate(nowEpoch)+'</text>';
 	s+='<text x="'+xR+'" y="156" fill="var(--dim)" font-size="7" text-anchor="end" font-family="monospace">'+fmtDate(xE)+'</text>';
 	s+='</svg>';
 
