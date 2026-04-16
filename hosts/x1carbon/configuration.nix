@@ -28,6 +28,8 @@
     curl
     kitty
     wofi
+    brightnessctl
+    pulseaudio
   ];
 
   # SSH
