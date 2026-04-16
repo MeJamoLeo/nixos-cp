@@ -92,7 +92,7 @@ function renderSpeedBars(d) {
 	if(!sp.length)return '';
 	function fmt(s){const m=Math.floor(s/60),sec=String(s%60).padStart(2,'0');return m+':'+sec;}
 	let h='<div class="section-label">ラップタイム</div>';
-	sp.slice(-4).forEach(c=>{
+	sp.slice(-8).forEach(c=>{
 		const dur=c.duration_seconds||(c.contest.includes('ARC')?7200:6000);
 		const totalUsed=c.laps.length?c.laps[c.laps.length-1].cumulative:0;
 		const remaining=Math.max(dur-totalUsed,0);
