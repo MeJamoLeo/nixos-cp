@@ -766,12 +766,14 @@ def build_streak_calendar(
     submissions: list[dict],
     difficulties: dict[str, Any],
 ) -> tuple[list[dict], int, int]:
-    # Group FIRST ACs only (global unique) by JST date
-    ac_map = _ac_problems(submissions)
+    # Group all ACs by JST date (including AHC re-submissions)
     by_date: dict[str, set[str]] = {}
     diff_by_date: dict[str, float] = {}
-    for pid, s in ac_map.items():
+    for s in submissions:
+        if s.get("result") != "AC":
+            continue
         d = _epoch_to_jst_date(s.get("epoch_second", 0))
+        pid = s.get("problem_id", "")
         by_date.setdefault(d, set()).add(pid)
         diff = difficulties.get(pid, {}).get("difficulty") or 0
         if diff < 0:
