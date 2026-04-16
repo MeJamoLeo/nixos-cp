@@ -45,16 +45,6 @@
   console.useXkbConfig = true;
   services.xserver.xkb.options = "ctrl:swapcaps";
 
-  # Japanese input (fcitx5 + mozc)
-  i18n.inputMethod = {
-    type = "fcitx5";
-    enable = true;
-    fcitx5.addons = with pkgs; [
-      fcitx5-mozc
-      fcitx5-gtk
-    ];
-  };
-
   # TLP power management
   services.tlp.enable = true;
 
