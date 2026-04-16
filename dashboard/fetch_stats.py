@@ -1090,8 +1090,21 @@ def build_skill_graph(
         {"id": "strhash",   "label": "文字列Hash", "tier": 4, "parent": "compress"},
     ]
 
+    # 自分の色 + 2ティアまで表示
+    # Rating→tier: 0-399=T1, 400-799=T2, 800-1199=T3, 1200+=T4
+    rating_tier = 1
+    if current_rating >= 1200:
+        rating_tier = 4
+    elif current_rating >= 800:
+        rating_tier = 3
+    elif current_rating >= 400:
+        rating_tier = 2
+    max_tier = min(rating_tier + 2, 4)
+
     nodes = []
     for n in TREE:
+        if n["tier"] > max_tier:
+            continue
         sid = n["id"]
         if sid == "base":
             progress = [len(ac_map), len(ac_map)] if ac_map else [0, 1]
@@ -1116,13 +1129,13 @@ def build_skill_graph(
     return {
         "rating": current_rating,
         "nodes": nodes,
-        "tiers": [
+        "tiers": [t for t in [
             {"tier": 0, "label": "基礎", "color": "#808080"},
             {"tier": 1, "label": "灰→茶", "color": "#804000"},
             {"tier": 2, "label": "茶→緑", "color": "#008000"},
             {"tier": 3, "label": "緑→水", "color": "#00C0C0"},
             {"tier": 4, "label": "水→青", "color": "#0000FF"},
-        ],
+        ] if t["tier"] <= max_tier],
     }
 
 

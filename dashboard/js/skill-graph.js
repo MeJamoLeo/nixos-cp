@@ -8,7 +8,10 @@ function renderSkillGraph(d) {
 	nodes.forEach(n => byId[n.id] = n);
 
 	const W = 600, H = 600, cx = W/2, cy = H/2;
-	const radii = [0, 80, 150, 215, 275];
+	// Dynamic radii based on number of tiers
+	const numTiers = tiers.length - 1; // exclude tier 0
+	const radii = [0];
+	for (let i = 1; i <= numTiers; i++) radii.push(Math.round(30 + i * (245 / numTiers)));
 	const tierGroups = {};
 	nodes.forEach(n => { (tierGroups[n.tier] = tierGroups[n.tier] || []).push(n); });
 
