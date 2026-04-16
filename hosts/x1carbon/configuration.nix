@@ -11,7 +11,7 @@
   networking.hostName = "x1carbon";
   networking.networkmanager.enable = true;
 
-  time.timeZone = "Asia/Tokyo";
+  time.timeZone = "America/Chicago";
 
   i18n.defaultLocale = "en_US.UTF-8";
 
