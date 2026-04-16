@@ -39,6 +39,28 @@
 		};
 	};
 
+	# fcitx5: mozc auto-configured (force overwrite runtime changes)
+	xdg.configFile."fcitx5/profile" = {
+		force = true;
+		text = ''
+			[Groups/0]
+			Name=Default
+			Default Layout=us
+			DefaultIM=keyboard-us
+
+			[Groups/0/Items/0]
+			Name=keyboard-us
+			Layout=
+
+			[Groups/0/Items/1]
+			Name=mozc
+			Layout=
+
+			[GroupOrder]
+			0=Default
+		'';
+	};
+
 	programs.home-manager.enable = true;
 
 	home.stateVersion = "24.11";
