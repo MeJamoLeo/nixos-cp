@@ -377,7 +377,7 @@ function renderDifficultyLog(d) {
 		for(let w=recentStart;w<=recentEnd;w++){if(weekDiff[w]){tDiff+=weekDiff[w];wCnt++;}}
 		avgWkDiff=wCnt>0?tDiff/wCnt:0;
 	}
-	const mults=[{mult:1.5,color:'var(--green)',scenario:'optimistic'},{mult:1.0,color:'var(--amber)',scenario:'maintain'},{mult:0.3,color:'var(--dim)',scenario:'pessimistic'}];
+	const mults=[{mult:1.5,color:'var(--green)',scenario:'optimistic'},{mult:1.0,color:'var(--amber)',scenario:'maintain'},{mult:0.6,color:'var(--dim)',scenario:'pessimistic'}];
 	mults.forEach(m=>{const wd=Math.round(avgWkDiff*m.mult);const pr=proj.find(p=>p.scenario===m.scenario);const er=pr&&pr.points.length?pr.points[pr.points.length-1].rating:0;effortMap.push({mult:m.mult,color:m.color,weeklyDiff:wd,endRating:er});});
 
 	// Ghost bars on today's week with inline labels
