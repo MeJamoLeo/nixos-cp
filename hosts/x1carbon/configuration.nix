@@ -27,6 +27,7 @@
     wget
     curl
     kitty
+    wofi
   ];
 
   # SSH

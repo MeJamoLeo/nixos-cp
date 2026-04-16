@@ -4,81 +4,62 @@
 	wayland.windowManager.sway = {
 		enable = true;
 		config = {
-			modifier = "Mod1"; # alt key
+			modifier = "Mod4"; # Super/Win key (Linux default)
 
 				keybindings = let
-				mod = "Mod1";
+				mod = "Mod4";
 			in {
+				# Focus
 				"${mod}+h" = "focus left";
 				"${mod}+j" = "focus down";
 				"${mod}+k" = "focus up";
 				"${mod}+l" = "focus right";
 
+				# Move window
 				"${mod}+shift+h" = "move left";
 				"${mod}+shift+j" = "move down";
 				"${mod}+shift+k" = "move up";
 				"${mod}+shift+l" = "move right";
 
+				# Window
 				"${mod}+q" = "kill";
-				"${mod}+Return" = "fullscreen toggle";
-
+				"${mod}+f" = "fullscreen toggle";
 				"${mod}+minus" = "layout splitv";
 				"${mod}+equal" = "layout splith";
 
-				"${mod}+1" = "workspace 1";
-				"${mod}+2" = "workspace 2";
-				"${mod}+3" = "workspace 3";
-				"${mod}+a" = "workspace a";
-				"${mod}+b" = "workspace b";
-				"${mod}+c" = "workspace c";
-				"${mod}+d" = "workspace d";
-				"${mod}+e" = "workspace e";
-				"${mod}+f" = "workspace f";
-				"${mod}+g" = "workspace g";
-				"${mod}+i" = "workspace i";
-				"${mod}+m" = "workspace m";
-				"${mod}+n" = "workspace n";
-				"${mod}+o" = "workspace o";
-				"${mod}+p" = "workspace p";
-				"${mod}+s" = "workspace s";
-				"${mod}+t" = "workspace t";
-				"${mod}+u" = "workspace u";
-				"${mod}+v" = "workspace v";
-				"${mod}+w" = "workspace w";
-				"${mod}+y" = "workspace y";
-				"${mod}+z" = "workspace z";
-
-				"${mod}+shift+1" = "move container to workspace 1";
-				"${mod}+shift+2" = "move container to workspace 2";
-				"${mod}+shift+3" = "move container to workspace 3";
-				"${mod}+shift+a" = "move container to workspace a";
-				"${mod}+shift+b" = "move container to workspace b";
-				"${mod}+shift+c" = "move container to workspace c";
-				"${mod}+shift+d" = "move container to workspace d";
-				"${mod}+shift+e" = "move container to workspace e";
-				"${mod}+shift+f" = "move container to workspace f";
-				"${mod}+shift+g" = "move container to workspace g";
-				"${mod}+shift+i" = "move container to workspace i";
-				"${mod}+shift+m" = "move container to workspace m";
-				"${mod}+shift+o" = "move container to workspace o";
-				"${mod}+shift+p" = "move container to workspace p";
-				"${mod}+shift+s" = "move container to workspace s";
-				"${mod}+shift+t" = "move container to workspace t";
-				"${mod}+shift+u" = "move container to workspace u";
-				"${mod}+shift+v" = "move container to workspace v";
-				"${mod}+shift+w" = "move container to workspace w";
-				"${mod}+shift+y" = "move container to workspace y";
-				"${mod}+shift+z" = "move container to workspace z";
-
+				# Resize
 				"${mod}+comma" = "resize shrink width 50px";
 				"${mod}+period" = "resize grow width 50px";
 
-				"${mod}+shift+Return" = "exec kitty";
+				# Workspace (numbers)
+				"${mod}+1" = "workspace 1";
+				"${mod}+2" = "workspace 2";
+				"${mod}+3" = "workspace 3";
+				"${mod}+4" = "workspace 4";
+				"${mod}+5" = "workspace 5";
+				"${mod}+6" = "workspace 6";
+				"${mod}+7" = "workspace 7";
+				"${mod}+8" = "workspace 8";
+				"${mod}+9" = "workspace 9";
 
-				"${mod}+shift+q" = "exit";
+				# Move to workspace
+				"${mod}+shift+1" = "move container to workspace 1";
+				"${mod}+shift+2" = "move container to workspace 2";
+				"${mod}+shift+3" = "move container to workspace 3";
+				"${mod}+shift+4" = "move container to workspace 4";
+				"${mod}+shift+5" = "move container to workspace 5";
+				"${mod}+shift+6" = "move container to workspace 6";
+				"${mod}+shift+7" = "move container to workspace 7";
+				"${mod}+shift+8" = "move container to workspace 8";
+				"${mod}+shift+9" = "move container to workspace 9";
 
 				# Apps
-				"Mod1+Mod4+b" = "exec firefox";
+				"${mod}+Return" = "exec kitty";
+				"${mod}+d" = "exec wofi --show drun";
+				"${mod}+b" = "exec firefox";
+
+				# Session
+				"${mod}+shift+q" = "exit";
 
 				# Dashboard: cycle watchlist users
 				"${mod}+F12" = "exec ~/nixos-cp/dashboard/switch_user.sh next";
