@@ -5,9 +5,16 @@ set -euo pipefail
 
 CP_DIR="$HOME/cp"
 CACHE_DIR="$HOME/.cache/cp-dashboard"
-STATS_FILE="$CACHE_DIR/stats_MeJamoLeo.json"
+WATCHLIST="$HOME/nixos-cp/dashboard/watchlist.json"
 
-# Fallback to old path
+# Get primary user from watchlist
+PRIMARY_USER=$(python3 -c "import json; print(json.load(open('$WATCHLIST'))[0])" 2>/dev/null || echo "")
+if [[ -z "$PRIMARY_USER" ]]; then
+    echo "Error: Set your username in dashboard/watchlist.json" >&2
+    exit 1
+fi
+
+STATS_FILE="$CACHE_DIR/stats_${PRIMARY_USER}.json"
 if [[ ! -f "$STATS_FILE" ]]; then
     STATS_FILE="$CACHE_DIR/stats.json"
 fi
@@ -21,8 +28,13 @@ fi
 PROBLEM=$(python3 << 'PYEOF'
 import json, random, sys, os
 
+watchlist_path = os.path.expanduser("~/nixos-cp/dashboard/watchlist.json")
+try:
+    primary = json.load(open(watchlist_path))[0]
+except Exception:
+    primary = "unknown"
 stats_paths = [
-    os.path.expanduser("~/.cache/cp-dashboard/stats_MeJamoLeo.json"),
+    os.path.expanduser(f"~/.cache/cp-dashboard/stats_{primary}.json"),
     os.path.expanduser("~/.cache/cp-dashboard/stats.json"),
 ]
 data = None

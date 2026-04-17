@@ -51,7 +51,7 @@ def _load_watchlist() -> list[str]:
         with open(WATCHLIST_JSON) as f:
             return json.load(f)
     except (OSError, json.JSONDecodeError):
-        return ['MeJamoLeo']
+        return []
 
 
 def _stats_path(username: str) -> str:

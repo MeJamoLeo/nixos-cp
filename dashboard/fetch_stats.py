@@ -1312,7 +1312,7 @@ def build_skill_graph(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Fetch AtCoder stats")
-    parser.add_argument("--user", default="MeJamoLeo")
+    parser.add_argument("--user", required=True)
     parser.add_argument(
         "--output",
         default=str(Path.home() / ".cache" / "cp-dashboard" / "stats.json"),

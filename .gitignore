@@ -37,5 +37,18 @@
 !docs/
 !docs/*.md
 
+# Root files
+!README.md
+
+# Screenshots
+!docs/screenshots/
+!docs/screenshots/*.png
+
+# Host configs
+!hosts/**/
+
+# Dashboard scripts
+!dashboard/fetch_all.sh
+
 # Git
 !.gitignore

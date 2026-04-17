@@ -22,7 +22,7 @@
 		};
 		Service = {
 			Type = "oneshot";
-			ExecStart = "${pkgs.nix}/bin/nix-shell /home/treo/nixos-cp/dashboard/shell.nix --run 'python3 /home/treo/nixos-cp/dashboard/fetch_stats.py'";
+			ExecStart = "${pkgs.nix}/bin/nix-shell /home/treo/nixos-cp/dashboard/shell.nix --run 'bash /home/treo/nixos-cp/dashboard/fetch_all.sh'";
 		};
 	};
 
