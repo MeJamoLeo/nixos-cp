@@ -1,5 +1,7 @@
 # nixos-cp
 
+[日本語](README.ja.md)
+
 AtCoder competitive programming environment on NixOS. Dashboard on your desktop background, terminal-first workflow from practice to submission.
 
 ![Dashboard](docs/screenshots/dashboard.png)
