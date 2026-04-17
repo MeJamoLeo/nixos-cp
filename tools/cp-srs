@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+# cp-srs — Spaced Repetition System for competitive programming
+# Usage: cp-srs record <problem_id> <result>
+#        cp-srs due
+#        cp-srs status
+set -euo pipefail
+
+SRS_FILE="$HOME/cp/srs.json"
+mkdir -p "$(dirname "$SRS_FILE")"
+
+if [[ ! -f "$SRS_FILE" ]]; then
+    echo '{}' > "$SRS_FILE"
+fi
+
+CMD="${1:-status}"
+shift || true
+
+export SRS_FILE
+
+case "$CMD" in
+    record)
+        PID="${1:?Usage: cp-srs record <problem_id> <result>}"
+        RESULT="${2:?Usage: cp-srs record <problem_id> <result>}"
+        export PID RESULT
+        python3 -c "
+import json, datetime, os
+
+srs_file = os.environ['SRS_FILE']
+pid = os.environ['PID']
+result = os.environ['RESULT']
+
+with open(srs_file) as f:
+    srs = json.load(f)
+
+today = datetime.date.today().isoformat()
+INTERVALS = [1, 3, 7, 14, 30]
+
+entry = srs.get(pid, {
+    'attempts': [],
+    'consecutive_ac': 0,
+    'interval_idx': 0,
+    'graduated': False,
+})
+
+entry['attempts'].append({'date': today, 'result': result})
+
+if result == 'AC':
+    entry['consecutive_ac'] = entry.get('consecutive_ac', 0) + 1
+    if entry['consecutive_ac'] >= 2:
+        entry['graduated'] = True
+        entry['next_review'] = None
+        print(f'  ✓ {pid} graduated! (2 consecutive ACs)')
+    else:
+        idx = min(entry.get('interval_idx', 0) + 1, len(INTERVALS) - 1)
+        entry['interval_idx'] = idx
+        days = INTERVALS[idx]
+        next_date = (datetime.date.today() + datetime.timedelta(days=days)).isoformat()
+        entry['next_review'] = next_date
+        print(f'  → {pid} next review: {next_date} ({days} days)')
+else:
+    entry['consecutive_ac'] = 0
+    entry['interval_idx'] = 0
+    next_date = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
+    entry['next_review'] = next_date
+    print(f'  ← {pid} reset. Review tomorrow: {next_date}')
+
+srs[pid] = entry
+with open(srs_file, 'w') as f:
+    json.dump(srs, f, ensure_ascii=False, indent=2)
+"
+        ;;
+
+    due)
+        python3 -c "
+import json, datetime, os
+
+with open(os.environ['SRS_FILE']) as f:
+    srs = json.load(f)
+
+today = datetime.date.today().isoformat()
+for pid, entry in srs.items():
+    if entry.get('graduated'):
+        continue
+    nr = entry.get('next_review')
+    if nr and nr <= today:
+        print(pid)
+"
+        ;;
+
+    status)
+        python3 -c "
+import json, datetime, os
+
+with open(os.environ['SRS_FILE']) as f:
+    srs = json.load(f)
+
+today = datetime.date.today().isoformat()
+print(f'SRS: {len(srs)} problems tracked')
+print()
+
+for pid, e in sorted(srs.items()):
+    if e.get('graduated'):
+        print(f'  ✓ {pid} (graduated)')
+    elif e.get('next_review', '') <= today:
+        print(f'  ! {pid} (due now)')
+    else:
+        print(f'  ~ {pid} (next: {e.get(\"next_review\", \"?\")})')
+"
+        ;;
+
+    *)
+        echo "Usage: cp-srs {record|due|status}" >&2
+        exit 1
+        ;;
+esac

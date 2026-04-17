@@ -115,4 +115,7 @@ nvim "+$CURSOR_LINE" "$INSIGHT_FILE"
 
 echo "Insight saved: $INSIGHT_FILE"
 
-echo "Insight saved: $INSIGHT_FILE"
+# Record in SRS
+if command -v cp-srs &>/dev/null; then
+    cp-srs record "$PID" "$RESULT" 2>/dev/null || true
+fi

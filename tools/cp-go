@@ -95,12 +95,20 @@ fi
 
 # --- Main loop ---
 while true; do
-    # Select problem (pass skip list)
+    # Select problem (pass skip list + SRS data)
     SKIP_LIST=$(IFS=,; echo "${SKIP_PIDS[*]:-}")
-    PROBLEM_DATA=$(SKIP="$SKIP_LIST" python3 << 'PYEOF'
-import json, random, sys, os
+    PROBLEM_DATA=$(SKIP="$SKIP_LIST" SRS_FILE="$HOME/cp/srs.json" python3 << 'PYEOF'
+import json, random, sys, os, datetime
 
 skip = set(os.environ.get("SKIP", "").split(",")) - {""}
+today = datetime.date.today().isoformat()
+
+# Load SRS data
+srs = {}
+srs_file = os.environ.get("SRS_FILE", "")
+if srs_file and os.path.exists(srs_file):
+    with open(srs_file) as f:
+        srs = json.load(f)
 
 watchlist_path = os.path.expanduser("~/nixos-cp/dashboard/watchlist.json")
 try:
@@ -122,6 +130,20 @@ if not data:
     print("NONE|||||データなし")
     sys.exit(0)
 
+# Priority 0: SRS review due
+for pid, entry in srs.items():
+    if entry.get("graduated") or pid in skip:
+        continue
+    nr = entry.get("next_review")
+    if nr and nr <= today:
+        parts = pid.rsplit("_", 1)
+        contest = parts[0] if len(parts) == 2 else pid
+        problem = parts[1] if len(parts) == 2 else "a"
+        streak = entry.get("consecutive_ac", 0)
+        print(f"SRS|{contest}|{problem}|{pid}|復習(SRS): {streak}/2 AC")
+        sys.exit(0)
+
+# Priority 1: WA Queue
 wa = data.get("wa_queue", [])
 for pick in wa:
     pid = pick["problem_id"]
@@ -133,6 +155,7 @@ for pick in wa:
     print(f"WA|{contest}|{problem}|{pid}|復習: WA×{pick['wa_count']} {pick.get('tag','')} diff{pick.get('difficulty','?')}")
     sys.exit(0)
 
+# Priority 2: Skill tree benchmarks
 sg = data.get("skill_graph", {})
 nodes = sg.get("nodes", [])
 for node in nodes:
