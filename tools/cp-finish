@@ -51,44 +51,42 @@ case "$BASENAME" in
     *)     CMD="python3 ./$BASENAME" ;;
 esac
 
+SKIPPED=""
 if ! oj test -c "$CMD"; then
     echo ""
-    echo "Test FAILED. Submit anyway? (y/N): "
+    echo -n "Test FAILED. Submit anyway? (y/N): "
     read -r CONFIRM
     if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
         echo "Skipped submission."
-        # Record as SKIP in SRS
-        if command -v cp-srs &>/dev/null; then
-            cp-srs record "$PID" "SKIP" 2>/dev/null || true
-        fi
-        exit 0
+        RESULT="SKIP"
+        SKIPPED="1"
     fi
 fi
 
-# --- Step 2: Submit ---
-# --- Step 2: Submit via cp-submit (curl-based, no oj) ---
-echo ""
-cp-submit "$SOLUTION"
-
-# --- Contest mode: skip insight ---
-if [[ -n "$SKIP_INSIGHT" ]]; then
-    echo ""
-    echo "Contest mode: insight skipped. Run 'cp-review' after contest."
-    exit 0
-fi
-
-# --- Step 4: Wait for user to check result ---
-echo ""
-echo -n "Result? (AC/WA/TLE/RE/SKIP): "
-read -r RESULT
-RESULT="${RESULT:-AC}"
-RESULT=$(echo "$RESULT" | tr '[:lower:]' '[:upper:]')
-
-# SKIP = gave up without submitting
-if [[ "$RESULT" == "SKIP" || "$RESULT" == "S" || "$RESULT" == "G" ]]; then
-    RESULT="SKIP"
-fi
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M')
+
+if [[ -z "$SKIPPED" ]]; then
+    # --- Submit ---
+    echo ""
+    cp-submit "$SOLUTION"
+
+    # --- Contest mode: skip insight ---
+    if [[ -n "$SKIP_INSIGHT" ]]; then
+        echo ""
+        echo "Contest mode: insight skipped. Run 'cp-review' after contest."
+        exit 0
+    fi
+
+    # --- Wait for result ---
+    echo ""
+    echo -n "Result? (AC/WA/TLE/RE/SKIP): "
+    read -r RESULT
+    RESULT="${RESULT:-AC}"
+    RESULT=$(echo "$RESULT" | tr '[:lower:]' '[:upper:]')
+    if [[ "$RESULT" == "S" || "$RESULT" == "G" ]]; then
+        RESULT="SKIP"
+    fi
+fi
 
 # --- Step 5: Tag selection ---
 TAGS=(
