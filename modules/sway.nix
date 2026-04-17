@@ -68,6 +68,9 @@
 				# Session
 				"${mod}+shift+q" = "exit";
 
+				# CP practice session (idempotent: focus or create)
+				"${mod}+g" = "exec swaymsg '[title=cp-session]' focus 2>/dev/null || kitty --title cp-session -e cp-go";
+
 				# Dashboard: cycle watchlist users
 				"${mod}+grave" = "exec ~/nixos-cp/dashboard/switch_user.sh next";
 			};

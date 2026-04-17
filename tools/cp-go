@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
-# cp-go — one command to start practicing. No browsing, no distractions.
-# Priority: WA Queue → Skill Tree benchmarks → Random by rating
+# cp-go — continuous practice session. One shortcut, zero friction.
+# Loop: select problem → nvim → test → submit → insight → next?
 set -euo pipefail
 
 CP_DIR="$HOME/cp"
 CACHE_DIR="$HOME/.cache/cp-dashboard"
+SESSION_FILE="$CACHE_DIR/session.json"
 WATCHLIST="$HOME/nixos-cp/dashboard/watchlist.json"
+
+mkdir -p "$CACHE_DIR"
 
 # Get primary user from watchlist
 PRIMARY_USER=$(python3 -c "import json; print(json.load(open('$WATCHLIST'))[0])" 2>/dev/null || echo "")
@@ -24,8 +27,72 @@ if [[ ! -f "$STATS_FILE" ]]; then
     exit 1
 fi
 
-# --- Extract problem from stats.json ---
-PROBLEM=$(python3 << 'PYEOF'
+# --- Session tracking ---
+SESSION_COUNT=0
+SESSION_START=$(date +%s)
+SESSION_LOG=()
+
+save_session_state() {
+    python3 -c "
+import json
+json.dump({'status': '$1', 'pid': '${CURRENT_PID:-}', 'count': $SESSION_COUNT}, open('$SESSION_FILE', 'w'))
+" 2>/dev/null
+}
+
+trap 'save_session_state "interrupted"; echo ""; echo "Session interrupted."; show_summary; exit 130' INT
+
+show_summary() {
+    if [[ $SESSION_COUNT -eq 0 ]]; then
+        return
+    fi
+    local elapsed=$(( $(date +%s) - SESSION_START ))
+    local mins=$(( elapsed / 60 ))
+    echo ""
+    echo "── Session Complete ──────────────────────"
+    echo "  Problems: $SESSION_COUNT"
+    echo "  Time:     ${mins} min"
+    echo ""
+    for entry in "${SESSION_LOG[@]}"; do
+        echo "  $entry"
+    done
+    echo "──────────────────────────────────────────"
+}
+
+# --- Check for interrupted session ---
+if [[ -f "$SESSION_FILE" ]]; then
+    PREV=$(python3 -c "
+import json, os
+s = json.load(open('$SESSION_FILE'))
+if s.get('status') == 'interrupted' and s.get('pid'):
+    print(s['pid'])
+else:
+    print('')
+" 2>/dev/null)
+    if [[ -n "$PREV" ]]; then
+        echo "前回中断: $PREV"
+        echo -n "再開する？ (Y/n): "
+        read -r RESUME
+        if [[ "$RESUME" != "n" && "$RESUME" != "N" ]]; then
+            PARTS=(${PREV//_/ })
+            CONTEST="${PREV%_*}"
+            PROBLEM="${PREV##*_}"
+            PROB_DIR="$CP_DIR/contests/$CONTEST/$PROBLEM"
+            if [[ -d "$PROB_DIR" ]]; then
+                cd "$PROB_DIR"
+                nvim main.py
+                cp-finish main.py
+                SESSION_COUNT=1
+                SESSION_LOG+=("$PREV  (resumed)")
+            fi
+        fi
+        rm -f "$SESSION_FILE"
+    fi
+fi
+
+# --- Main loop ---
+while true; do
+    # Select problem
+    PROBLEM_DATA=$(python3 << 'PYEOF'
 import json, random, sys, os
 
 watchlist_path = os.path.expanduser("~/nixos-cp/dashboard/watchlist.json")
@@ -45,22 +112,19 @@ for p in stats_paths:
         break
 
 if not data:
-    print("ERROR:no stats", file=sys.stderr)
-    sys.exit(1)
+    print("NONE|||||データなし")
+    sys.exit(0)
 
-# Priority 1: WA Queue (already filtered by rating+100 and 1 year)
 wa = data.get("wa_queue", [])
 if wa:
-    pick = wa[0]  # highest WA count first
+    pick = wa[0]
     pid = pick["problem_id"]
-    # Guess contest ID from problem ID (e.g., abc453_d -> abc453)
     parts = pid.rsplit("_", 1)
     contest = parts[0] if len(parts) == 2 else pid
     problem = parts[1] if len(parts) == 2 else "a"
     print(f"WA|{contest}|{problem}|{pid}|復習: WA×{pick['wa_count']} {pick.get('tag','')} diff{pick.get('difficulty','?')}")
     sys.exit(0)
 
-# Priority 2: Skill tree unfinished benchmarks
 sg = data.get("skill_graph", {})
 nodes = sg.get("nodes", [])
 for node in nodes:
@@ -72,60 +136,74 @@ for node in nodes:
             contest = parts[0] if len(parts) == 2 else pid
             problem = parts[1] if len(parts) == 2 else "a"
             skill = node.get("label", "")
-            print(f"SKILL|{contest}|{problem}|{pid}|スキル: {skill} ベンチマーク")
+            print(f"SKILL|{contest}|{problem}|{pid}|スキル: {skill}")
             sys.exit(0)
 
-# Priority 3: Random problem at rating+0~200
-# Use difficulty data from points to find unsolved problems
 rating = data.get("difficulty_log", {}).get("current_rating", 0)
 print(f"NONE|||||おすすめ問題なし (rating={rating})")
 PYEOF
 )
 
-# --- Parse result ---
-IFS='|' read -r TYPE CONTEST PROBLEM PID MESSAGE <<< "$PROBLEM"
+    IFS='|' read -r TYPE CONTEST PROBLEM PID MESSAGE <<< "$PROBLEM_DATA"
 
-if [[ "$TYPE" == "NONE" ]]; then
-    echo "$MESSAGE"
-    echo "AtCoder Problemsで問題を探してください"
-    echo "https://kenkoooo.com/atcoder/#/table/"
-    exit 0
-fi
+    if [[ "$TYPE" == "NONE" ]]; then
+        echo "$MESSAGE"
+        echo "https://kenkoooo.com/atcoder/#/table/"
+        break
+    fi
 
-echo "=== cp-go ==="
-echo "$MESSAGE"
-echo ""
+    CURRENT_PID="$PID"
+    PROB_DIR="$CP_DIR/contests/$CONTEST/$PROBLEM"
+    URL="https://atcoder.jp/contests/$CONTEST/tasks/$PID"
 
-# --- Setup directory ---
-CONTEST_DIR="$CP_DIR/contests/$CONTEST"
-PROB_DIR="$CONTEST_DIR/$PROBLEM"
-URL="https://atcoder.jp/contests/$CONTEST/tasks/$PID"
+    # Setup
+    if [[ ! -d "$PROB_DIR" ]]; then
+        mkdir -p "$PROB_DIR"
+        echo "$URL" > "$PROB_DIR/.problem_url"
+        (cd "$PROB_DIR" && oj download "$URL" 2>/dev/null) || true
+        touch "$PROB_DIR/main.py"
+    fi
 
-if [[ ! -d "$PROB_DIR" ]]; then
-    mkdir -p "$PROB_DIR"
-    echo "$URL" > "$PROB_DIR/.problem_url"
-    echo "Downloading test cases..."
-    (cd "$PROB_DIR" && oj download "$URL" 2>/dev/null) || echo "(download failed)"
-    touch "$PROB_DIR/main.py"
-fi
+    echo ""
+    echo "── Problem $((SESSION_COUNT + 1)) ──────────────────────"
+    echo "  $PID"
+    echo "  $MESSAGE"
+    echo "──────────────────────────────────────────"
+    echo ""
 
-echo ""
-echo "Problem: $PID"
-echo "URL:     $URL"
-echo "Dir:     $PROB_DIR"
-echo ""
+    save_session_state "solving"
 
-# --- Open browser + editor ---
-cd "$PROB_DIR"
+    # Browser
+    if command -v firefox &>/dev/null; then
+        firefox --new-tab "$URL" &>/dev/null &
+        disown
+    fi
 
-# Open problem page in Firefox (direct URL, no AtCoder top page)
-if command -v firefox &>/dev/null; then
-    firefox --new-tab "$URL" &>/dev/null &
-    disown
-fi
+    # Solve
+    PROB_START=$(date +%s)
+    cd "$PROB_DIR"
+    nvim main.py
 
-# Solve in nvim
-nvim main.py
+    # Post-solve
+    cp-finish main.py
 
-# Post-solve: test → submit → browser → tag → insight
-cp-finish main.py
+    PROB_ELAPSED=$(( $(date +%s) - PROB_START ))
+    PROB_MINS=$(( PROB_ELAPSED / 60 ))
+
+    SESSION_COUNT=$((SESSION_COUNT + 1))
+    SESSION_LOG+=("$PID  ${PROB_MINS}min  [$MESSAGE]")
+
+    # Transition
+    echo ""
+    echo "  ✓ $PID  ${PROB_MINS}min"
+    echo ""
+    echo -n "  Next? (Y/n): "
+    read -r NEXT
+    if [[ "$NEXT" == "n" || "$NEXT" == "N" || "$NEXT" == "q" ]]; then
+        break
+    fi
+done
+
+# Session end
+rm -f "$SESSION_FILE"
+show_summary

@@ -110,7 +110,9 @@ EOF
 
 CURSOR_LINE=$(wc -l < "$INSIGHT_FILE")
 
-echo "Writing insight..."
+echo "Writing insight... (Enter to skip)"
 nvim "+$CURSOR_LINE" "$INSIGHT_FILE"
+
+echo "Insight saved: $INSIGHT_FILE"
 
 echo "Insight saved: $INSIGHT_FILE"
