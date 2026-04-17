@@ -34,6 +34,7 @@ fi
 SESSION_COUNT=0
 SESSION_START=$(date +%s)
 SESSION_LOG=()
+SKIP_PIDS=()  # problems already attempted this session
 
 save_session_state() {
     python3 -c "
@@ -94,9 +95,12 @@ fi
 
 # --- Main loop ---
 while true; do
-    # Select problem
-    PROBLEM_DATA=$(python3 << 'PYEOF'
+    # Select problem (pass skip list)
+    SKIP_LIST=$(IFS=,; echo "${SKIP_PIDS[*]:-}")
+    PROBLEM_DATA=$(SKIP="$SKIP_LIST" python3 << 'PYEOF'
 import json, random, sys, os
+
+skip = set(os.environ.get("SKIP", "").split(",")) - {""}
 
 watchlist_path = os.path.expanduser("~/nixos-cp/dashboard/watchlist.json")
 try:
@@ -119,9 +123,10 @@ if not data:
     sys.exit(0)
 
 wa = data.get("wa_queue", [])
-if wa:
-    pick = wa[0]
+for pick in wa:
     pid = pick["problem_id"]
+    if pid in skip:
+        continue
     parts = pid.rsplit("_", 1)
     contest = parts[0] if len(parts) == 2 else pid
     problem = parts[1] if len(parts) == 2 else "a"
@@ -135,6 +140,8 @@ for node in nodes:
     for bm in benchmarks:
         if not bm["ac"]:
             pid = bm["id"]
+            if pid in skip:
+                continue
             parts = pid.rsplit("_", 1)
             contest = parts[0] if len(parts) == 2 else pid
             problem = parts[1] if len(parts) == 2 else "a"
@@ -195,6 +202,7 @@ PYEOF
 
     SESSION_COUNT=$((SESSION_COUNT + 1))
     SESSION_LOG+=("$PID  ${PROB_MINS}min  [$MESSAGE]")
+    SKIP_PIDS+=("$PID")
 
     # Transition
     echo ""
