@@ -622,10 +622,44 @@ def build_difficulty_log(
             week_sums.values(), key=lambda x: x["epoch"],
         )
 
-    # RPS-based projection model (r=0.73, discounted 50%)
-    # Population benchmark: +1 rating per 100 RPS → 0.01
-    # Conservative discount: × 0.5 → efficiency = 0.005
-    RPS_EFFICIENCY = 0.005
+    # --- Prediction model v2.1 ---
+    import math
+
+    # Band targets (monthly diff needed, realistic time estimates)
+    BAND_TARGETS = [
+        (0,    4000,  "A/B/C"),    # gray→brown
+        (400,  7500,  "C/D"),      # brown→green
+        (800,  12000, "D/E"),      # green→cyan
+        (1200, 18000, "E/F"),      # cyan→blue
+        (1600, 25000, "E/F"),      # blue→yellow
+    ]
+
+    def _smooth_efficiency(rating: int) -> float:
+        """Smooth exponential decay of efficiency by rating.
+
+        Calibrated: rating 0 → ~0.025, rating 800 → ~0.004,
+        rating 1600 → ~0.001. No discontinuities at band boundaries.
+        """
+        return 0.03 * math.exp(-rating / 550)
+
+    def _convergence_rating(perfs: list[int]) -> int:
+        """AtCoder's actual rating convergence using exponential decay 0.9.
+
+        Rating ≈ weighted_avg(perfs, decay=0.9) - 1200 * correction(n)
+        """
+        n = len(perfs)
+        if n == 0:
+            return 0
+        weighted_sum = 0.0
+        weight_sum = 0.0
+        for i, p in enumerate(perfs):
+            w = 0.9 ** (n - 1 - i)
+            weighted_sum += w * p
+            weight_sum += w
+        weighted_avg = weighted_sum / weight_sum
+        # Correction factor (negligible for n > 50)
+        correction = (math.sqrt(1 - 0.9 ** (2 * n))) / (1 - 0.9 ** n) - 1
+        return round(weighted_avg - 1200 * correction)
 
     # Average weekly diff from recent weeks
     avg_weekly_diff = 0
@@ -635,15 +669,20 @@ def build_difficulty_log(
             sum(w["sum"] for w in recent_weeks) / len(recent_weeks)
         )
 
-    # Try personal efficiency from own data
-    if len(ratings) >= 5 and recent_points:
-        total_diff = sum(p["difficulty"] for p in recent_points)
-        first_r = ratings[0]["NewRating"]
-        last_r = ratings[-1]["NewRating"]
-        rating_gain = last_r - first_r
-        if total_diff > 0 and rating_gain > 0:
-            personal_eff = rating_gain / total_diff
-            RPS_EFFICIENCY = personal_eff
+    # Perf-based convergence (for users with 10+ contests)
+    perf_projection: dict | None = None
+    if len(ratings) >= 10:
+        all_perfs = [r["Performance"] for r in ratings]
+        recent_perfs = [r["Performance"] for r in ratings[-20:]]
+        perf_projection = {
+            "avg_perf_recent": round(
+                sum(recent_perfs) / len(recent_perfs)
+            ),
+            "convergence_rating": _convergence_rating(all_perfs),
+        }
+
+    # Efficiency for current rating
+    eff = _smooth_efficiency(current_rating)
 
     # Effort-based projections
     projections: list[dict] = []
@@ -666,13 +705,15 @@ def build_difficulty_log(
     ]:
         weekly_diff = round(avg_weekly_diff * multiplier)
         proj_points = []
+        cur_r = current_rating
         for week in range(1, 14):
             future_epoch = cur_epoch + week * 7 * 86400
-            gain = weekly_diff * week * RPS_EFFICIENCY
-            future_r = max(0, min(2800, current_rating + gain))
+            # Smooth efficiency recalculated as rating changes
+            weekly_gain = weekly_diff * _smooth_efficiency(cur_r) / 4.33
+            cur_r = max(0, min(2800, cur_r + weekly_gain))
             proj_points.append({
                 "epoch": round(future_epoch),
-                "rating": round(future_r),
+                "rating": round(cur_r),
             })
         projections.append({
             "scenario": scenario,
@@ -680,14 +721,55 @@ def build_difficulty_log(
             "points": proj_points,
         })
 
-    return {
+    # Band target: what's needed for next color
+    band_target = None
+    next_color_rating = 400  # default
+    for floor, monthly_diff, focus in BAND_TARGETS:
+        if current_rating >= floor:
+            band_target = {
+                "monthly_diff": monthly_diff,
+                "weekly_diff": round(monthly_diff / 4.33),
+                "focus": focus,
+            }
+            # Find next color boundary
+            idx = [b[0] for b in BAND_TARGETS].index(floor)
+            if idx + 1 < len(BAND_TARGETS):
+                next_color_rating = BAND_TARGETS[idx + 1][0]
+            else:
+                next_color_rating = floor + 400
+
+    # Estimated months to next color at current pace
+    remaining = next_color_rating - current_rating
+    months_to_next = None
+    if avg_weekly_diff > 0 and remaining > 0:
+        weekly_gain = avg_weekly_diff * eff / 4.33
+        if weekly_gain > 0:
+            weeks_needed = remaining / weekly_gain
+            months_to_next = round(weeks_needed / 4.33, 1)
+
+    # Required weekly diff to reach next color in 3/6 months
+    pace_targets = {}
+    for months in [3, 6]:
+        weeks = months * 4.33
+        if remaining > 0 and eff > 0:
+            needed_weekly = remaining / (weeks * eff / 4.33)
+            pace_targets[f"{months}mo"] = round(needed_weekly)
+
+    result: dict = {
         "points": recent_points,
         "weekly_diff_sums": weekly_diff_sums,
         "current_rating": current_rating,
         "avg_weekly_diff": avg_weekly_diff,
-        "rps_efficiency": round(RPS_EFFICIENCY, 5),
+        "band_efficiency": round(eff, 5),
+        "band_target": band_target,
+        "next_color_rating": next_color_rating,
+        "months_to_next": months_to_next,
+        "pace_targets": pace_targets,
         "projections": projections,
     }
+    if perf_projection:
+        result["perf_projection"] = perf_projection
+    return result
 
 
 def build_language_stats(submissions: list[dict]) -> list[dict]:
