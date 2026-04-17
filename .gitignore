@@ -1,1 +1,25 @@
-dashboard/__pycache__/
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Nix
+result
+result-*
+
+# Editor
+*.swp
+*.swo
+*~
+.nvimlog
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dashboard
+dashboard/ss_*.png
+
+# Secrets
+*.jar
+.env
