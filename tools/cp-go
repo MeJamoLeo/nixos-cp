@@ -140,7 +140,9 @@ for pid, entry in srs.items():
         contest = parts[0] if len(parts) == 2 else pid
         problem = parts[1] if len(parts) == 2 else "a"
         streak = entry.get("consecutive_ac", 0)
-        print(f"SRS|{contest}|{problem}|{pid}|復習(SRS): {streak}/2 AC")
+        skips = entry.get("skip_count", 0)
+        hint = f" (📖解説読んでから)" if skips >= 2 else ""
+        print(f"SRS|{contest}|{problem}|{pid}|復習(SRS): {streak}/2 AC{hint}")
         sys.exit(0)
 
 # Priority 1: WA Queue

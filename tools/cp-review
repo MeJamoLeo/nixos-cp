@@ -69,6 +69,15 @@ EOF
     CURSOR_LINE=$(wc -l < "$INSIGHT_FILE")
     nvim "+$CURSOR_LINE" "$INSIGHT_FILE"
 
+    # Record in SRS (assume WA if reviewing — user solved during contest or not)
+    echo -n "  Contest result? (AC/WA/SKIP) [WA]: "
+    read -r CONTEST_RESULT
+    CONTEST_RESULT="${CONTEST_RESULT:-WA}"
+    CONTEST_RESULT=$(echo "$CONTEST_RESULT" | tr '[:lower:]' '[:upper:]')
+    if command -v cp-srs &>/dev/null; then
+        cp-srs record "$PID" "$CONTEST_RESULT" 2>/dev/null || true
+    fi
+
     echo "[$PROBLEM] done"
     echo ""
 done

@@ -129,3 +129,10 @@ echo "Insight saved: $INSIGHT_FILE"
 if command -v cp-srs &>/dev/null; then
     cp-srs record "$PID" "$RESULT" 2>/dev/null || true
 fi
+
+# Trigger immediate dashboard refresh
+FETCH_SCRIPT="$HOME/nixos-cp/dashboard/fetch_all.sh"
+if [[ -f "$FETCH_SCRIPT" ]]; then
+    bash "$FETCH_SCRIPT" &>/dev/null &
+    disown
+fi
