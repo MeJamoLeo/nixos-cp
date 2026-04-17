@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# cp-go — continuous practice session. One shortcut, zero friction.
-# Loop: select problem → nvim → test → submit → insight → next?
+# cp-go — continuous practice session with warmup/main mix
+# Flow: warmup → main → main → (1 in 3 warmup) → main → ...
 set -euo pipefail
 
 # Ensure tools are in PATH
@@ -13,7 +13,6 @@ WATCHLIST="$HOME/nixos-cp/dashboard/watchlist.json"
 
 mkdir -p "$CACHE_DIR"
 
-# Get primary user from watchlist
 PRIMARY_USER=$(python3 -c "import json; print(json.load(open('$WATCHLIST'))[0])" 2>/dev/null || echo "")
 if [[ -z "$PRIMARY_USER" ]]; then
     echo "Error: Set your username in dashboard/watchlist.json" >&2
@@ -24,7 +23,6 @@ STATS_FILE="$CACHE_DIR/stats_${PRIMARY_USER}.json"
 if [[ ! -f "$STATS_FILE" ]]; then
     STATS_FILE="$CACHE_DIR/stats.json"
 fi
-
 if [[ ! -f "$STATS_FILE" ]]; then
     echo "Error: stats not found. Run fetch_stats.py first." >&2
     exit 1
@@ -32,9 +30,10 @@ fi
 
 # --- Session tracking ---
 SESSION_COUNT=0
+SESSION_AC=0
 SESSION_START=$(date +%s)
 SESSION_LOG=()
-SKIP_PIDS=()  # problems already attempted this session
+SKIP_PIDS=()
 
 save_session_state() {
     python3 -c "
@@ -46,14 +45,12 @@ json.dump({'status': '$1', 'pid': '${CURRENT_PID:-}', 'count': $SESSION_COUNT}, 
 trap 'save_session_state "interrupted"; echo ""; echo "Session interrupted."; show_summary; exit 130' INT
 
 show_summary() {
-    if [[ $SESSION_COUNT -eq 0 ]]; then
-        return
-    fi
+    if [[ $SESSION_COUNT -eq 0 ]]; then return; fi
     local elapsed=$(( $(date +%s) - SESSION_START ))
     local mins=$(( elapsed / 60 ))
     echo ""
     echo "── Session Complete ──────────────────────"
-    echo "  Problems: $SESSION_COUNT"
+    echo "  Problems: $SESSION_COUNT  (AC: $SESSION_AC)"
     echo "  Time:     ${mins} min"
     echo ""
     for entry in "${SESSION_LOG[@]}"; do
@@ -77,111 +74,133 @@ else:
         echo -n "再開する？ (Y/n): "
         read -r RESUME
         if [[ "$RESUME" != "n" && "$RESUME" != "N" ]]; then
-            PARTS=(${PREV//_/ })
-            CONTEST="${PREV%_*}"
-            PROBLEM="${PREV##*_}"
-            PROB_DIR="$CP_DIR/contests/$CONTEST/$PROBLEM"
+            PARTS_C="${PREV%_*}"
+            PARTS_P="${PREV##*_}"
+            PROB_DIR="$CP_DIR/contests/$PARTS_C/$PARTS_P"
             if [[ -d "$PROB_DIR" ]]; then
                 cd "$PROB_DIR"
                 nvim main.py
-                cp-finish main.py
+                cp-finish main.py || true
                 SESSION_COUNT=1
                 SESSION_LOG+=("$PREV  (resumed)")
+                SKIP_PIDS+=("$PREV")
             fi
         fi
         rm -f "$SESSION_FILE"
     fi
 fi
 
-# --- Main loop ---
-while true; do
-    # Select problem (pass skip list + SRS data)
+# --- Problem selector ---
+select_problem() {
+    local MODE="$1"  # "warmup" or "main"
     SKIP_LIST=$(IFS=,; echo "${SKIP_PIDS[*]:-}")
-    PROBLEM_DATA=$(SKIP="$SKIP_LIST" SRS_FILE="$HOME/cp/srs.json" python3 << 'PYEOF'
+    SKIP="$SKIP_LIST" SRS_FILE="$HOME/cp/srs.json" PMODE="$MODE" STATS="$STATS_FILE" python3 << 'PYEOF'
 import json, random, sys, os, datetime
 
 skip = set(os.environ.get("SKIP", "").split(",")) - {""}
+mode = os.environ.get("PMODE", "main")
 today = datetime.date.today().isoformat()
 
-# Load SRS data
 srs = {}
 srs_file = os.environ.get("SRS_FILE", "")
 if srs_file and os.path.exists(srs_file):
     with open(srs_file) as f:
         srs = json.load(f)
 
-watchlist_path = os.path.expanduser("~/nixos-cp/dashboard/watchlist.json")
-try:
-    primary = json.load(open(watchlist_path))[0]
-except Exception:
-    primary = "unknown"
-stats_paths = [
-    os.path.expanduser(f"~/.cache/cp-dashboard/stats_{primary}.json"),
-    os.path.expanduser("~/.cache/cp-dashboard/stats.json"),
-]
-data = None
-for p in stats_paths:
-    if os.path.exists(p):
-        with open(p) as f:
-            data = json.load(f)
-        break
-
-if not data:
+stats_path = os.environ.get("STATS", "")
+if not stats_path or not os.path.exists(stats_path):
     print("NONE|||||データなし")
     sys.exit(0)
 
+with open(stats_path) as f:
+    data = json.load(f)
+
+rating = data.get("difficulty_log", {}).get("current_rating", 0)
+
+def fmt(pid):
+    parts = pid.rsplit("_", 1)
+    contest = parts[0] if len(parts) == 2 else pid
+    problem = parts[1] if len(parts) == 2 else "a"
+    return contest, problem
+
+if mode == "warmup":
+    # Warmup: find an easy unsolved problem (diff = rating-100 to rating)
+    # Use difficulty_log points to find problems the user hasn't solved
+    # For now, pick from skill tree tier 1 benchmarks (easiest)
+    sg = data.get("skill_graph", {})
+    nodes = sg.get("nodes", [])
+    for node in nodes:
+        if node.get("tier", 0) <= 1:
+            for bm in node.get("benchmarks", []):
+                if not bm["ac"] and bm["id"] not in skip:
+                    c, p = fmt(bm["id"])
+                    print(f"WARMUP|{c}|{p}|{bm['id']}|ウォームアップ: {node.get('label','')}")
+                    sys.exit(0)
+    # Fallback: any tier 1 benchmark (even if AC'd, for speed practice)
+    print(f"NONE|||||ウォームアップ問題なし")
+    sys.exit(0)
+
+# Main mode: SRS → WA → Skill tree → Random
 # Priority 0: SRS review due
 for pid, entry in srs.items():
     if entry.get("graduated") or pid in skip:
         continue
     nr = entry.get("next_review")
     if nr and nr <= today:
-        parts = pid.rsplit("_", 1)
-        contest = parts[0] if len(parts) == 2 else pid
-        problem = parts[1] if len(parts) == 2 else "a"
+        c, p = fmt(pid)
         streak = entry.get("consecutive_ac", 0)
         skips = entry.get("skip_count", 0)
-        hint = f" (📖解説読んでから)" if skips >= 2 else ""
-        print(f"SRS|{contest}|{problem}|{pid}|復習(SRS): {streak}/2 AC{hint}")
+        hint = " (📖解説読んでから)" if skips >= 2 else ""
+        print(f"SRS|{c}|{p}|{pid}|復習(SRS): {streak}/2 AC{hint}")
         sys.exit(0)
 
 # Priority 1: WA Queue
-wa = data.get("wa_queue", [])
-for pick in wa:
+for pick in data.get("wa_queue", []):
     pid = pick["problem_id"]
     if pid in skip:
         continue
-    parts = pid.rsplit("_", 1)
-    contest = parts[0] if len(parts) == 2 else pid
-    problem = parts[1] if len(parts) == 2 else "a"
-    print(f"WA|{contest}|{problem}|{pid}|復習: WA×{pick['wa_count']} {pick.get('tag','')} diff{pick.get('difficulty','?')}")
+    c, p = fmt(pid)
+    print(f"WA|{c}|{p}|{pid}|復習: WA×{pick['wa_count']} diff{pick.get('difficulty','?')}")
     sys.exit(0)
 
-# Priority 2: Skill tree benchmarks
+# Priority 2: Skill tree benchmarks (tier 2+)
 sg = data.get("skill_graph", {})
-nodes = sg.get("nodes", [])
-for node in nodes:
-    benchmarks = node.get("benchmarks", [])
-    for bm in benchmarks:
-        if not bm["ac"]:
-            pid = bm["id"]
-            if pid in skip:
-                continue
-            parts = pid.rsplit("_", 1)
-            contest = parts[0] if len(parts) == 2 else pid
-            problem = parts[1] if len(parts) == 2 else "a"
-            skill = node.get("label", "")
-            print(f"SKILL|{contest}|{problem}|{pid}|スキル: {skill}")
+for node in sg.get("nodes", []):
+    if node.get("tier", 0) < 2:
+        continue
+    for bm in node.get("benchmarks", []):
+        if not bm["ac"] and bm["id"] not in skip:
+            c, p = fmt(bm["id"])
+            print(f"SKILL|{c}|{p}|{bm['id']}|スキル: {node.get('label','')}")
             sys.exit(0)
 
-rating = data.get("difficulty_log", {}).get("current_rating", 0)
 print(f"NONE|||||おすすめ問題なし (rating={rating})")
 PYEOF
-)
+}
+
+# --- Main loop ---
+while true; do
+    # Determine mode: first problem = warmup, then 1 in 3 = warmup
+    if [[ $SESSION_COUNT -eq 0 ]]; then
+        MODE="warmup"
+    elif (( SESSION_COUNT % 3 == 0 )); then
+        MODE="warmup"
+    else
+        MODE="main"
+    fi
+
+    PROBLEM_DATA=$(select_problem "$MODE")
 
     IFS='|' read -r TYPE CONTEST PROBLEM PID MESSAGE <<< "$PROBLEM_DATA"
 
+    # If warmup has nothing, try main
+    if [[ "$TYPE" == "NONE" && "$MODE" == "warmup" ]]; then
+        PROBLEM_DATA=$(select_problem "main")
+        IFS='|' read -r TYPE CONTEST PROBLEM PID MESSAGE <<< "$PROBLEM_DATA"
+    fi
+
     if [[ "$TYPE" == "NONE" ]]; then
+        echo ""
         echo "$MESSAGE"
         echo "https://kenkoooo.com/atcoder/#/table/"
         break
@@ -199,8 +218,11 @@ PYEOF
         touch "$PROB_DIR/main.py"
     fi
 
+    local_label=""
+    [[ "$MODE" == "warmup" ]] && local_label=" 🔥"
+
     echo ""
-    echo "── Problem $((SESSION_COUNT + 1)) ──────────────────────"
+    echo "── Problem $((SESSION_COUNT + 1))${local_label} ──────────────────────"
     echo "  $PID"
     echo "  $MESSAGE"
     echo "──────────────────────────────────────────"
@@ -219,7 +241,7 @@ PYEOF
     cd "$PROB_DIR"
     nvim main.py
 
-    # Post-solve (don't exit on error)
+    # Post-solve
     cp-finish main.py || echo "  (cp-finish had an error, continuing)"
 
     PROB_ELAPSED=$(( $(date +%s) - PROB_START ))
@@ -229,11 +251,23 @@ PYEOF
     SESSION_LOG+=("$PID  ${PROB_MINS}min  [$MESSAGE]")
     SKIP_PIDS+=("$PID")
 
+    # Peek at next problem for curiosity
+    NEXT_MODE="main"
+    (( (SESSION_COUNT) % 3 == 0 )) && NEXT_MODE="warmup"
+    NEXT_PEEK=$(select_problem "$NEXT_MODE" 2>/dev/null | head -1)
+    NEXT_MSG=""
+    if [[ -n "$NEXT_PEEK" && "$NEXT_PEEK" != NONE* ]]; then
+        NEXT_MSG=$(echo "$NEXT_PEEK" | cut -d'|' -f5)
+    fi
+
     # Transition
     echo ""
     echo "  ✓ $PID  ${PROB_MINS}min"
+    if [[ -n "$NEXT_MSG" ]]; then
+        echo "  次: $NEXT_MSG"
+    fi
     echo ""
-    echo -n "  Next? (Y/n): "
+    echo -n "  Session: ${SESSION_COUNT} solved. Next? (Y/n): "
     read -r NEXT
     if [[ "$NEXT" == "n" || "$NEXT" == "N" || "$NEXT" == "q" ]]; then
         break
