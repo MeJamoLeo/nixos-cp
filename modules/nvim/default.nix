@@ -84,6 +84,23 @@
       };
     };
 
+    # File explorer
+    plugins.oil = {
+      enable = true;
+      settings = {
+        view_options.show_hidden = true;
+      };
+    };
+
+    # Keybinding guide
+    plugins.which-key = {
+      enable = true;
+      settings.spec = [
+        { __unkeyed-1 = "<leader>c"; group = "Competitest"; }
+        { __unkeyed-1 = "<leader>r"; group = "LSP Rename"; }
+      ];
+    };
+
     # Competitest (compile + run + test in nvim)
     plugins.competitest = {
       enable = true;
@@ -113,11 +130,19 @@
     };
 
     keymaps = [
+      # File explorer
+      { mode = "n"; key = "-"; action = "<cmd>Oil<cr>"; options.desc = "Open file explorer"; }
+
+      # Competitest
       { mode = "n"; key = "<leader>cr"; action = "<cmd>CompetiTest run<cr>"; options.desc = "Run testcases"; }
       { mode = "n"; key = "<leader>cs"; action = "<cmd>w<cr><cmd>!cp-submit %<cr>"; options.desc = "Save + submit"; }
       { mode = "n"; key = "<leader>ca"; action = "<cmd>CompetiTest add_testcase<cr>"; options.desc = "Add testcase"; }
       { mode = "n"; key = "<leader>ce"; action = "<cmd>CompetiTest edit_testcase<cr>"; options.desc = "Edit testcase"; }
       { mode = "n"; key = "<leader>ct"; action = "<cmd>CompetiTest receive testcases<cr>"; options.desc = "Receive testcases"; }
+
+      # Quick save/quit
+      { mode = "n"; key = "<leader>w"; action = "<cmd>w<cr>"; options.desc = "Save"; }
+      { mode = "n"; key = "<leader>q"; action = "<cmd>q<cr>"; options.desc = "Quit"; }
     ];
 
     # C++ / Python tooling
