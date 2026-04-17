@@ -184,8 +184,8 @@ PYEOF
     cd "$PROB_DIR"
     nvim main.py
 
-    # Post-solve
-    cp-finish main.py
+    # Post-solve (don't exit on error)
+    cp-finish main.py || echo "  (cp-finish had an error, continuing)"
 
     PROB_ELAPSED=$(( $(date +%s) - PROB_START ))
     PROB_MINS=$(( PROB_ELAPSED / 60 ))

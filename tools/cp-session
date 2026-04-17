@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# cp-session — focus existing cp terminal or create new one
+# Called by Sway keybinding (Super+G)
+
+if swaymsg '[title="cp-session"]' focus 2>/dev/null; then
+    exit 0
+fi
+
+exec kitty --title cp-session -e cp-go
