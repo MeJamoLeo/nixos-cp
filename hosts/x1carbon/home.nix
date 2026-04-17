@@ -40,8 +40,6 @@
 		};
 	};
 
-	# TODO: Japanese input (fcitx5 + mozc) — flake update後に再設定
-
 	programs.home-manager.enable = true;
 
 	home.stateVersion = "24.11";

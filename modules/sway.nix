@@ -108,7 +108,6 @@
 			];
 
 			startup = [
-				{ command = "fcitx5 -d"; }
 				{ command = "sleep 3 && nix-shell /home/treo/nixos-cp/dashboard/shell.nix --keep WAYLAND_DISPLAY --keep XDG_RUNTIME_DIR --run 'python3 /home/treo/nixos-cp/dashboard/dashboard.py'"; }
 			];
 		};
