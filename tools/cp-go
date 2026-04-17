@@ -3,6 +3,9 @@
 # Loop: select problem → nvim → test → submit → insight → next?
 set -euo pipefail
 
+# Ensure tools are in PATH
+export PATH="$PATH:$HOME/nixos-cp/tools"
+
 CP_DIR="$HOME/cp"
 CACHE_DIR="$HOME/.cache/cp-dashboard"
 SESSION_FILE="$CACHE_DIR/session.json"
