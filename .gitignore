@@ -1,25 +1,41 @@
-# Python
-__pycache__/
-*.pyc
-*.pyo
+# Whitelist approach: ignore everything, then allow specific files
+*
 
 # Nix
-result
-result-*
+!flake.nix
+!flake.lock
 
-# Editor
-*.swp
-*.swo
-*~
-.nvimlog
-
-# OS
-.DS_Store
-Thumbs.db
+# NixOS config
+!hosts/
+!hosts/**/*.nix
+!modules/
+!modules/**/*.nix
+!home/
+!home/**/*.nix
 
 # Dashboard
-dashboard/ss_*.png
+!dashboard/
+!dashboard/dashboard.html
+!dashboard/dashboard.py
+!dashboard/fetch_stats.py
+!dashboard/shell.nix
+!dashboard/switch_user.sh
+!dashboard/watchlist.json
+!dashboard/js/
+!dashboard/js/*.js
 
-# Secrets
-*.jar
-.env
+# Tools
+!tools/
+!tools/cp-*
+!tools/README.md
+
+# Dotfiles
+!dotfiles/
+!dotfiles/**/*
+
+# Docs
+!docs/
+!docs/*.md
+
+# Git
+!.gitignore
