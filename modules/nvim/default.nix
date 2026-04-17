@@ -84,6 +84,42 @@
       };
     };
 
+    # Competitest (compile + run + test in nvim)
+    plugins.competitest = {
+      enable = true;
+      settings = {
+        save_current_file = true;
+        compile_command = {
+          cpp = {
+            exec = "g++";
+            args = ["-std=c++20" "-O2" "-Wall" "$(FNAME)" "-o" "$(FNOEXT)"];
+          };
+        };
+        run_command = {
+          cpp.exec = "./$(FNOEXT)";
+          python = {
+            exec = "python3";
+            args = ["$(FNAME)"];
+          };
+        };
+        runner_ui.interface = "popup";
+        output_compare_method = "squish";
+        maximum_time = 5000;
+        # oj downloadのtest/ディレクトリに合わせる
+        testcases_directory = "test";
+        testcases_input_file_format = "sample-$(TCNUM).in";
+        testcases_output_file_format = "sample-$(TCNUM).out";
+      };
+    };
+
+    keymaps = [
+      { mode = "n"; key = "<leader>cr"; action = "<cmd>CompetiTest run<cr>"; options.desc = "Run testcases"; }
+      { mode = "n"; key = "<leader>cs"; action = "<cmd>w<cr><cmd>!cp-submit %<cr>"; options.desc = "Save + submit"; }
+      { mode = "n"; key = "<leader>ca"; action = "<cmd>CompetiTest add_testcase<cr>"; options.desc = "Add testcase"; }
+      { mode = "n"; key = "<leader>ce"; action = "<cmd>CompetiTest edit_testcase<cr>"; options.desc = "Edit testcase"; }
+      { mode = "n"; key = "<leader>ct"; action = "<cmd>CompetiTest receive testcases<cr>"; options.desc = "Receive testcases"; }
+    ];
+
     # C++ / Python tooling
     extraPackages = with pkgs; [
       clang-tools  # clangd

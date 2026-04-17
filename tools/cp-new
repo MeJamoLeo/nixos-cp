@@ -41,6 +41,12 @@ for p in "${PROBLEMS[@]}"; do
     touch "$PROB_DIR/main.py"
 done
 
+# Mark as contest mode (cp-finish skips insight)
+echo "contest" > "$CONTEST_DIR/.contest_mode"
+
 echo ""
 echo "Created: $CONTEST_DIR"
+echo "Contest mode: insight is skipped until 'cp-review $CONTEST'"
+echo ""
 echo "cd $CONTEST_DIR/a && nvim main.py"
+echo "After :wq → auto test + submit (no insight prompt)"

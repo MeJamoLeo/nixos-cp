@@ -1,143 +1,138 @@
 #!/usr/bin/env bash
-# cp-submit — submit to AtCoder, get result, write insight
-# Usage: cp-submit <solution_file> [problem_url]
+# cp-submit — submit solution to AtCoder
+# Contest mode: curl POST (fast, no browser)
+# Practice mode: clipboard + browser (bypasses Turnstile)
 set -euo pipefail
 
-CP_DIR="$HOME/cp"
-INSIGHTS_DIR="$CP_DIR/insights"
-mkdir -p "$INSIGHTS_DIR"
+SOLUTION="${1:-main.py}"
+COOKIE_FILE="$HOME/.local/share/online-judge-tools/cookie.jar"
 
-# --- Tags (from skill tree nodes) ---
-TAGS=(
-    "全探索"
-    "ソート"
-    "貪欲法"
-    "文字列"
-    "Map/Set"
-    "GCD/LCM"
-    "実装力"
-    "累積和"
-    "二分探索"
-    "基礎DP"
-    "BFS/DFS"
-    "尺取り法"
-    "ビット演算"
-    "素数/約数"
-    "計算量"
-    "Union-Find"
-    "優先度Queue"
-    "最短路"
-    "セグ木/BIT"
-    "bitDP"
-    "MST"
-    "座標圧縮"
-    "mod逆元"
-    "imos法"
-    "桁DP"
-    "木DP"
-    "LCA"
-    "強連結成分"
-    "遅延セグ木"
-    "文字列Hash"
-    "わからない"
-)
-
-# --- Args ---
-SOLUTION="${1:?Usage: cp-submit <solution_file> [problem_url]}"
+# Resolve to absolute path
+SOLUTION=$(realpath "$SOLUTION" 2>/dev/null || echo "$SOLUTION")
 
 if [[ ! -f "$SOLUTION" ]]; then
     echo "Error: $SOLUTION not found" >&2
     exit 1
 fi
 
-# Auto-detect problem URL from current directory or arg
-if [[ -n "${2:-}" ]]; then
-    PROBLEM_URL="$2"
+# Find .problem_url from solution file's directory
+PROB_DIR=$(dirname "$SOLUTION")
+if [[ -f "$PROB_DIR/.problem_url" ]]; then
+    URL=$(cat "$PROB_DIR/.problem_url")
+elif [[ -f ".problem_url" ]]; then
+    URL=$(cat .problem_url)
 else
-    # Try to find URL from oj download history
-    if [[ -f ".problem_url" ]]; then
-        PROBLEM_URL=$(cat .problem_url)
+    echo -n "Problem URL: "
+    read -r URL
+fi
+
+PID=$(echo "$URL" | grep -oP '[^/]+$')
+CONTEST_ID=$(echo "$URL" | grep -oP 'contests/\K[^/]+')
+SUBMIT_URL="https://atcoder.jp/contests/$CONTEST_ID/submit"
+
+# --- Detect contest mode ---
+# Check if current time is within any active contest
+IN_CONTEST=$(python3 -c "
+import json, time, os, glob
+paths = glob.glob(os.path.expanduser('~/.cache/cp-dashboard/stats*.json'))
+now = time.time()
+for p in paths:
+    try:
+        with open(p) as f:
+            data = json.load(f)
+        for c in data.get('contests', []):
+            start = c.get('start_epoch', 0)
+            dur = c.get('duration_seconds', 0)
+            if start <= now <= start + dur:
+                print('yes')
+                exit()
+    except: pass
+print('no')
+" 2>/dev/null || echo "no")
+
+echo "=== cp-submit ==="
+echo "Problem:  $PID"
+echo "Contest:  $CONTEST_ID"
+echo "Mode:     $([ "$IN_CONTEST" = "yes" ] && echo "CONTEST (auto)" || echo "PRACTICE (browser)")"
+echo ""
+
+if [[ "$IN_CONTEST" == "yes" ]]; then
+    # --- Contest mode: curl POST ---
+    SESSION=$(grep 'REVEL_SESSION=' "$COOKIE_FILE" | head -1 | sed 's/.*REVEL_SESSION="//;s/".*//')
+    if [[ -z "$SESSION" ]]; then
+        echo "Error: No cookie. Run cp-login first." >&2
+        exit 1
+    fi
+
+    UA="Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0"
+    TMPJAR="/tmp/cp-submit-cookies.txt"
+
+    echo "Fetching CSRF token..."
+    SUBMIT_PAGE=$(curl -s -A "$UA" -b "REVEL_SESSION=$SESSION" -c "$TMPJAR" "$SUBMIT_URL")
+    CSRF=$(echo "$SUBMIT_PAGE" | grep 'var csrfToken' | sed 's/.*var csrfToken = "//;s/".*//' || echo "")
+
+    if [[ -z "$CSRF" ]]; then
+        echo "CSRF token failed. Falling back to browser..."
+        IN_CONTEST="no"
     else
-        echo -n "Problem URL: "
-        read -r PROBLEM_URL
+        # Auto-detect language ID
+        _detect_lang() {
+            local PAGE="$1" EXT="$2"
+            case "$EXT" in
+                py)  echo "$PAGE" | grep 'option.*Python.*CPython' | head -1 | sed 's/.*value="//;s/".*//' ;;
+                cpp) echo "$PAGE" | grep 'option.*C++.*GCC' | head -1 | sed 's/.*value="//;s/".*//' ;;
+            esac
+        }
+        EXT="${SOLUTION##*.}"
+        LANG_ID=$(_detect_lang "$SUBMIT_PAGE" "$EXT")
+        LANG_ID="${LANG_ID:-6082}"
+
+        echo "Language: $LANG_ID"
+        echo "Submitting..."
+
+        SOURCE=$(cat "$SOLUTION")
+        RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/cp-submit-response.html \
+            -A "$UA" \
+            -b "$TMPJAR" \
+            -H "Referer: $SUBMIT_URL" \
+            --data-urlencode "data.TaskScreenName=$PID" \
+            --data-urlencode "data.LanguageId=$LANG_ID" \
+            --data-urlencode "sourceCode=$SOURCE" \
+            --data-urlencode "csrf_token=$CSRF" \
+            "$SUBMIT_URL")
+
+        if [[ "$RESPONSE" == "302" ]] || ! grep -q 'alert-danger' /tmp/cp-submit-response.html 2>/dev/null; then
+            echo "Submitted!"
+            SUBMISSIONS_URL="https://atcoder.jp/contests/$CONTEST_ID/submissions/me"
+            if command -v firefox &>/dev/null; then
+                firefox --new-tab "$SUBMISSIONS_URL" &>/dev/null &
+                disown
+            fi
+            echo "Check result: $SUBMISSIONS_URL"
+            exit 0
+        else
+            echo "Auto-submit failed. Falling back to browser..."
+            IN_CONTEST="no"
+        fi
     fi
 fi
 
-# Extract problem ID from URL (e.g., abc453_d from .../tasks/abc453_d)
-PROBLEM_ID=$(echo "$PROBLEM_URL" | grep -oP '[^/]+$')
-CONTEST_ID=$(echo "$PROBLEM_URL" | grep -oP 'contests/\K[^/]+')
+if [[ "$IN_CONTEST" != "yes" ]]; then
+    # --- Practice mode: clipboard + browser ---
+    if command -v wl-copy &>/dev/null; then
+        wl-copy < "$SOLUTION"
+        echo "Copied to clipboard!"
+    else
+        echo "Warning: wl-copy not found" >&2
+    fi
 
-# Detect language
-case "$SOLUTION" in
-    *.py)  LANG_NAME="Python" ;;
-    *.cpp) LANG_NAME="C++" ;;
-    *.rs)  LANG_NAME="Rust" ;;
-    *)     LANG_NAME="Unknown" ;;
-esac
+    if command -v firefox &>/dev/null; then
+        firefox --new-tab "$SUBMIT_URL" &>/dev/null &
+        disown
+    fi
 
-echo "=== cp-submit ==="
-echo "Problem: $PROBLEM_ID ($CONTEST_ID)"
-echo "File:    $SOLUTION"
-echo "Lang:    $LANG_NAME"
-echo ""
-
-# --- Submit ---
-echo "Submitting..."
-oj submit "$PROBLEM_URL" "$SOLUTION" --yes --wait 2>&1 | tee /tmp/cp-submit-output.txt
-
-# --- Parse result ---
-# oj submit --wait outputs the result
-RESULT="Unknown"
-if grep -q "AC" /tmp/cp-submit-output.txt; then
-    RESULT="AC"
-elif grep -q "WA" /tmp/cp-submit-output.txt; then
-    RESULT="WA"
-elif grep -q "TLE" /tmp/cp-submit-output.txt; then
-    RESULT="TLE"
-elif grep -q "RE" /tmp/cp-submit-output.txt; then
-    RESULT="RE"
-elif grep -q "CE" /tmp/cp-submit-output.txt; then
-    RESULT="CE"
+    echo ""
+    echo "1. Ctrl+V to paste code"
+    echo "2. Select language"
+    echo "3. Click Submit"
 fi
-
-TIMESTAMP=$(date '+%Y-%m-%d %H:%M')
-
-echo ""
-echo "Result: $RESULT"
-echo ""
-
-# --- Tag selection via fzf ---
-echo "Select tag(s):"
-SELECTED_TAG=$(printf '%s\n' "${TAGS[@]}" | fzf --prompt="tag> " --height=15)
-
-# --- Prepare insight file ---
-INSIGHT_FILE="$INSIGHTS_DIR/${PROBLEM_ID}.md"
-
-# Add header if new file
-if [[ ! -f "$INSIGHT_FILE" ]]; then
-    echo "# $PROBLEM_ID" > "$INSIGHT_FILE"
-    echo "" >> "$INSIGHT_FILE"
-fi
-
-# Append entry template
-cat >> "$INSIGHT_FILE" << EOF
-
-## $RESULT $TIMESTAMP
-tags: [$SELECTED_TAG]
-
-EOF
-
-# Record cursor position (line number to place cursor)
-CURSOR_LINE=$(wc -l < "$INSIGHT_FILE")
-
-# --- Open nvim in Sway floating window ---
-if command -v swaymsg &>/dev/null; then
-    # Set next window to floating, centered
-    swaymsg 'for_window [title="cp-insight"] floating enable, resize set 800 400, move position center' 2>/dev/null || true
-    kitty --title "cp-insight" -e nvim "+$CURSOR_LINE" "$INSIGHT_FILE"
-else
-    # Fallback: just open nvim
-    nvim "+$CURSOR_LINE" "$INSIGHT_FILE"
-fi
-
-echo "Insight saved: $INSIGHT_FILE"

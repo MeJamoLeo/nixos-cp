@@ -33,6 +33,7 @@
     python3
     online-judge-tools
     fzf
+    wl-clipboard
   ];
 
   # SSH

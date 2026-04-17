@@ -181,6 +181,16 @@ function renderCompare(d) {
 
 function renderInsight(d) {
 	let h = '';
+	// Unreviewed contests warning
+	const ur = d.unreviewed_contests || [];
+	if (ur.length) {
+		ur.forEach(c => {
+			h += '<div style="background:#1a0808;border:0.5px solid #3a1010;box-shadow:inset 2px 0 0 var(--red);padding:4px 8px;margin-bottom:4px">'
+				+ '<div style="font-size:var(--fs-sm);color:var(--red);font-weight:500">未レビュー: ' + c.contest.toUpperCase() + '</div>'
+				+ '<div style="font-size:var(--fs-2xs);color:#6a3030">' + c.days_ago + '日前 · cp-review ' + c.contest + '</div>'
+				+ '</div>';
+		});
+	}
 	if (d.insight) {
 		h += '<div class="insight-box" style="background:var(--dbg-insight)">'
 			+ '<div style="display:flex;justify-content:space-between;font-size:var(--fs-sm);color:#3a8a5a">'

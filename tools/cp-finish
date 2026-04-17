@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+# cp-finish — post-solve flow: test → submit → browser → tag → insight
+# Called after nvim closes. Run from the problem directory.
+set -euo pipefail
+
+CP_DIR="$HOME/cp"
+INSIGHTS_DIR="$CP_DIR/insights"
+mkdir -p "$INSIGHTS_DIR"
+
+SOLUTION="${1:-main.py}"
+SOLUTION=$(realpath "$SOLUTION" 2>/dev/null || echo "$SOLUTION")
+PROB_DIR=$(dirname "$SOLUTION")
+
+# Auto-detect contest mode from solution file's directory
+SKIP_INSIGHT=""
+if [[ -f "$PROB_DIR/../.contest_mode" ]] || [[ -f "$PROB_DIR/../../.contest_mode" ]]; then
+    SKIP_INSIGHT="1"
+fi
+
+if [[ ! -f "$SOLUTION" ]]; then
+    echo "Error: $SOLUTION not found" >&2
+    exit 1
+fi
+
+# Read problem URL from solution file's directory
+if [[ -f "$PROB_DIR/.problem_url" ]]; then
+    URL=$(cat "$PROB_DIR/.problem_url")
+elif [[ -f ".problem_url" ]]; then
+    URL=$(cat .problem_url)
+else
+    echo -n "Problem URL: "
+    read -r URL
+fi
+
+# cd to problem directory for oj test
+cd "$PROB_DIR"
+
+PID=$(echo "$URL" | grep -oP '[^/]+$')
+
+# --- Step 1: Local test ---
+echo ""
+echo "=== Local test ==="
+case "$SOLUTION" in
+    *.py)  CMD="python3 $SOLUTION" ;;
+    *.cpp)
+        echo "Compiling..."
+        g++ -std=c++20 -O2 -Wall -o /tmp/cp_sol "$SOLUTION"
+        CMD="/tmp/cp_sol"
+        ;;
+    *)     CMD="python3 $SOLUTION" ;;
+esac
+
+if ! oj test -c "$CMD"; then
+    echo ""
+    echo "Test FAILED. Submit anyway? (y/N): "
+    read -r CONFIRM
+    if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
+        echo "Aborted. Fix and try again."
+        exit 1
+    fi
+fi
+
+# --- Step 2: Submit ---
+# --- Step 2: Submit via cp-submit (curl-based, no oj) ---
+echo ""
+cp-submit "$SOLUTION"
+
+# --- Contest mode: skip insight ---
+if [[ -n "$SKIP_INSIGHT" ]]; then
+    echo ""
+    echo "Contest mode: insight skipped. Run 'cp-review' after contest."
+    exit 0
+fi
+
+# --- Step 4: Wait for user to check result ---
+echo ""
+echo -n "Result? (AC/WA/TLE/RE): "
+read -r RESULT
+RESULT="${RESULT:-AC}"
+TIMESTAMP=$(date '+%Y-%m-%d %H:%M')
+
+# --- Step 5: Tag selection ---
+TAGS=(
+    "全探索" "ソート" "貪欲法" "文字列" "Map/Set" "GCD/LCM" "実装力"
+    "累積和" "二分探索" "基礎DP" "BFS/DFS" "尺取り法" "ビット演算"
+    "素数/約数" "計算量" "Union-Find" "優先度Queue" "最短路"
+    "セグ木/BIT" "bitDP" "MST" "座標圧縮" "mod逆元" "imos法"
+    "桁DP" "木DP" "LCA" "強連結成分" "遅延セグ木" "文字列Hash"
+    "わからない"
+)
+
+echo "Select tag:"
+SELECTED_TAG=$(printf '%s\n' "${TAGS[@]}" | fzf --prompt="tag> " --height=15)
+
+# --- Step 6: Insight ---
+INSIGHT_FILE="$INSIGHTS_DIR/${PID}.md"
+
+if [[ ! -f "$INSIGHT_FILE" ]]; then
+    echo "# $PID" > "$INSIGHT_FILE"
+    echo "" >> "$INSIGHT_FILE"
+fi
+
+cat >> "$INSIGHT_FILE" << EOF
+
+## $RESULT $TIMESTAMP
+tags: [$SELECTED_TAG]
+
+EOF
+
+CURSOR_LINE=$(wc -l < "$INSIGHT_FILE")
+
+echo "Writing insight..."
+nvim "+$CURSOR_LINE" "$INSIGHT_FILE"
+
+echo "Insight saved: $INSIGHT_FILE"

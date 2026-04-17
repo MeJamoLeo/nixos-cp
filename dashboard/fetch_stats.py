@@ -926,6 +926,27 @@ def build_rating_log(ratings: list[dict]) -> list[dict]:
     return result
 
 
+def build_unreviewed_contests() -> list[dict]:
+    """Find contests with .contest_mode flag (not yet reviewed)."""
+    contests_dir = Path.home() / "cp" / "contests"
+    if not contests_dir.exists():
+        return []
+    unreviewed = []
+    for d in sorted(contests_dir.iterdir()):
+        flag = d / ".contest_mode"
+        if flag.exists():
+            try:
+                mtime = flag.stat().st_mtime
+                days_ago = (time.time() - mtime) / 86400
+                unreviewed.append({
+                    "contest": d.name,
+                    "days_ago": round(days_ago),
+                })
+            except OSError:
+                pass
+    return unreviewed
+
+
 def build_compare(submissions: list[dict]) -> dict:
     """Build month-over-month AC comparison."""
     ac_map = _ac_problems(submissions)
@@ -1287,6 +1308,7 @@ def main() -> None:
         ),
         "contests": upcoming,
         "compare": build_compare(submissions) if has_submissions else {},
+        "unreviewed_contests": build_unreviewed_contests(),
         "language_stats": (
             build_language_stats(submissions) if has_submissions else []
         ),

@@ -108,9 +108,12 @@ cd "$PROB_DIR"
 
 # Open problem page in Firefox (direct URL, no AtCoder top page)
 if command -v firefox &>/dev/null; then
-    firefox "$URL" &>/dev/null &
+    firefox --new-tab "$URL" &>/dev/null &
     disown
 fi
 
-# Open editor
-exec nvim main.py
+# Solve in nvim
+nvim main.py
+
+# Post-solve: test → submit → browser → tag → insight
+cp-finish main.py
