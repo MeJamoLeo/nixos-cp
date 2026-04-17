@@ -6,6 +6,8 @@ Supports watchlist: preloads stats for multiple users, switch via external signa
 
 import json
 import os
+import re
+import shlex
 import subprocess
 import threading
 from ctypes import CDLL
@@ -62,7 +64,7 @@ def _fetch_user(username: str) -> None:
     try:
         subprocess.run(
             ['nix-shell', '--run',
-             f'python fetch_stats.py --user {username} --output {out}'],
+             f'python fetch_stats.py --user {shlex.quote(username)} --output {shlex.quote(str(out))}'],
             cwd=DASHBOARD_DIR,
             capture_output=True, timeout=120,
         )
@@ -127,7 +129,7 @@ def _inject(webview: WebKit.WebView, username: str | None = None) -> None:
     js = (
         'try {'
         f'window.__VP = {{w:{w}, h:{h}}};'
-        f'window.__CP_DATA = {data};'
+        f'window.__CP_DATA = {json.dumps(json.loads(data))};'
         'hydrate();'
         '} catch(e) {}'
     )
@@ -147,6 +149,11 @@ def _check_switch(webview: WebKit.WebView) -> bool:
         with open(SWITCH_FILE) as f:
             requested = f.read().strip()
         os.remove(SWITCH_FILE)
+        # Validate: only allow watchlist users or 'next'
+        if not re.match(r'^[A-Za-z0-9_-]+$', requested):
+            return True
+        if requested not in _watchlist and requested != 'next':
+            return True
         if requested and requested != _current_user:
             if requested in _user_data:
                 _current_user = requested

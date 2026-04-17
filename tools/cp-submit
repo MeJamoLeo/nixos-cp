@@ -28,6 +28,17 @@ fi
 
 PID=$(echo "$URL" | grep -oP '[^/]+$')
 CONTEST_ID=$(echo "$URL" | grep -oP 'contests/\K[^/]+')
+
+# Validate URL domain and IDs
+if [[ ! "$URL" =~ ^https://atcoder\.jp/ ]]; then
+    echo "Error: URL must be on atcoder.jp" >&2
+    exit 1
+fi
+if [[ ! "$CONTEST_ID" =~ ^[a-z0-9_-]+$ ]] || [[ ! "$PID" =~ ^[a-z0-9_]+$ ]]; then
+    echo "Error: invalid contest/problem ID" >&2
+    exit 1
+fi
+
 SUBMIT_URL="https://atcoder.jp/contests/$CONTEST_ID/submit"
 
 # --- Detect contest mode ---
@@ -65,7 +76,9 @@ if [[ "$IN_CONTEST" == "yes" ]]; then
     fi
 
     UA="Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0"
-    TMPJAR="/tmp/cp-submit-cookies.txt"
+    TMPJAR=$(mktemp)
+    TMPHTML=$(mktemp)
+    trap 'rm -f "$TMPJAR" "$TMPHTML"' EXIT
 
     echo "Fetching CSRF token..."
     SUBMIT_PAGE=$(curl -s -A "$UA" -b "REVEL_SESSION=$SESSION" -c "$TMPJAR" "$SUBMIT_URL")
@@ -91,7 +104,7 @@ if [[ "$IN_CONTEST" == "yes" ]]; then
         echo "Submitting..."
 
         SOURCE=$(cat "$SOLUTION")
-        RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/cp-submit-response.html \
+        RESPONSE=$(curl -s -w "%{http_code}" -o $TMPHTML \
             -A "$UA" \
             -b "$TMPJAR" \
             -H "Referer: $SUBMIT_URL" \
@@ -101,7 +114,7 @@ if [[ "$IN_CONTEST" == "yes" ]]; then
             --data-urlencode "csrf_token=$CSRF" \
             "$SUBMIT_URL")
 
-        if [[ "$RESPONSE" == "302" ]] || ! grep -q 'alert-danger' /tmp/cp-submit-response.html 2>/dev/null; then
+        if [[ "$RESPONSE" == "302" ]] || ! grep -q 'alert-danger' $TMPHTML 2>/dev/null; then
             echo "Submitted!"
             SUBMISSIONS_URL="https://atcoder.jp/contests/$CONTEST_ID/submissions/me"
             if command -v firefox &>/dev/null; then

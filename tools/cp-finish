@@ -40,14 +40,15 @@ PID=$(echo "$URL" | grep -oP '[^/]+$')
 # --- Step 1: Local test ---
 echo ""
 echo "=== Local test ==="
-case "$SOLUTION" in
-    *.py)  CMD="python3 $SOLUTION" ;;
+BASENAME=$(basename "$SOLUTION")
+case "$BASENAME" in
+    *.py)  CMD="python3 ./$BASENAME" ;;
     *.cpp)
         echo "Compiling..."
-        g++ -std=c++20 -O2 -Wall -o /tmp/cp_sol "$SOLUTION"
+        g++ -std=c++20 -O2 -Wall -o /tmp/cp_sol "./$BASENAME"
         CMD="/tmp/cp_sol"
         ;;
-    *)     CMD="python3 $SOLUTION" ;;
+    *)     CMD="python3 ./$BASENAME" ;;
 esac
 
 if ! oj test -c "$CMD"; then

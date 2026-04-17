@@ -20,7 +20,14 @@ if [[ -z "$SESSION" ]]; then
     exit 1
 fi
 
-# Write LWP (Set-Cookie3) format — required by oj
+# Validate session token (alphanumeric + url-encoded chars)
+if ! printf '%s' "$SESSION" | grep -qE '^[A-Za-z0-9%+_=.:-]+$'; then
+    echo "Error: invalid session format" >&2
+    exit 1
+fi
+
+# Write LWP (Set-Cookie3) format — required by oj (mode 600)
+install -m 600 /dev/null "$COOKIE_FILE"
 cat > "$COOKIE_FILE" << EOF
 #LWP-Cookies-2.0
 Set-Cookie3: REVEL_SESSION="$SESSION"; path="/"; domain=".atcoder.jp"; path_spec; discard; version=0
