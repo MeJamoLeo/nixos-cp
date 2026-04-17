@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# cp-login — AtCoder login via browser cookie paste
+set -euo pipefail
+
+COOKIE_DIR="$HOME/.local/share/online-judge-tools"
+COOKIE_FILE="$COOKIE_DIR/cookie.jar"
+mkdir -p "$COOKIE_DIR"
+
+echo "=== AtCoder Login ==="
+echo ""
+echo "1. Firefoxで https://atcoder.jp にログイン"
+echo "2. F12 → Storage → Cookies → atcoder.jp"
+echo "3. REVEL_SESSION の値をコピー"
+echo ""
+echo -n "REVEL_SESSION= "
+read -r SESSION
+
+if [[ -z "$SESSION" ]]; then
+    echo "Error: empty session" >&2
+    exit 1
+fi
+
+# Write LWP (Set-Cookie3) format — required by oj
+cat > "$COOKIE_FILE" << EOF
+#LWP-Cookies-2.0
+Set-Cookie3: REVEL_SESSION="$SESSION"; path="/"; domain=".atcoder.jp"; path_spec; discard; version=0
+EOF
+
+echo ""
+echo "Cookie saved: $COOKIE_FILE"
+echo "Testing..."
+
+# Verify by checking if we can access a logged-in page
+if oj login --check https://atcoder.jp 2>/dev/null; then
+    echo "Login OK!"
+else
+    echo "Login check failed. Cookie may be invalid."
+fi

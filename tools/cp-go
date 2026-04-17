@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+# cp-go — one command to start practicing. No browsing, no distractions.
+# Priority: WA Queue → Skill Tree benchmarks → Random by rating
+set -euo pipefail
+
+CP_DIR="$HOME/cp"
+CACHE_DIR="$HOME/.cache/cp-dashboard"
+STATS_FILE="$CACHE_DIR/stats_MeJamoLeo.json"
+
+# Fallback to old path
+if [[ ! -f "$STATS_FILE" ]]; then
+    STATS_FILE="$CACHE_DIR/stats.json"
+fi
+
+if [[ ! -f "$STATS_FILE" ]]; then
+    echo "Error: stats not found. Run fetch_stats.py first." >&2
+    exit 1
+fi
+
+# --- Extract problem from stats.json ---
+PROBLEM=$(python3 << 'PYEOF'
+import json, random, sys, os
+
+stats_paths = [
+    os.path.expanduser("~/.cache/cp-dashboard/stats_MeJamoLeo.json"),
+    os.path.expanduser("~/.cache/cp-dashboard/stats.json"),
+]
+data = None
+for p in stats_paths:
+    if os.path.exists(p):
+        with open(p) as f:
+            data = json.load(f)
+        break
+
+if not data:
+    print("ERROR:no stats", file=sys.stderr)
+    sys.exit(1)
+
+# Priority 1: WA Queue (already filtered by rating+100 and 1 year)
+wa = data.get("wa_queue", [])
+if wa:
+    pick = wa[0]  # highest WA count first
+    pid = pick["problem_id"]
+    # Guess contest ID from problem ID (e.g., abc453_d -> abc453)
+    parts = pid.rsplit("_", 1)
+    contest = parts[0] if len(parts) == 2 else pid
+    problem = parts[1] if len(parts) == 2 else "a"
+    print(f"WA|{contest}|{problem}|{pid}|復習: WA×{pick['wa_count']} {pick.get('tag','')} diff{pick.get('difficulty','?')}")
+    sys.exit(0)
+
+# Priority 2: Skill tree unfinished benchmarks
+sg = data.get("skill_graph", {})
+nodes = sg.get("nodes", [])
+for node in nodes:
+    benchmarks = node.get("benchmarks", [])
+    for bm in benchmarks:
+        if not bm["ac"]:
+            pid = bm["id"]
+            parts = pid.rsplit("_", 1)
+            contest = parts[0] if len(parts) == 2 else pid
+            problem = parts[1] if len(parts) == 2 else "a"
+            skill = node.get("label", "")
+            print(f"SKILL|{contest}|{problem}|{pid}|スキル: {skill} ベンチマーク")
+            sys.exit(0)
+
+# Priority 3: Random problem at rating+0~200
+# Use difficulty data from points to find unsolved problems
+rating = data.get("difficulty_log", {}).get("current_rating", 0)
+print(f"NONE|||||おすすめ問題なし (rating={rating})")
+PYEOF
+)
+
+# --- Parse result ---
+IFS='|' read -r TYPE CONTEST PROBLEM PID MESSAGE <<< "$PROBLEM"
+
+if [[ "$TYPE" == "NONE" ]]; then
+    echo "$MESSAGE"
+    echo "AtCoder Problemsで問題を探してください"
+    echo "https://kenkoooo.com/atcoder/#/table/"
+    exit 0
+fi
+
+echo "=== cp-go ==="
+echo "$MESSAGE"
+echo ""
+
+# --- Setup directory ---
+CONTEST_DIR="$CP_DIR/contests/$CONTEST"
+PROB_DIR="$CONTEST_DIR/$PROBLEM"
+URL="https://atcoder.jp/contests/$CONTEST/tasks/$PID"
+
+if [[ ! -d "$PROB_DIR" ]]; then
+    mkdir -p "$PROB_DIR"
+    echo "$URL" > "$PROB_DIR/.problem_url"
+    echo "Downloading test cases..."
+    (cd "$PROB_DIR" && oj download "$URL" 2>/dev/null) || echo "(download failed)"
+    touch "$PROB_DIR/main.py"
+fi
+
+echo ""
+echo "Problem: $PID"
+echo "URL:     $URL"
+echo "Dir:     $PROB_DIR"
+echo ""
+
+# --- Open browser + editor ---
+cd "$PROB_DIR"
+
+# Open problem page in Firefox (direct URL, no AtCoder top page)
+if command -v firefox &>/dev/null; then
+    firefox "$URL" &>/dev/null &
+    disown
+fi
+
+# Open editor
+exec nvim main.py
