@@ -56,8 +56,12 @@ if ! oj test -c "$CMD"; then
     echo "Test FAILED. Submit anyway? (y/N): "
     read -r CONFIRM
     if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
-        echo "Aborted. Fix and try again."
-        exit 1
+        echo "Skipped submission."
+        # Record as SKIP in SRS
+        if command -v cp-srs &>/dev/null; then
+            cp-srs record "$PID" "SKIP" 2>/dev/null || true
+        fi
+        exit 0
     fi
 fi
 
@@ -75,9 +79,15 @@ fi
 
 # --- Step 4: Wait for user to check result ---
 echo ""
-echo -n "Result? (AC/WA/TLE/RE): "
+echo -n "Result? (AC/WA/TLE/RE/SKIP): "
 read -r RESULT
 RESULT="${RESULT:-AC}"
+RESULT=$(echo "$RESULT" | tr '[:lower:]' '[:upper:]')
+
+# SKIP = gave up without submitting
+if [[ "$RESULT" == "SKIP" || "$RESULT" == "S" || "$RESULT" == "G" ]]; then
+    RESULT="SKIP"
+fi
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M')
 
 # --- Step 5: Tag selection ---
