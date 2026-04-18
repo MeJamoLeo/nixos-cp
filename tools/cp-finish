@@ -99,7 +99,7 @@ fi
 RESULT="SKIP"
 if [[ -z "$SKIPPED" ]]; then
     echo ""
-    echo -n "Result? (AC/WA/TLE/RE) [AC]: "
+    echo -n "Result? (AC/EAC/WA/TLE/RE) [AC]: "
     read -r RESULT
     RESULT="${RESULT:-AC}"
     RESULT=$(echo "$RESULT" | tr '[:lower:]' '[:upper:]')
@@ -117,7 +117,7 @@ if [[ "$WRITE_INSIGHT" != "n" && "$WRITE_INSIGHT" != "N" ]]; then
         "素数/約数" "計算量" "Union-Find" "優先度Queue" "最短路"
         "セグ木/BIT" "bitDP" "MST" "座標圧縮" "mod逆元" "imos法"
         "桁DP" "木DP" "LCA" "強連結成分" "遅延セグ木" "文字列Hash"
-        "わからない"
+        "解説AC" "わからない"
     )
 
     # Auto-suggest tag from problem source
