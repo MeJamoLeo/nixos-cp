@@ -87,8 +87,10 @@ else:
             PROB_DIR="$CP_DIR/contests/$PARTS_C/$PARTS_P"
             if [[ -d "$PROB_DIR" ]]; then
                 cd "$PROB_DIR"
-                nvim main.py
-                cp-finish main.py || true
+                RESUME_SOL="main.py"
+                [[ -f main.cpp ]] && RESUME_SOL="main.cpp"
+                nvim "$RESUME_SOL"
+                cp-finish "$RESUME_SOL" || true
                 SESSION_COUNT=1
                 SESSION_LOG+=("$PREV  (resumed)")
                 SKIP_PIDS+=("$PREV")
@@ -221,14 +223,24 @@ while true; do
         mkdir -p "$PROB_DIR"
         echo "$URL" > "$PROB_DIR/.problem_url"
         (cd "$PROB_DIR" && oj download "$URL" 2>/dev/null) || true
-        touch "$PROB_DIR/main.py"
     fi
 
+    # Detect solution file (main.py or main.cpp)
+    SOL_FILE=""
+    for f in main.py main.cpp; do
+        if [[ -f "$PROB_DIR/$f" ]]; then
+            SOL_FILE="$f"
+            break
+        fi
+    done
+    SOL_FILE="${SOL_FILE:-main.py}"
+    [[ ! -f "$PROB_DIR/$SOL_FILE" ]] && touch "$PROB_DIR/$SOL_FILE"
+
     # Archive previous solution and start fresh
-    if [[ -s "$PROB_DIR/main.py" ]]; then
-        ARCHIVE="$PROB_DIR/.$(date +%Y%m%d%H%M).main.py"
-        cp "$PROB_DIR/main.py" "$ARCHIVE"
-        > "$PROB_DIR/main.py"
+    if [[ -s "$PROB_DIR/$SOL_FILE" ]]; then
+        ARCHIVE="$PROB_DIR/.$(date +%Y%m%d%H%M).$SOL_FILE"
+        cp "$PROB_DIR/$SOL_FILE" "$ARCHIVE"
+        > "$PROB_DIR/$SOL_FILE"
         echo "  (前回の解答を退避)"
     fi
 
@@ -256,10 +268,10 @@ while true; do
     # Solve
     PROB_START=$(date +%s)
     cd "$PROB_DIR"
-    nvim main.py
+    nvim "$SOL_FILE"
 
     # Post-solve (same flow for warmup and main)
-    cp-finish main.py || echo "  (cp-finish had an error, continuing)"
+    cp-finish "$SOL_FILE" || echo "  (cp-finish had an error, continuing)"
 
     PROB_ELAPSED=$(( $(date +%s) - PROB_START ))
     PROB_MINS=$(( PROB_ELAPSED / 60 ))
