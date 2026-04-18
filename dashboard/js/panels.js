@@ -179,20 +179,32 @@ function renderCompare(d) {
 	return h;
 }
 
-function renderMathInline(text) {
-	if (!text || typeof katex === 'undefined') return escHtml(text || '');
-	// Replace $$...$$ (display) then $...$ (inline)
-	var out = escHtml(text);
-	out = out.replace(/\$\$([^$]+)\$\$/g, function(_, expr) {
-		try { return katex.renderToString(expr, {displayMode: true, throwOnError: false}); }
-		catch(e) { return '$$' + expr + '$$'; }
+function renderMarkdownWithMath(text) {
+	if (!text) return '';
+	// 1. Protect LaTeX from markdown parser
+	var placeholders = [];
+	var src = text;
+	// Display math $$...$$
+	src = src.replace(/\$\$([^$]+)\$\$/g, function(_, expr) {
+		var idx = placeholders.length;
+		try { placeholders.push(katex.renderToString(expr, {displayMode: true, throwOnError: false})); }
+		catch(e) { placeholders.push('$$' + escHtml(expr) + '$$'); }
+		return '%%MATH' + idx + '%%';
 	});
-	out = out.replace(/\$([^$]+)\$/g, function(_, expr) {
-		try { return katex.renderToString(expr, {displayMode: false, throwOnError: false}); }
-		catch(e) { return '$' + expr + '$'; }
+	// Inline math $...$
+	src = src.replace(/\$([^$]+)\$/g, function(_, expr) {
+		var idx = placeholders.length;
+		try { placeholders.push(katex.renderToString(expr, {displayMode: false, throwOnError: false})); }
+		catch(e) { placeholders.push('$' + escHtml(expr) + '$'); }
+		return '%%MATH' + idx + '%%';
 	});
-	out = out.replace(/\n/g, '<br>');
-	return out;
+	// 2. Parse markdown
+	var html = (typeof marked !== 'undefined') ? marked.parse(src) : escHtml(src).replace(/\n/g, '<br>');
+	// 3. Restore LaTeX
+	for (var i = 0; i < placeholders.length; i++) {
+		html = html.replace('%%MATH' + i + '%%', placeholders[i]);
+	}
+	return html;
 }
 
 function renderInsight(d) {
@@ -211,7 +223,7 @@ function renderInsight(d) {
 		h += '<div class="insight-box" style="background:var(--dbg-insight)">'
 			+ '<div style="display:flex;justify-content:space-between;font-size:var(--fs-sm);color:#3a8a5a">'
 			+ '<span>最近の洞察</span><span style="color:#2a6a4a">'+(d.insight.tag||'')+' · diff'+(d.insight.difficulty||'')+'</span></div>'
-			+ '<div class="insight-text">'+renderMathInline(d.insight.text)+'</div></div>';
+			+ '<div class="insight-text">'+renderMarkdownWithMath(d.insight.text)+'</div></div>';
 	}
 	return h;
 }
