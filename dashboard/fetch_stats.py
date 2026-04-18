@@ -1077,6 +1077,61 @@ def build_latest_insight() -> dict | None:
         return None
 
 
+def build_warmup_candidates(
+    submissions: list[dict],
+    difficulties: dict[str, Any],
+    problems_list: list[dict],
+) -> list[dict]:
+    """Find warmup problems: diff >= AC'd 25th percentile, closest first.
+
+    Returns 5 unsolved problems near the user's comfort zone floor.
+    """
+    ac_map = _ac_problems(submissions)
+    ac_set = set(ac_map.keys())
+
+    ac_diffs: list[int] = []
+    for pid in ac_set:
+        diff = difficulties.get(pid, {}).get("difficulty")
+        if diff is not None and diff >= 0:
+            ac_diffs.append(round(diff))
+
+    if len(ac_diffs) < 5:
+        return []
+
+    ac_diffs.sort()
+    idx_25 = len(ac_diffs) // 4
+    threshold = ac_diffs[idx_25]
+
+    problems_map = {p["id"]: p for p in problems_list}
+    candidates: list[dict] = []
+    for pid, info in difficulties.items():
+        if pid in ac_set:
+            continue
+        diff = info.get("difficulty")
+        if diff is None or diff < threshold:
+            continue
+        diff = round(diff)
+        cid = problems_map.get(pid, {}).get("contest_id", "")
+        if not cid:
+            continue
+        candidates.append({
+            "problem_id": pid,
+            "contest_id": cid,
+            "difficulty": diff,
+            "distance": abs(diff - threshold),
+        })
+
+    candidates.sort(key=lambda x: x["distance"])
+    return [
+        {
+            "problem_id": c["problem_id"],
+            "contest_id": c["contest_id"],
+            "difficulty": c["difficulty"],
+        }
+        for c in candidates[:5]
+    ]
+
+
 def build_compare(submissions: list[dict]) -> dict:
     """Build month-over-month AC comparison."""
     ac_map = _ac_problems(submissions)
@@ -1470,6 +1525,11 @@ def main() -> None:
         "contests": upcoming,
         "compare": build_compare(submissions) if has_submissions else {},
         "unreviewed_contests": build_unreviewed_contests(),
+        "warmup_candidates": (
+            build_warmup_candidates(submissions, difficulties, problems_list)
+            if has_submissions
+            else []
+        ),
         "language_stats": (
             build_language_stats(submissions) if has_submissions else []
         ),

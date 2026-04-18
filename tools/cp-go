@@ -124,19 +124,15 @@ def fmt(pid):
     return contest, problem
 
 if mode == "warmup":
-    # Warmup: find an easy unsolved problem (diff = rating-100 to rating)
-    # Use difficulty_log points to find problems the user hasn't solved
-    # For now, pick from skill tree tier 1 benchmarks (easiest)
-    sg = data.get("skill_graph", {})
-    nodes = sg.get("nodes", [])
-    for node in nodes:
-        if node.get("tier", 0) <= 1:
-            for bm in node.get("benchmarks", []):
-                if not bm["ac"] and bm["id"] not in skip:
-                    c, p = fmt(bm["id"])
-                    print(f"WARMUP|{c}|{p}|{bm['id']}|ウォームアップ: {node.get('label','')}")
-                    sys.exit(0)
-    # Fallback: any tier 1 benchmark (even if AC'd, for speed practice)
+    # Warmup: pre-computed candidates from AC'd diff 25th percentile
+    warmups = data.get("warmup_candidates", [])
+    for w in warmups:
+        pid = w["problem_id"]
+        if pid in skip:
+            continue
+        c, p = fmt(pid)
+        print(f"WARMUP|{c}|{p}|{pid}|ウォームアップ: diff{w['difficulty']}")
+        sys.exit(0)
     print(f"NONE|||||ウォームアップ問題なし")
     sys.exit(0)
 
