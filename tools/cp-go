@@ -20,11 +20,19 @@ if [[ -z "$PRIMARY_USER" ]]; then
 fi
 
 STATS_FILE="$CACHE_DIR/stats_${PRIMARY_USER}.json"
+
+# Fetch latest data at session start
+echo "データ取得中..."
+FETCH_SCRIPT="$HOME/nixos-cp/dashboard/fetch_all.sh"
+if [[ -f "$FETCH_SCRIPT" ]]; then
+    nix-shell "$HOME/nixos-cp/dashboard/shell.nix" --run "bash $FETCH_SCRIPT" 2>/dev/null || true
+fi
+
 if [[ ! -f "$STATS_FILE" ]]; then
     STATS_FILE="$CACHE_DIR/stats.json"
 fi
 if [[ ! -f "$STATS_FILE" ]]; then
-    echo "Error: stats not found. Run fetch_stats.py first." >&2
+    echo "Error: stats not found." >&2
     exit 1
 fi
 
