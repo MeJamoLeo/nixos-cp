@@ -23,7 +23,11 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-JST = timezone(timedelta(hours=9))
+# Use system local timezone instead of hardcoded JST
+try:
+    LOCAL_TZ = datetime.now().astimezone().tzinfo
+except Exception:
+    LOCAL_TZ = timezone(timedelta(hours=9))  # fallback to JST
 
 KENKOOOO_BASE = "https://kenkoooo.com/atcoder"
 ATCODER_BASE = "https://atcoder.jp"
@@ -371,11 +375,11 @@ def _rating_band(rating: int) -> tuple[int, int]:
 
 
 def _epoch_to_jst_date(epoch: int) -> str:
-    return datetime.fromtimestamp(epoch, tz=JST).strftime("%Y-%m-%d")
+    return datetime.fromtimestamp(epoch, tz=LOCAL_TZ).strftime("%Y-%m-%d")
 
 
 def _today_jst() -> str:
-    return datetime.now(JST).strftime("%Y-%m-%d")
+    return datetime.now(LOCAL_TZ).strftime("%Y-%m-%d")
 
 
 def _ac_problems(submissions: list[dict]) -> dict[str, dict]:
@@ -442,28 +446,28 @@ def build_hud(
         morning_acs = [
             s for s in today_acs
             if datetime.fromtimestamp(
-                s["epoch_second"], tz=JST
+                s["epoch_second"], tz=LOCAL_TZ
             ).hour >= MORNING_START_HOUR
         ]
         if morning_acs:
             earliest = min(morning_acs, key=lambda s: s["epoch_second"])
             first_ac_today = datetime.fromtimestamp(
-                earliest["epoch_second"], tz=JST
+                earliest["epoch_second"], tz=LOCAL_TZ
             ).strftime("%H:%M")
 
     # Average first AC time (last 30 days, 5時以降のみ)
-    thirty_days_ago = datetime.now(JST) - timedelta(days=30)
+    thirty_days_ago = datetime.now(LOCAL_TZ) - timedelta(days=30)
     by_date: dict[str, list[dict]] = {}
     for s in submissions:
         if s.get("result") != "AC":
             continue
-        dt = datetime.fromtimestamp(s["epoch_second"], tz=JST)
+        dt = datetime.fromtimestamp(s["epoch_second"], tz=LOCAL_TZ)
         if dt >= thirty_days_ago and dt.hour >= MORNING_START_HOUR:
             by_date.setdefault(dt.strftime("%Y-%m-%d"), []).append(s)
     daily_first_minutes: list[int] = []
     for subs in by_date.values():
         earliest = min(subs, key=lambda s: s["epoch_second"])
-        dt = datetime.fromtimestamp(earliest["epoch_second"], tz=JST)
+        dt = datetime.fromtimestamp(earliest["epoch_second"], tz=LOCAL_TZ)
         daily_first_minutes.append(dt.hour * 60 + dt.minute)
     avg_first_ac = ""
     if daily_first_minutes:
@@ -867,7 +871,7 @@ def build_streak_calendar(
             diff = 0
         diff_by_date[d] = max(diff_by_date.get(d, 0), diff)
 
-    today = datetime.now(JST).date()
+    today = datetime.now(LOCAL_TZ).date()
     calendar: list[dict] = []
     for i in range(139, -1, -1):  # 140 days ≈ 20 weeks
         d = today - timedelta(days=i)
@@ -1032,7 +1036,7 @@ def build_unreviewed_contests() -> list[dict]:
 def build_compare(submissions: list[dict]) -> dict:
     """Build month-over-month AC comparison."""
     ac_map = _ac_problems(submissions)
-    now = datetime.now(JST)
+    now = datetime.now(LOCAL_TZ)
     this_month = now.strftime("%Y-%m")
     last_month = (now.replace(day=1) - timedelta(days=1)).strftime("%Y-%m")
 
@@ -1388,7 +1392,7 @@ def main() -> None:
     )
 
     stats: dict[str, Any] = {
-        "generated_at": datetime.now(JST).isoformat(),
+        "generated_at": datetime.now(LOCAL_TZ).isoformat(),
         "user": cfg.username,
         "has_submissions": has_submissions,
         "hud": build_hud(submissions, ratings, streak_days, max_streak),

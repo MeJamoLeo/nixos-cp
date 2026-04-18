@@ -3,14 +3,16 @@ function renderStreakCalendar(d) {
 	const pts=(d.difficulty_log||{}).points||[];
 
 	// Time-scatter: X=日付(10日), Y=時刻(5:00top→4:59bottom), dots=AC
-	const SPAN=10,JST=9*3600;
+	const SPAN=10;
+	// Use local timezone offset instead of hardcoded JST
+	const TZ_OFFSET=-(new Date().getTimezoneOffset())*60; // seconds
 	const nowEp=Math.floor(Date.now()/1000);
 	const startEp=nowEp-SPAN*86400;
 
 	const recent=pts.filter(p=>p.epoch>=startEp);
 
 	const dots=recent.map(p=>{
-		const jst=new Date((p.epoch+JST)*1000);
+		const jst=new Date((p.epoch+TZ_OFFSET)*1000);
 		const h=jst.getHours(),m=jst.getMinutes();
 		const dayBoundary=h<5?-1:0;
 		const jstDate=new Date((p.epoch+JST+dayBoundary*86400)*1000);
@@ -32,7 +34,7 @@ function renderStreakCalendar(d) {
 
 	for(let i=0;i<SPAN;i++){
 		const ep=startEp+(i+1)*86400;
-		const dt=new Date((ep+JST)*1000);
+		const dt=new Date((ep+TZ_OFFSET)*1000);
 		const label=(dt.getMonth()+1)+'/'+dt.getDate();
 		s+='<line x1="'+X(i).toFixed(1)+'" y1="'+yT+'" x2="'+X(i).toFixed(1)+'" y2="'+yB+'" stroke="#0c1c1c" stroke-width="0.5"/>';
 		s+='<text x="'+X(i)+'" y="'+(yB+10)+'" fill="#1a2a2a" font-size="5" text-anchor="middle" font-family="monospace">'+label+'</text>';
