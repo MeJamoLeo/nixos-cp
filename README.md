@@ -12,6 +12,7 @@ A NixOS flake that turns your machine into a competitive programming workstation
 
 - **Dashboard** — always-visible on your Sway desktop background. Rating history, skill tree, streak calendar, contest results. Updates automatically as you solve problems.
 - **CLI tools** — `cp-go` picks a problem, opens your editor and browser. Write, test, submit without leaving the terminal. Insight journal after every submission.
+- **Spaced repetition** — SRS tracks problems you struggled with and brings them back at optimal intervals.
 - **Neovim** — LSP, completion, and in-editor test runner (competitest). Fully declarative via nixvim.
 - **Everything reproducible** — one `nixos-rebuild switch` sets up the entire environment.
 
@@ -20,7 +21,7 @@ A NixOS flake that turns your machine into a competitive programming workstation
 ### Prerequisites
 
 - NixOS with flakes enabled
-- Sway window manager
+- Sway window manager (for full/x1carbon tiers)
 
 ### 1. Clone and configure
 
@@ -35,13 +36,25 @@ Edit `dashboard/watchlist.json` with your AtCoder username:
 ["YourUsername"]
 ```
 
-### 2. Build
+### 2. Choose your tier and build
 
 ```bash
-sudo nixos-rebuild switch --flake .
+# CLI tools + dashboard only (bring your own editor/browser)
+sudo nixos-rebuild switch --flake .#minimal
+
+# Full GUI: minimal + Neovim + Firefox + Sway + fcitx5
+sudo nixos-rebuild switch --flake .#full
+
+# X1 Carbon: full + hardware config + fingerprint + TLP
+sudo nixos-rebuild switch --flake .#x1carbon
 ```
 
-This installs everything: dashboard, neovim, Firefox, CLI tools, fonts, input method.
+For `minimal` and `full`, you need to provide your own `hardware-configuration.nix`:
+
+```bash
+sudo nixos-generate-config --show-hardware-config > hosts/minimal/hardware-configuration.nix
+# Then add it to hosts/minimal/configuration.nix imports
+```
 
 ### 3. Login to AtCoder
 
@@ -55,9 +68,18 @@ Open Firefox, log into AtCoder, copy `REVEL_SESSION` cookie from DevTools, paste
 
 ```bash
 cp-go
+# or press Super+G (full/x1carbon only)
 ```
 
 That's it. A problem is selected, browser opens the problem page, nvim opens with your solution file.
+
+## Configuration Tiers
+
+| Tier | What's included |
+|------|----------------|
+| **minimal** | Dashboard + CLI tools (cp-go, cp-submit, etc). No editor, no browser, no WM. |
+| **full** | minimal + Neovim (nixvim) + Firefox + Sway + fcitx5 + wofi + fonts |
+| **x1carbon** | full + X1 Carbon hardware config + fingerprint auth + TLP power management |
 
 ## Dashboard Panels
 
@@ -67,6 +89,7 @@ That's it. A problem is selected, browser opens the problem page, nvim opens wit
 | **Difficulty Log** | Weekly practice volume (bars) + rating history (line) + 3-month projection |
 | **Skill Graph** | Radial skill tree based on benchmark problem ACs (Typical 90, EDPC, ABC) |
 | **Streak** | GitHub-style 20-week calendar + 10-day time scatter |
+| **Insight** | Latest insight note from your journal |
 | **Speed** | Lap times per contest (A/B/C/D split) |
 | **Compare** | Monthly AC comparison + recent contest perf/delta |
 | **Language** | AC count by programming language |
@@ -79,10 +102,21 @@ Data updates every 2 minutes from AtCoder/kenkoooo APIs.
 cp-go              # Auto-select problem → browser + nvim → test → submit → insight
 cp-new abc453      # Set up contest directory with all problems
 cp-submit main.py  # Copy to clipboard + open submit page (or auto-submit during contests)
+cp-finish main.py  # Test → submit → result → insight (called by cp-go)
 cp-review abc453   # Post-contest review: tag + insight per problem
+cp-srs             # Spaced repetition: review schedule, record results
 cp-demo            # Try the full workflow with a fixed easy problem
 cp-login           # Set AtCoder session cookie
 ```
+
+## Practice Workflow
+
+`cp-go` runs a continuous practice session:
+
+1. **Warmup** — an easy problem from your AC'd difficulty range (1st problem, then every 3rd)
+2. **Main** — selected by priority: SRS review due → WA retry → skill tree benchmark
+3. **After solving** — test locally → submit → record result → write insight (optional)
+4. **SRS** — problems you skip or fail are scheduled for review (1→3→7→14→30 day intervals)
 
 ## Neovim Keybindings
 
@@ -110,18 +144,24 @@ Super+`
 ## Project Structure
 
 ```
-├── flake.nix                   # NixOS flake entry point
-├── hosts/x1carbon/             # Machine-specific NixOS config
+├── flake.nix                   # NixOS flake (minimal/full/x1carbon)
+├── profiles/
+│   ├── minimal/                # Base: CLI tools + dashboard
+│   └── full/                   # GUI: Sway + Neovim + Firefox + fcitx5
+├── hosts/
+│   ├── minimal/                # Host wrapper for generic minimal deploy
+│   ├── full/                   # Host wrapper for generic full deploy
+│   └── x1carbon/               # X1 Carbon specific (hardware, fingerprint, TLP)
 ├── modules/
 │   ├── sway.nix                # Sway WM config (keybindings, input, startup)
 │   └── nvim/                   # Neovim config (nixvim)
+├── home/                       # Shared home-manager modules (shell, git, starship)
 ├── dashboard/
 │   ├── dashboard.py            # GTK4 + WebKit6 renderer
 │   ├── fetch_stats.py          # AtCoder/kenkoooo API data fetcher
 │   ├── dashboard.html          # CSS layout
 │   └── js/                     # Modular JS (difficulty-log, streak, skill-graph, etc.)
-├── tools/                      # CLI tools (cp-go, cp-submit, cp-new, etc.)
-└── docs/                       # Workflow diagrams (mermaid)
+└── tools/                      # CLI tools (cp-go, cp-submit, cp-new, etc.)
 ```
 
 ## Customization

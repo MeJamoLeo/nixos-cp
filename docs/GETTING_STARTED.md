@@ -3,7 +3,6 @@
 ## 前提条件
 
 - NixOS（flakes有効）
-- Sway WM
 - AtCoderアカウント
 
 ### NixOSのインストール
@@ -36,31 +35,46 @@ echo '["YourAtCoderUsername"]' > dashboard/watchlist.json
 ["YourUsername", "friend1", "friend2"]
 ```
 
-### 3. ハードウェア設定
+### 3. 構成を選ぶ
 
-`hosts/x1carbon/hardware-configuration.nix` は X1 Carbon Nano 固有です。
-自分のマシンの設定に置き換えてください:
+| 構成 | 用途 | 含まれるもの |
+|------|------|-------------|
+| `minimal` | 既存環境に追加 | CLIツール + ダッシュボード |
+| `full` | GUI付きフル環境 | minimal + Neovim + Firefox + Sway + fcitx5 |
+| `x1carbon` | X1 Carbon専用 | full + ハードウェア設定 + 指紋認証 + TLP |
+
+### 4. ハードウェア設定
+
+`minimal` または `full` を使う場合、自分のマシンの設定を生成:
 
 ```bash
-# 自分のマシンのhardware-configurationを生成
-sudo nixos-generate-config --show-hardware-config > hosts/x1carbon/hardware-configuration.nix
+# ハードウェア設定を生成
+sudo nixos-generate-config --show-hardware-config > hosts/minimal/hardware-configuration.nix
+
+# hosts/minimal/configuration.nix (または hosts/full/) の imports に追加
 ```
 
-### 4. ビルド
+`hosts/minimal/configuration.nix` を編集:
+```nix
+{
+  imports = [
+    ../../profiles/minimal/configuration.nix
+    ./hardware-configuration.nix  # この行を追加
+  ];
+  networking.hostName = "my-machine";
+}
+```
+
+### 5. ビルド
 
 ```bash
-sudo nixos-rebuild switch --flake ~/nixos-cp
+# 選んだ構成でビルド
+sudo nixos-rebuild switch --flake ~/nixos-cp#minimal   # CLIのみ
+sudo nixos-rebuild switch --flake ~/nixos-cp#full      # GUI付き
+sudo nixos-rebuild switch --flake ~/nixos-cp#x1carbon  # X1 Carbon
 ```
 
-これで以下がインストールされます:
-- ダッシュボード（Sway背景に自動表示）
-- Neovim（LSP + competitest）
-- Firefox + wofi
-- CLIツール（cp-go, cp-submit等）
-- fcitx5 + mozc（日本語入力）
-- TLP省電力
-
-### 5. AtCoderログイン
+### 6. AtCoderログイン
 
 ```bash
 cp-login
@@ -72,7 +86,7 @@ cp-login
 
 セッションは約6ヶ月有効です。
 
-### 6. 初回データ取得
+### 7. 初回データ取得
 
 ```bash
 cd ~/nixos-cp/dashboard
@@ -87,10 +101,11 @@ nix-shell --run 'bash fetch_all.sh'
 
 ```bash
 cp-go
-# または Super+G
+# または Super+G (full/x1carbon)
 ```
 
 問題が自動選択され、ブラウザとnvimが開きます。
+セッション内の流れ: ウォームアップ → メイン問題 → テスト → 提出 → 振り返り → 次の問題
 
 ### コンテストに参加する
 
@@ -106,7 +121,7 @@ nvim内で:
 - `Space+cr` — テスト実行
 - `Space+cs` — 保存+提出
 
-### キーバインド
+### キーバインド (full/x1carbon)
 
 | キー | 動作 |
 |------|------|

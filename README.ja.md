@@ -10,6 +10,7 @@ NixOS flakeでマシンを競プロワークステーションに変える:
 
 - **ダッシュボード** — Swayのデスクトップ背景に常時表示。レート推移、スキルツリー、ストリーク、コンテスト結果。問題を解くたびに自動更新。
 - **CLIツール** — `cp-go` で問題選択からエディタ・ブラウザの起動まで一発。テスト、提出、振り返りまでターミナルで完結。
+- **忘却曲線復習** — SRSが苦手な問題を記録し、最適なタイミングで再出題する。
 - **Neovim** — LSP、補完、エディタ内テストランナー (competitest)。nixvimで宣言的に管理。
 - **完全再現可能** — `nixos-rebuild switch` 一発で環境構築完了。
 
@@ -18,7 +19,7 @@ NixOS flakeでマシンを競プロワークステーションに変える:
 ### 前提条件
 
 - flakes有効のNixOS
-- Sway WM
+- Sway WM (full/x1carbon構成の場合)
 
 ### 1. クローンと設定
 
@@ -33,13 +34,25 @@ cd nixos-cp
 ["あなたのユーザー名"]
 ```
 
-### 2. ビルド
+### 2. 構成を選んでビルド
 
 ```bash
-sudo nixos-rebuild switch --flake .
+# CLIツール + ダッシュボードのみ（エディタ・ブラウザは自前）
+sudo nixos-rebuild switch --flake .#minimal
+
+# フルGUI: minimal + Neovim + Firefox + Sway + fcitx5
+sudo nixos-rebuild switch --flake .#full
+
+# X1 Carbon: full + ハードウェア設定 + 指紋認証 + TLP
+sudo nixos-rebuild switch --flake .#x1carbon
 ```
 
-ダッシュボード、neovim、Firefox、CLIツール、フォント、入力メソッドが全てインストールされる。
+`minimal` と `full` では自分のマシンの `hardware-configuration.nix` が必要:
+
+```bash
+sudo nixos-generate-config --show-hardware-config > hosts/minimal/hardware-configuration.nix
+# hosts/minimal/configuration.nix の imports に追加
+```
 
 ### 3. AtCoderログイン
 
@@ -53,9 +66,18 @@ Firefoxでatcoder.jpにログイン → DevToolsから `REVEL_SESSION` cookieを
 
 ```bash
 cp-go
+# または Super+G (full/x1carbon構成のみ)
 ```
 
 これだけ。問題が自動選択され、ブラウザで問題ページが開き、nvimで解答ファイルが開く。
+
+## 構成ティア
+
+| ティア | 内容 |
+|--------|------|
+| **minimal** | ダッシュボード + CLIツール。エディタ・ブラウザ・WMなし。 |
+| **full** | minimal + Neovim (nixvim) + Firefox + Sway + fcitx5 + wofi + フォント |
+| **x1carbon** | full + X1 Carbonハードウェア設定 + 指紋認証 + TLP省電力 |
 
 ## ダッシュボードパネル
 
@@ -65,6 +87,7 @@ cp-go
 | **Difficulty Log** | 週間練習量(棒) + レート推移(線) + 3ヶ月予測 |
 | **Skill Graph** | ベンチマーク問題ACに基づく放射状スキルツリー (典型90, EDPC, ABC) |
 | **Streak** | GitHub式20週カレンダー + 10日間タイムスキャッター |
+| **Insight** | 直近の振り返りメモ |
 | **Speed** | コンテストごとのラップタイム (A/B/C/D分割) |
 | **Compare** | 月別AC比較 + 直近コンテストのperf/delta |
 | **Language** | 言語別AC数 |
@@ -77,10 +100,21 @@ AtCoder/kenkoooo APIから2分ごとにデータ更新。
 cp-go              # 問題自動選択 → ブラウザ + nvim → テスト → 提出 → insight
 cp-new abc453      # コンテスト全問題のディレクトリ作成 + テストケースDL
 cp-submit main.py  # クリップボードにコピー + 提出ページを開く (コンテスト中は自動提出)
+cp-finish main.py  # テスト → 提出 → 結果記録 → insight (cp-goから呼ばれる)
 cp-review abc453   # コンテスト後の振り返り: タグ + insight
+cp-srs             # 忘却曲線復習: スケジュール確認、結果記録
 cp-demo            # 固定の簡単な問題でフルワークフロー体験
 cp-login           # AtCoderセッションcookie設定
 ```
+
+## 精進ワークフロー
+
+`cp-go` は連続精進セッションを実行:
+
+1. **ウォームアップ** — AC済みdiff分布の低い方から出題 (1問目、以降3問に1回)
+2. **メイン** — 優先度順に選択: SRS復習 → WA再挑戦 → スキルツリーベンチマーク
+3. **解答後** — ローカルテスト → 提出 → 結果記録 → insight記入 (任意)
+4. **SRS** — スキップ・不正解の問題は忘却曲線で復習スケジュール (1→3→7→14→30日)
 
 ## Neovimキーバインド
 
@@ -108,18 +142,24 @@ Super+`
 ## プロジェクト構成
 
 ```
-├── flake.nix                   # NixOS flakeエントリポイント
-├── hosts/x1carbon/             # マシン固有のNixOS設定
+├── flake.nix                   # NixOS flake (minimal/full/x1carbon)
+├── profiles/
+│   ├── minimal/                # ベース: CLIツール + ダッシュボード
+│   └── full/                   # GUI: Sway + Neovim + Firefox + fcitx5
+├── hosts/
+│   ├── minimal/                # 汎用minimalデプロイ用ホストラッパー
+│   ├── full/                   # 汎用fullデプロイ用ホストラッパー
+│   └── x1carbon/               # X1 Carbon固有 (ハードウェア, 指紋認証, TLP)
 ├── modules/
 │   ├── sway.nix                # Sway WM設定 (キーバインド、入力、起動)
 │   └── nvim/                   # Neovim設定 (nixvim)
+├── home/                       # 共有home-managerモジュール (shell, git, starship)
 ├── dashboard/
 │   ├── dashboard.py            # GTK4 + WebKit6 レンダラー
 │   ├── fetch_stats.py          # AtCoder/kenkoooo APIデータ取得
 │   ├── dashboard.html          # CSSレイアウト
 │   └── js/                     # モジュラーJS (difficulty-log, streak, skill-graph等)
-├── tools/                      # CLIツール (cp-go, cp-submit, cp-new等)
-└── docs/                       # ワークフロー図 (mermaid)
+└── tools/                      # CLIツール (cp-go, cp-submit, cp-new等)
 ```
 
 ## カスタマイズ
