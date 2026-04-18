@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# cp-finish — post-solve flow: test → submit → browser → tag → insight
-# Called after nvim closes. Run from the problem directory.
+# cp-finish — post-solve flow: test → submit → tag + insight (during judge) → result
+# Reordered: tag+insight happen WHILE the judge is running, result is asked LAST
 set -euo pipefail
+
+export PATH="$PATH:$HOME/nixos-cp/tools"
 
 CP_DIR="$HOME/cp"
 INSIGHTS_DIR="$CP_DIR/insights"
@@ -11,7 +13,6 @@ SOLUTION="${1:-main.py}"
 SOLUTION=$(realpath "$SOLUTION" 2>/dev/null || echo "$SOLUTION")
 PROB_DIR=$(dirname "$SOLUTION")
 
-# Auto-detect contest mode from solution file's directory
 SKIP_INSIGHT=""
 if [[ -f "$PROB_DIR/../.contest_mode" ]] || [[ -f "$PROB_DIR/../../.contest_mode" ]]; then
     SKIP_INSIGHT="1"
@@ -22,7 +23,6 @@ if [[ ! -f "$SOLUTION" ]]; then
     exit 1
 fi
 
-# Read problem URL from solution file's directory
 if [[ -f "$PROB_DIR/.problem_url" ]]; then
     URL=$(cat "$PROB_DIR/.problem_url")
 elif [[ -f ".problem_url" ]]; then
@@ -32,10 +32,9 @@ else
     read -r URL
 fi
 
-# cd to problem directory for oj test
 cd "$PROB_DIR"
-
 PID=$(echo "$URL" | grep -oP '[^/]+$')
+TIMESTAMP=$(date '+%Y-%m-%d %H:%M')
 
 # --- Step 1: Local test ---
 echo ""
@@ -57,38 +56,24 @@ if ! oj test -c "$CMD"; then
     echo -n "Test FAILED. Submit anyway? (y/N): "
     read -r CONFIRM
     if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
-        echo "Skipped submission."
-        RESULT="SKIP"
         SKIPPED="1"
     fi
 fi
 
-TIMESTAMP=$(date '+%Y-%m-%d %H:%M')
-
+# --- Step 2: Submit (judge starts running) ---
 if [[ -z "$SKIPPED" ]]; then
-    # --- Submit ---
     echo ""
     cp-submit "$SOLUTION"
-
-    # --- Contest mode: skip insight ---
-    if [[ -n "$SKIP_INSIGHT" ]]; then
-        echo ""
-        echo "Contest mode: insight skipped. Run 'cp-review' after contest."
-        exit 0
-    fi
-
-    # --- Wait for result ---
-    echo ""
-    echo -n "Result? (AC/WA/TLE/RE/SKIP): "
-    read -r RESULT
-    RESULT="${RESULT:-AC}"
-    RESULT=$(echo "$RESULT" | tr '[:lower:]' '[:upper:]')
-    if [[ "$RESULT" == "S" || "$RESULT" == "G" ]]; then
-        RESULT="SKIP"
-    fi
 fi
 
-# --- Step 5: Tag selection ---
+# --- Contest mode: skip everything else ---
+if [[ -n "$SKIP_INSIGHT" ]]; then
+    echo ""
+    echo "Contest mode: insight skipped. Run 'cp-review' after contest."
+    exit 0
+fi
+
+# --- Step 3: Tag + Insight (WHILE judge is running — no waiting) ---
 TAGS=(
     "全探索" "ソート" "貪欲法" "文字列" "Map/Set" "GCD/LCM" "実装力"
     "累積和" "二分探索" "基礎DP" "BFS/DFS" "尺取り法" "ビット演算"
@@ -98,28 +83,43 @@ TAGS=(
     "わからない"
 )
 
-echo "Select tag:"
+echo ""
+echo "Select tag (judge is running, use this time):"
 SELECTED_TAG=$(printf '%s\n' "${TAGS[@]}" | fzf --prompt="tag> " --height=15)
 
-# --- Step 6: Insight ---
 INSIGHT_FILE="$INSIGHTS_DIR/${PID}.md"
-
 if [[ ! -f "$INSIGHT_FILE" ]]; then
     echo "# $PID" > "$INSIGHT_FILE"
     echo "" >> "$INSIGHT_FILE"
 fi
 
+# Write header (result filled in after)
+RESULT_PLACEHOLDER="PENDING"
 cat >> "$INSIGHT_FILE" << EOF
 
-## $RESULT $TIMESTAMP
+## $RESULT_PLACEHOLDER $TIMESTAMP
 tags: [$SELECTED_TAG]
 
 EOF
 
 CURSOR_LINE=$(wc -l < "$INSIGHT_FILE")
-
-echo "Writing insight... (Enter to skip)"
+echo "Writing insight... (:q! to skip)"
 nvim "+$CURSOR_LINE" "$INSIGHT_FILE"
+
+# --- Step 4: Result (LAST — judge should be done by now) ---
+RESULT="SKIP"
+if [[ -z "$SKIPPED" ]]; then
+    echo ""
+    echo -n "Result? (AC/WA/TLE/RE) [AC]: "
+    read -r RESULT
+    RESULT="${RESULT:-AC}"
+    RESULT=$(echo "$RESULT" | tr '[:lower:]' '[:upper:]')
+fi
+
+# Update insight file with actual result
+if command -v sed &>/dev/null; then
+    sed -i "s/## $RESULT_PLACEHOLDER $TIMESTAMP/## $RESULT $TIMESTAMP/" "$INSIGHT_FILE" 2>/dev/null || true
+fi
 
 echo "Insight saved: $INSIGHT_FILE"
 
@@ -128,7 +128,7 @@ if command -v cp-srs &>/dev/null; then
     cp-srs record "$PID" "$RESULT" 2>/dev/null || true
 fi
 
-# Trigger immediate dashboard refresh
+# Trigger dashboard refresh
 FETCH_SCRIPT="$HOME/nixos-cp/dashboard/fetch_all.sh"
 if [[ -f "$FETCH_SCRIPT" ]]; then
     bash "$FETCH_SCRIPT" &>/dev/null &
