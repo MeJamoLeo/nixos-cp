@@ -124,7 +124,7 @@ if [[ "$WRITE_INSIGHT" != "n" && "$WRITE_INSIGHT" != "N" ]]; then
     FZF_QUERY=""
     if [[ -f "$PROB_DIR/.suggested_tag" ]]; then
         SUGGESTED=$(cat "$PROB_DIR/.suggested_tag")
-        FZF_QUERY=$(echo "$SUGGESTED" | grep -oP 'スキル: \K.*|復習.*\s\K[^\s]+$' | head -1)
+        FZF_QUERY=$(echo "$SUGGESTED" | grep -oP 'スキル: \K.*|ウォームアップ: \K(?!diff)\S+' | head -1 || true)
     fi
 
     echo "Select tag:"
