@@ -66,11 +66,18 @@
       };
     };
 
+    # Snippets
+    plugins.luasnip = {
+      enable = true;
+    };
+
     # Completion
     plugins.cmp = {
       enable = true;
       settings = {
+        snippet.expand = ''function(args) require("luasnip").lsp_expand(args.body) end'';
         sources = [
+          { name = "luasnip"; }
           { name = "nvim_lsp"; }
           { name = "buffer"; }
           { name = "path"; }
@@ -80,6 +87,16 @@
           "<C-p>" = "cmp.mapping.select_prev_item()";
           "<CR>" = "cmp.mapping.confirm({ select = true })";
           "<C-Space>" = "cmp.mapping.complete()";
+          "<Tab>" = ''cmp.mapping(function(fallback)
+            local luasnip = require("luasnip")
+            if luasnip.expand_or_jumpable() then luasnip.expand_or_jump()
+            else fallback() end
+          end, {"i", "s"})'';
+          "<S-Tab>" = ''cmp.mapping(function(fallback)
+            local luasnip = require("luasnip")
+            if luasnip.jumpable(-1) then luasnip.jump(-1)
+            else fallback() end
+          end, {"i", "s"})'';
         };
       };
     };
@@ -144,6 +161,38 @@
       { mode = "n"; key = "<leader>w"; action = "<cmd>w<cr>"; options.desc = "Save"; }
       { mode = "n"; key = "<leader>q"; action = "<cmd>q<cr>"; options.desc = "Quit"; }
     ];
+
+    # LaTeX snippets for markdown insight files
+    extraConfigLua = ''
+      local ls = require("luasnip")
+      local s = ls.snippet
+      local t = ls.text_node
+      local i = ls.insert_node
+
+      ls.add_snippets("markdown", {
+        -- Inline math
+        s("$", { t("$"), i(1), t("$") }),
+        -- Display math
+        s("$$", { t("$$"), i(1), t("$$") }),
+        -- Common math
+        s("On", { t("$O(n)$") }),
+        s("Onlogn", { t("$O(n \\log n)$") }),
+        s("On2", { t("$O(n^2)$") }),
+        s("Ologn", { t("$O(\\log n)$") }),
+        s("sum", { t("$\\sum_{"), i(1, "i=1"), t("}^{"), i(2, "n"), t("} "), i(3), t("$") }),
+        s("frac", { t("$\\frac{"), i(1), t("}{"), i(2), t("}$") }),
+        s("sqrt", { t("$\\sqrt{"), i(1), t("}$") }),
+        s("leq", { t("$\\leq$") }),
+        s("geq", { t("$\\geq$") }),
+        s("neq", { t("$\\neq$") }),
+        s("inf", { t("$\\infty$") }),
+        s("floor", { t("$\\lfloor "), i(1), t(" \\rfloor$") }),
+        s("ceil", { t("$\\lceil "), i(1), t(" \\rceil$") }),
+        s("mod", { t("$"), i(1), t(" \\bmod "), i(2), t("$") }),
+        s("arr", { t("$a_"), i(1, "i"), t("$") }),
+        s("dp", { t("$dp["), i(1), t("]"), t("$") }),
+      })
+    '';
 
     # C++ / Python tooling
     extraPackages = with pkgs; [
