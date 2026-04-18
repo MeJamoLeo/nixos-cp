@@ -95,47 +95,7 @@ if [[ -n "$LIGHT_MODE" ]]; then
     exit 0
 fi
 
-# --- Tag + Insight (during judge wait) ---
-TAGS=(
-    "全探索" "ソート" "貪欲法" "文字列" "Map/Set" "GCD/LCM" "実装力"
-    "累積和" "二分探索" "基礎DP" "BFS/DFS" "尺取り法" "ビット演算"
-    "素数/約数" "計算量" "Union-Find" "優先度Queue" "最短路"
-    "セグ木/BIT" "bitDP" "MST" "座標圧縮" "mod逆元" "imos法"
-    "桁DP" "木DP" "LCA" "強連結成分" "遅延セグ木" "文字列Hash"
-    "わからない"
-)
-
-# Auto-suggest tag from problem source (cp-go writes .suggested_tag)
-FZF_QUERY=""
-if [[ -f "$PROB_DIR/.suggested_tag" ]]; then
-    SUGGESTED=$(cat "$PROB_DIR/.suggested_tag")
-    FZF_QUERY=$(echo "$SUGGESTED" | grep -oP 'スキル: \K.*|復習.*\s\K[^\s]+$' | head -1)
-fi
-
-echo ""
-echo "Select tag (judge is running, Enter to confirm):"
-SELECTED_TAG=$(printf '%s\n' "${TAGS[@]}" | fzf --prompt="tag> " --height=15 --query="$FZF_QUERY")
-
-INSIGHT_FILE="$INSIGHTS_DIR/${PID}.md"
-if [[ ! -f "$INSIGHT_FILE" ]]; then
-    echo "# $PID" > "$INSIGHT_FILE"
-    echo "" >> "$INSIGHT_FILE"
-fi
-
-# Write header (result filled in after)
-RESULT_PLACEHOLDER="PENDING"
-cat >> "$INSIGHT_FILE" << EOF
-
-## $RESULT_PLACEHOLDER $TIMESTAMP
-tags: [$SELECTED_TAG]
-
-EOF
-
-CURSOR_LINE=$(wc -l < "$INSIGHT_FILE")
-echo "Writing insight... (:q! to skip)"
-nvim "+$CURSOR_LINE" "$INSIGHT_FILE"
-
-# --- Step 4: Result (LAST — judge should be done by now) ---
+# --- Step 3: Result ---
 RESULT="SKIP"
 if [[ -z "$SKIPPED" ]]; then
     echo ""
@@ -145,12 +105,48 @@ if [[ -z "$SKIPPED" ]]; then
     RESULT=$(echo "$RESULT" | tr '[:lower:]' '[:upper:]')
 fi
 
-# Update insight file with actual result
-if command -v sed &>/dev/null; then
-    sed -i "s/## $RESULT_PLACEHOLDER $TIMESTAMP/## $RESULT $TIMESTAMP/" "$INSIGHT_FILE" 2>/dev/null || true
-fi
+# --- Step 4: Tag + Insight (user decides) ---
+echo ""
+echo -n "Insight書く？ (y/N): "
+read -r WRITE_INSIGHT
 
-echo "Insight saved: $INSIGHT_FILE"
+if [[ "$WRITE_INSIGHT" == "y" || "$WRITE_INSIGHT" == "Y" ]]; then
+    TAGS=(
+        "全探索" "ソート" "貪欲法" "文字列" "Map/Set" "GCD/LCM" "実装力"
+        "累積和" "二分探索" "基礎DP" "BFS/DFS" "尺取り法" "ビット演算"
+        "素数/約数" "計算量" "Union-Find" "優先度Queue" "最短路"
+        "セグ木/BIT" "bitDP" "MST" "座標圧縮" "mod逆元" "imos法"
+        "桁DP" "木DP" "LCA" "強連結成分" "遅延セグ木" "文字列Hash"
+        "わからない"
+    )
+
+    # Auto-suggest tag from problem source
+    FZF_QUERY=""
+    if [[ -f "$PROB_DIR/.suggested_tag" ]]; then
+        SUGGESTED=$(cat "$PROB_DIR/.suggested_tag")
+        FZF_QUERY=$(echo "$SUGGESTED" | grep -oP 'スキル: \K.*|復習.*\s\K[^\s]+$' | head -1)
+    fi
+
+    echo "Select tag:"
+    SELECTED_TAG=$(printf '%s\n' "${TAGS[@]}" | fzf --prompt="tag> " --height=15 --query="$FZF_QUERY")
+
+    INSIGHT_FILE="$INSIGHTS_DIR/${PID}.md"
+    if [[ ! -f "$INSIGHT_FILE" ]]; then
+        echo "# $PID" > "$INSIGHT_FILE"
+        echo "" >> "$INSIGHT_FILE"
+    fi
+
+    cat >> "$INSIGHT_FILE" << EOF
+
+## $RESULT $TIMESTAMP
+tags: [$SELECTED_TAG]
+
+EOF
+
+    CURSOR_LINE=$(wc -l < "$INSIGHT_FILE")
+    nvim "+$CURSOR_LINE" "$INSIGHT_FILE"
+    echo "Insight saved: $INSIGHT_FILE"
+fi
 
 # Record in SRS
 if command -v cp-srs &>/dev/null; then
