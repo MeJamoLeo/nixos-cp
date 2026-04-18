@@ -15,7 +15,7 @@ function renderStreakCalendar(d) {
 		const jst=new Date((p.epoch+TZ_OFFSET)*1000);
 		const h=jst.getHours(),m=jst.getMinutes();
 		const dayBoundary=h<5?-1:0;
-		const jstDate=new Date((p.epoch+JST+dayBoundary*86400)*1000);
+		const jstDate=new Date((p.epoch+TZ_OFFSET+dayBoundary*86400)*1000);
 		const dayIdx=Math.floor((p.epoch-startEp)/86400)+dayBoundary;
 		const hourOff=((h-5+24)%24)+m/60;
 		return{day:Math.max(0,Math.min(SPAN-1,dayIdx)),hour:hourOff,diff:p.difficulty};
