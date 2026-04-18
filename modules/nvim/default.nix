@@ -140,6 +140,9 @@
     plugins.telescope = {
       enable = true;
       extensions.fzf-native.enable = true;
+      settings.pickers.find_files = {
+        hidden = true;
+      };
     };
 
     # Keybinding guide
