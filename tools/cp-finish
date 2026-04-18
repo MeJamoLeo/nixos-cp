@@ -183,6 +183,6 @@ fi
 # Trigger dashboard refresh
 FETCH_SCRIPT="$HOME/nixos-cp/dashboard/fetch_all.sh"
 if [[ -f "$FETCH_SCRIPT" ]]; then
-    bash "$FETCH_SCRIPT" &>/dev/null &
+    nix-shell "$HOME/nixos-cp/dashboard/shell.nix" --run "bash $FETCH_SCRIPT" &>/dev/null &
     disown
 fi
