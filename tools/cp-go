@@ -224,12 +224,12 @@ while true; do
         touch "$PROB_DIR/main.py"
     fi
 
-    # Archive previous solution for SRS re-attempts
-    if [[ "$TYPE" == "SRS" && -s "$PROB_DIR/main.py" ]]; then
+    # Archive previous solution and start fresh
+    if [[ -s "$PROB_DIR/main.py" ]]; then
         ARCHIVE="$PROB_DIR/.main.py.$(date +%Y%m%d%H%M)"
         cp "$PROB_DIR/main.py" "$ARCHIVE"
         > "$PROB_DIR/main.py"
-        echo "  (前回の解答を $ARCHIVE に退避)"
+        echo "  (前回の解答を退避)"
     fi
 
     # Save suggested tag for cp-finish auto-fill
