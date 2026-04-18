@@ -107,6 +107,9 @@
       };
     };
 
+    # Icons (Nerd Fonts)
+    plugins.web-devicons.enable = true;
+
     # Auto pairs (括弧自動閉じ)
     plugins.nvim-autopairs.enable = true;
 
