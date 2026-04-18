@@ -24,6 +24,12 @@
       mapleader = " ";
     };
 
+    # Colorscheme
+    colorschemes.tokyonight = {
+      enable = true;
+      settings.style = "night";
+    };
+
     # Treesitter
     plugins.treesitter = {
       enable = true;
@@ -100,6 +106,24 @@
         };
       };
     };
+
+    # Auto pairs (括弧自動閉じ)
+    plugins.nvim-autopairs.enable = true;
+
+    # Status line
+    plugins.lualine = {
+      enable = true;
+      settings.options.theme = "tokyonight";
+    };
+
+    # Comment toggle (gcc / gc)
+    plugins.comment.enable = true;
+
+    # Indentation guides
+    plugins.indent-blankline.enable = true;
+
+    # Git signs in gutter
+    plugins.gitsigns.enable = true;
 
     # File explorer
     plugins.oil = {
