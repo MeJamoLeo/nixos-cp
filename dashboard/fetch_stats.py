@@ -586,12 +586,28 @@ def build_wa_queue(
     return queue[:8]
 
 
+def _merge_local_ac(ac_map: dict[str, dict], difficulties: dict[str, Any]) -> None:
+    """Merge local AC records (from cp-finish) into ac_map for immediate display."""
+    local_path = Path.home() / "cp" / "local_ac.json"
+    if not local_path.exists():
+        return
+    try:
+        local = json.loads(local_path.read_text())
+    except (json.JSONDecodeError, OSError):
+        return
+    for entry in local:
+        pid = entry.get("problem_id", "")
+        if pid and pid not in ac_map:
+            ac_map[pid] = {"epoch_second": entry["epoch"], "problem_id": pid}
+
+
 def build_difficulty_log(
     submissions: list[dict],
     difficulties: dict[str, Any],
     ratings: list[dict],
 ) -> dict:
     ac_map = _ac_problems(submissions)
+    _merge_local_ac(ac_map, difficulties)
     current_rating = ratings[-1]["NewRating"] if ratings else 0
 
     points: list[dict] = []

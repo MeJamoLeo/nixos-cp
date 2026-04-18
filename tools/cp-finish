@@ -175,6 +175,21 @@ EOF
     echo "Insight saved: $INSIGHT_FILE"
 fi
 
+# Record local AC for immediate dashboard update
+if [[ "$RESULT" == "AC" || "$RESULT" == "EAC" ]]; then
+    LOCAL_AC="$HOME/cp/local_ac.json"
+    python3 -c "
+import json, os, time
+path = os.environ.get('LOCAL_AC', '$LOCAL_AC')
+data = []
+if os.path.exists(path):
+    try: data = json.load(open(path))
+    except: pass
+data.append({'problem_id': '$PID', 'epoch': int(time.time()), 'result': '$RESULT'})
+json.dump(data, open(path, 'w'))
+" 2>/dev/null || true
+fi
+
 # Record in SRS
 if command -v cp-srs &>/dev/null; then
     cp-srs record "$PID" "$RESULT" 2>/dev/null || true
