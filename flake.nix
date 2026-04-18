@@ -59,7 +59,6 @@
 					{
 						home-manager.useGlobalPkgs = true;
 						home-manager.useUserPackages = true;
-						home-manager.backupFileExtension = "hm-backup";
 						home-manager.users.treo = import ./hosts/x1carbon/home.nix;
 						home-manager.sharedModules = [
 							nixvim.homeManagerModules.nixvim

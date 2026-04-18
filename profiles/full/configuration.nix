@@ -17,6 +17,16 @@
   # Sway
   programs.sway.enable = true;
 
+  # Firefox with DuckDuckGo default
+  programs.firefox = {
+    enable = true;
+    policies = {
+      SearchEngines = {
+        Default = "DuckDuckGo";
+      };
+    };
+  };
+
   # Japanese input (fcitx5 + mozc)
   i18n.inputMethod = {
     enable = true;
