@@ -179,6 +179,21 @@ function renderCompare(d) {
 	return h;
 }
 
+function renderMathInline(text) {
+	if (!text || typeof katex === 'undefined') return escHtml(text || '');
+	// Replace $$...$$ (display) then $...$ (inline)
+	var out = escHtml(text);
+	out = out.replace(/\$\$([^$]+)\$\$/g, function(_, expr) {
+		try { return katex.renderToString(expr, {displayMode: true, throwOnError: false}); }
+		catch(e) { return '$$' + expr + '$$'; }
+	});
+	out = out.replace(/\$([^$]+)\$/g, function(_, expr) {
+		try { return katex.renderToString(expr, {displayMode: false, throwOnError: false}); }
+		catch(e) { return '$' + expr + '$'; }
+	});
+	return out;
+}
+
 function renderInsight(d) {
 	let h = '';
 	// Unreviewed contests warning
@@ -195,7 +210,7 @@ function renderInsight(d) {
 		h += '<div class="insight-box" style="background:var(--dbg-insight)">'
 			+ '<div style="display:flex;justify-content:space-between;font-size:var(--fs-sm);color:#3a8a5a">'
 			+ '<span>最近の洞察</span><span style="color:#2a6a4a">'+(d.insight.tag||'')+' · diff'+(d.insight.difficulty||'')+'</span></div>'
-			+ '<div class="insight-text">'+d.insight.text+'</div></div>';
+			+ '<div class="insight-text">'+renderMathInline(d.insight.text)+'</div></div>';
 	}
 	return h;
 }

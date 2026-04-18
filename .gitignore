@@ -25,6 +25,8 @@
 !dashboard/watchlist.json
 !dashboard/js/
 !dashboard/js/*.js
+!dashboard/vendor/
+!dashboard/vendor/*
 
 # Tools
 !tools/
