@@ -136,12 +136,23 @@ function renderSkillGraph(d) {
 		if (!p) return;
 		const prog = n.progress ? n.progress[0] / n.progress[1] : 0;
 		const done = n.progress && n.progress[0] >= n.progress[1];
+		const m = n.mastery || [0,0,0]; // [untouched, touched, mastered]
+		const allMastered = m[2] > 0 && m[0] === 0 && m[1] === 0;
+		const hasTouched = m[1] > 0 || m[2] > 0;
 		const r = n.tier === 0 ? 16 : 12;
 
-		if (done) {
+		// 3-state glow: mastered=gold, touched=nodeStroke, untouched=none
+		if (allMastered) {
+			s += '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+(r+5)+'" fill="#d4a017" opacity="0.15"/>';
+			s += '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+(r+3)+'" fill="#d4a017" opacity="0.08"/>';
+		} else if (done) {
 			s += '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+(r+4)+'" fill="'+nodeStroke+'" opacity="0.12"/>';
 		}
-		s += '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+r+'" fill="'+(prog > 0 ? '#081414' : '#040a0a')+'" stroke="'+nodeStroke+'" stroke-width="'+(done ? 1.5 : 0.6)+'" opacity="'+(prog > 0 ? 1 : 0.35)+'"/>';
+
+		// Node fill: mastered=gold tint, touched=teal, untouched=dark
+		const fill = allMastered ? '#141408' : (hasTouched ? '#081414' : '#040a0a');
+		const stroke = allMastered ? '#d4a017' : nodeStroke;
+		s += '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+r+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="'+(allMastered ? 2 : done ? 1.5 : 0.6)+'" opacity="'+(hasTouched ? 1 : 0.35)+'"/>';
 
 		if (prog > 0 && !done) {
 			const angle = prog * Math.PI * 2;
@@ -152,7 +163,11 @@ function renderSkillGraph(d) {
 			s += '<path d="M'+x1.toFixed(1)+','+y1.toFixed(1)+' A'+r+','+r+' 0 '+large+' 1 '+x2.toFixed(1)+','+y2.toFixed(1)+'" fill="none" stroke="'+nodeStroke+'" stroke-width="2" opacity="0.9"/>';
 		}
 
-		if (done) {
+		if (allMastered) {
+			// Gold star for fully mastered (SRS graduated)
+			s += '<text x="'+p.x.toFixed(1)+'" y="'+(p.y+1).toFixed(1)+'" fill="#d4a017" font-size="10" text-anchor="middle" dominant-baseline="middle">★</text>';
+		} else if (done) {
+			// Checkmark for all AC'd (but not all SRS graduated)
 			s += '<text x="'+p.x.toFixed(1)+'" y="'+(p.y+1).toFixed(1)+'" fill="'+nodeStroke+'" font-size="9" text-anchor="middle" dominant-baseline="middle">✓</text>';
 		}
 
@@ -164,8 +179,10 @@ function renderSkillGraph(d) {
 		const anchor = n.tier === 0 ? 'middle' : (dx > 20 ? 'start' : dx < -20 ? 'end' : 'middle');
 		s += '<text x="'+lx.toFixed(1)+'" y="'+ly.toFixed(1)+'" fill="'+(prog > 0 ? '#8ababa' : '#2a4a4a')+'" font-size="7" text-anchor="'+anchor+'" font-family="monospace">'+n.label+'</text>';
 
-		if (n.progress && !done) {
-			s += '<text x="'+p.x.toFixed(1)+'" y="'+(p.y+3).toFixed(1)+'" fill="'+(prog > 0 ? '#8ababa' : '#2a4a4a')+'" font-size="6" text-anchor="middle" font-family="monospace">'+n.progress[0]+'/'+n.progress[1]+'</text>';
+		if (n.progress && !allMastered) {
+			const masteredCount = m[2] || 0;
+			const label = masteredCount > 0 ? masteredCount+'★'+'/'+n.progress[1] : n.progress[0]+'/'+n.progress[1];
+			s += '<text x="'+p.x.toFixed(1)+'" y="'+(p.y+3).toFixed(1)+'" fill="'+(masteredCount > 0 ? '#d4a017' : prog > 0 ? '#8ababa' : '#2a4a4a')+'" font-size="6" text-anchor="middle" font-family="monospace">'+label+'</text>';
 		}
 	});
 

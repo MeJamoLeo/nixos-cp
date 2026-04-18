@@ -1268,6 +1268,15 @@ def build_skill_graph(
         rating_tier = 2
     max_tier = min(rating_tier + 2, 4)
 
+    # Load SRS data for mastery status
+    srs_data: dict = {}
+    srs_path = Path.home() / "cp" / "srs.json"
+    if srs_path.exists():
+        try:
+            srs_data = json.loads(srs_path.read_text())
+        except (json.JSONDecodeError, OSError):
+            pass
+
     nodes = []
     for n in TREE:
         if n["tier"] > max_tier:
@@ -1275,20 +1284,42 @@ def build_skill_graph(
         sid = n["id"]
         if sid == "base":
             progress = [len(ac_map), len(ac_map)] if ac_map else [0, 1]
+            mastery = [0, 0, 0]  # [未着手, 接触済, 定着]
         else:
             benchmarks = BENCHMARKS.get(sid, [])
-            solved = [p for p in benchmarks if p in ac_set]
-            progress = [len(solved), len(benchmarks)]
+            untouched = 0
+            touched = 0
+            mastered = 0
+            for p in benchmarks:
+                if p not in ac_set:
+                    untouched += 1
+                elif p not in srs_data or srs_data.get(p, {}).get("graduated", False):
+                    # AC'd and either not in SRS (solved without help)
+                    # or SRS graduated → mastered
+                    mastered += 1
+                else:
+                    # In SRS but not yet graduated → touched
+                    touched += 1
+            progress = [touched + mastered, len(benchmarks)]
+            mastery = [untouched, touched, mastered]
         node = {
             "id": sid, "label": n["label"], "tier": n["tier"],
             "progress": progress,
+            "mastery": mastery,  # [未着手, 接触済, 定着]
         }
         if n["parent"]:
             node["parent"] = n["parent"]
-        # Include benchmark details for tooltip/debug
         if sid in BENCHMARKS:
             node["benchmarks"] = [
-                {"id": p, "ac": p in ac_set}
+                {
+                    "id": p,
+                    "ac": p in ac_set,
+                    "graduated": (
+                        p in ac_set and p not in srs_data
+                    ) or srs_data.get(p, {}).get(
+                        "graduated", False
+                    ),
+                }
                 for p in BENCHMARKS[sid]
             ]
         nodes.append(node)
