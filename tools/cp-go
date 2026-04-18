@@ -284,3 +284,5 @@ done
 # Session end
 rm -f "$SESSION_FILE"
 show_summary
+sleep 3
+exit 0
