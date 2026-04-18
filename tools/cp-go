@@ -123,12 +123,14 @@ def fmt(pid):
     problem = parts[1] if len(parts) == 2 else "a"
     return contest, problem
 
+graduated = {pid for pid, e in srs.items() if e.get("graduated")}
+
 if mode == "warmup":
     # Warmup: pre-computed candidates from AC'd diff 25th percentile
     warmups = data.get("warmup_candidates", [])
     for w in warmups:
         pid = w["problem_id"]
-        if pid in skip:
+        if pid in skip or pid in graduated:
             continue
         c, p = fmt(pid)
         print(f"WARMUP|{c}|{p}|{pid}|ウォームアップ: diff{w['difficulty']}")
