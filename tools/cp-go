@@ -244,12 +244,8 @@ while true; do
     cd "$PROB_DIR"
     nvim main.py
 
-    # Post-solve (warmup = light mode, skip tag+insight)
-    if [[ "$MODE" == "warmup" ]]; then
-        cp-finish --light main.py || echo "  (cp-finish had an error, continuing)"
-    else
-        cp-finish main.py || echo "  (cp-finish had an error, continuing)"
-    fi
+    # Post-solve (same flow for warmup and main)
+    cp-finish main.py || echo "  (cp-finish had an error, continuing)"
 
     PROB_ELAPSED=$(( $(date +%s) - PROB_START ))
     PROB_MINS=$(( PROB_ELAPSED / 60 ))
