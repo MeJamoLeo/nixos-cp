@@ -1082,7 +1082,7 @@ def build_latest_insight() -> dict | None:
                 tag = line.replace("tags: [", "").replace("]", "").strip()
             elif line.strip():
                 text_lines.append(line.strip())
-        text = " ".join(text_lines[:3])  # first 3 lines
+        text = "\n".join(text_lines[:5])
         pid = latest_file.stem
         return {
             "problem_id": pid,

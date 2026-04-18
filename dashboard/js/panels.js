@@ -191,6 +191,7 @@ function renderMathInline(text) {
 		try { return katex.renderToString(expr, {displayMode: false, throwOnError: false}); }
 		catch(e) { return '$' + expr + '$'; }
 	});
+	out = out.replace(/\n/g, '<br>');
 	return out;
 }
 
