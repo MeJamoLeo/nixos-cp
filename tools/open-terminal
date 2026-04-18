@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Open kitty in the CWD of the focused terminal window
+# Falls back to home directory if no terminal is focused
+
+PID=$(swaymsg -t get_tree | python3 -c "
+import json, sys
+def find_focused(node):
+    if node.get('focused') and node.get('pid'):
+        return node['pid']
+    for n in node.get('nodes', []) + node.get('floating_nodes', []):
+        r = find_focused(n)
+        if r: return r
+    return None
+print(find_focused(json.load(sys.stdin)) or '')
+" 2>/dev/null)
+
+DIR="$HOME"
+if [[ -n "$PID" ]]; then
+    # Get the child shell process (kitty spawns a shell)
+    CHILD=$(pgrep -P "$PID" | head -1)
+    if [[ -n "$CHILD" && -d "/proc/$CHILD/cwd" ]]; then
+        DIR=$(readlink "/proc/$CHILD/cwd")
+    elif [[ -d "/proc/$PID/cwd" ]]; then
+        DIR=$(readlink "/proc/$PID/cwd")
+    fi
+fi
+
+exec kitty --directory "$DIR"

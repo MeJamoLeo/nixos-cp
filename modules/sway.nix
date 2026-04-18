@@ -54,7 +54,7 @@
 				"${mod}+shift+9" = "move container to workspace 9";
 
 				# Apps
-				"${mod}+Return" = "exec kitty";
+				"${mod}+Return" = "exec ~/nixos-cp/tools/open-terminal";
 				"${mod}+d" = "exec wofi --show drun";
 				"${mod}+b" = "exec firefox";
 
