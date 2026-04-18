@@ -11,9 +11,13 @@
 			url = "github:nix-community/nixvim/nixos-24.11";
 			inputs.nixpkgs.follows = "nixpkgs";
 		};
+		claude-code = {
+			url = "github:sadjow/claude-code-nix";
+			inputs.nixpkgs.follows = "nixpkgs";
+		};
 	};
 
-	outputs = { self, nixpkgs, home-manager, nixvim, ... }: {
+	outputs = { self, nixpkgs, home-manager, nixvim, claude-code, ... }: {
 		nixosConfigurations = {
 			# Dashboard + CLI tools only. Bring your own editor/browser.
 			minimal = nixpkgs.lib.nixosSystem {
@@ -46,9 +50,9 @@
 				];
 			};
 
-			# full + X1 Carbon hardware, fingerprint, TLP
-			x1carbon = nixpkgs.lib.nixosSystem {
-				system = "x86_64-linux";
+			# full + X1 Carbon hardware, fingerprint, TLP, Claude Code
+			x1carbon = let system = "x86_64-linux"; in nixpkgs.lib.nixosSystem {
+				inherit system;
 				modules = [
 					./hosts/x1carbon/configuration.nix
 					home-manager.nixosModules.home-manager
@@ -59,6 +63,9 @@
 						home-manager.sharedModules = [
 							nixvim.homeManagerModules.nixvim
 						];
+						home-manager.extraSpecialArgs = {
+							claude-code-pkg = claude-code.packages.${system}.default;
+						};
 					}
 				];
 			};
