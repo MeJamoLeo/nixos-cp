@@ -63,7 +63,7 @@ function renderWAQueue(d) {
 	let items = '';
 	wq.forEach(w => {
 		const c = w.wa_count>=3?'#cc4444':w.wa_count>=2?'var(--amber)':'#333';
-		items += '<div class="wa-item"><div class="wa-indicator" style="background:'+c+'"></div><span class="wa-badge">×'+w.wa_count+'</span><span class="wa-name">'+w.problem_id+'</span><span class="wa-tag">'+w.tag+'</span><span class="wa-diff">'+w.difficulty+'</span></div>';
+		items += '<div class="wa-item"><div class="wa-indicator" style="background:'+c+'"></div><span class="wa-badge">×'+w.wa_count+'</span><span class="wa-name">'+escHtml(w.problem_id)+'</span><span class="wa-tag">'+escHtml(w.tag)+'</span><span class="wa-diff">'+w.difficulty+'</span></div>';
 	});
 	return '<div class="panel" data-label="WA QUEUE" style="flex:1;background:var(--dbg-waqueue)"><div class="panel-inner"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><span style="font-size:var(--fs-xs);color:var(--dim)">復習待ち '+wq.length+'問</span><span class="badge badge-amber">優先順</span></div>'+items+'</div></div>';
 }
@@ -73,13 +73,13 @@ function renderLanguageStats(d) {
 	if(!ls.length)return '<div class="section-label">言語別AC</div>';
 	const max=ls[0].count;
 	let h='<div class="section-label">言語別AC</div>';
-	ls.forEach((l,i)=>{const pct=Math.round(l.count/max*100);const c=i===0?'var(--cyan)':i<3?'var(--green)':'var(--dim)';h+='<div class="tag-row'+(i===0?' active':'')+'"><span class="tag-name">'+l.lang+'</span><div class="tag-bar"><div class="tag-bar-fill" style="width:'+pct+'%;background:'+c+'"></div></div><span class="tag-pct" style="color:'+c+'">'+l.count+'</span></div>';});
+	ls.forEach((l,i)=>{const pct=Math.round(l.count/max*100);const c=i===0?'var(--cyan)':i<3?'var(--green)':'var(--dim)';h+='<div class="tag-row'+(i===0?' active':'')+'"><span class="tag-name">'+escHtml(l.lang)+'</span><div class="tag-bar"><div class="tag-bar-fill" style="width:'+pct+'%;background:'+c+'"></div></div><span class="tag-pct" style="color:'+c+'">'+l.count+'</span></div>';});
 	return h;
 }
 
 function renderPeerTable(d) {
 	let h='<div class="section-label">同レート帯 ±50</div><div class="peer-row" style="font-size:var(--fs-2xs);color:var(--muted)"><span>user</span><span class="peer-num">rate</span><span class="peer-num">月AC</span></div>';
-	(d.peers||[]).forEach(p=>{const s=p.is_self,n=s?'← '+p.user:p.user;h+='<div class="peer-row'+(s?' peer-self':'')+'"><span style="color:'+(s?'var(--green)':'#5a7a7a')+'">'+n+'</span><span class="peer-num" style="color:'+(s?'var(--amber)':'#4a4a4a')+'">'+p.rating+'</span><span class="peer-num">'+p.monthly_ac+'</span></div>';});
+	(d.peers||[]).forEach(p=>{const s=p.is_self,n=s?'← '+escHtml(p.user):escHtml(p.user);h+='<div class="peer-row'+(s?' peer-self':'')+'"><span style="color:'+(s?'var(--green)':'#5a7a7a')+'">'+n+'</span><span class="peer-num" style="color:'+(s?'var(--amber)':'#4a4a4a')+'">'+p.rating+'</span><span class="peer-num">'+p.monthly_ac+'</span></div>';});
 	return h;
 }
 
