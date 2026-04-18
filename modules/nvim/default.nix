@@ -128,20 +128,24 @@
     # Git signs in gutter
     plugins.gitsigns.enable = true;
 
-    # File explorer
-    plugins.oil = {
-      enable = true;
-      settings = {
-        view_options.show_hidden = true;
-      };
-    };
-
     # Fuzzy finder
     plugins.telescope = {
       enable = true;
       extensions.fzf-native.enable = true;
-      settings.pickers.find_files = {
-        hidden = true;
+      settings = {
+        defaults.vimgrep_arguments = [
+          "${pkgs.ripgrep}/bin/rg"
+          "--color=never"
+          "--no-heading"
+          "--with-filename"
+          "--line-number"
+          "--column"
+          "--smart-case"
+          "--hidden"
+        ];
+        pickers.find_files = {
+          hidden = true;
+        };
       };
     };
 
@@ -184,9 +188,6 @@
     };
 
     keymaps = [
-      # File explorer
-      { mode = "n"; key = "-"; action = "<cmd>Oil<cr>"; options.desc = "Open file explorer"; }
-
       # Competitest
       { mode = "n"; key = "<leader>cr"; action = "<cmd>CompetiTest run<cr>"; options.desc = "Run testcases"; }
       { mode = "n"; key = "<leader>cs"; action = "<cmd>w<cr><cmd>!cp-submit %<cr>"; options.desc = "Save + submit"; }
