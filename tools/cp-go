@@ -226,7 +226,7 @@ while true; do
 
     # Archive previous solution and start fresh
     if [[ -s "$PROB_DIR/main.py" ]]; then
-        ARCHIVE="$PROB_DIR/.main.py.$(date +%Y%m%d%H%M)"
+        ARCHIVE="$PROB_DIR/.$(date +%Y%m%d%H%M).main.py"
         cp "$PROB_DIR/main.py" "$ARCHIVE"
         > "$PROB_DIR/main.py"
         echo "  (前回の解答を退避)"
