@@ -596,12 +596,13 @@ def build_difficulty_log(
 
     points: list[dict] = []
     for pid, s in ac_map.items():
-        diff = difficulties.get(pid, {}).get("difficulty")
-        if diff is not None and diff >= 0:
-            points.append({
-                "epoch": s["epoch_second"],
-                "difficulty": round(diff),
-            })
+        diff = difficulties.get(pid, {}).get("difficulty") or 0
+        if diff < 0:
+            diff = 0
+        points.append({
+            "epoch": s["epoch_second"],
+            "difficulty": round(diff),
+        })
     points.sort(key=lambda x: x["epoch"])
 
     now = time.time()
