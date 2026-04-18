@@ -1033,6 +1033,50 @@ def build_unreviewed_contests() -> list[dict]:
     return unreviewed
 
 
+def build_latest_insight() -> dict | None:
+    """Read the most recent insight from ~/cp/insights/."""
+    insights_dir = Path.home() / "cp" / "insights"
+    if not insights_dir.exists():
+        return None
+    latest_file = None
+    latest_mtime = 0.0
+    for f in insights_dir.glob("*.md"):
+        mt = f.stat().st_mtime
+        if mt > latest_mtime:
+            latest_mtime = mt
+            latest_file = f
+    if not latest_file:
+        return None
+    try:
+        content = latest_file.read_text()
+        # Parse last entry: ## RESULT DATE\ntags: [tag]\n\ntext
+        entries = content.split("\n## ")
+        if len(entries) < 2:
+            return None
+        last = entries[-1]
+        lines = last.strip().split("\n")
+        header = lines[0]  # "AC 2026-04-17 14:30"
+        parts = header.split(None, 1)
+        result = parts[0] if parts else ""
+        tag = ""
+        text_lines: list[str] = []
+        for line in lines[1:]:
+            if line.startswith("tags: ["):
+                tag = line.replace("tags: [", "").replace("]", "").strip()
+            elif line.strip():
+                text_lines.append(line.strip())
+        text = " ".join(text_lines[:3])  # first 3 lines
+        pid = latest_file.stem
+        return {
+            "problem_id": pid,
+            "tag": tag,
+            "text": text,
+            "result": result,
+        }
+    except (OSError, IndexError):
+        return None
+
+
 def build_compare(submissions: list[dict]) -> dict:
     """Build month-over-month AC comparison."""
     ac_map = _ac_problems(submissions)
@@ -1429,6 +1473,7 @@ def main() -> None:
         "language_stats": (
             build_language_stats(submissions) if has_submissions else []
         ),
+        "insight": build_latest_insight(),
         "rating_history": build_rating_log(ratings),
         "skill_graph": build_skill_graph(
             submissions, difficulties, problems_list, ratings
