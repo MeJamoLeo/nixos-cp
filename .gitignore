@@ -8,6 +8,8 @@
 # NixOS config
 !hosts/
 !hosts/**/*.nix
+!profiles/
+!profiles/**/*.nix
 !modules/
 !modules/**/*.nix
 !home/
