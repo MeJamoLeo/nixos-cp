@@ -16,7 +16,6 @@
 
   # Sway
   programs.sway.enable = true;
-  programs.firefox.enable = true;
 
   # Japanese input (fcitx5 + mozc)
   i18n.inputMethod = {
