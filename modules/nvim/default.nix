@@ -109,11 +109,18 @@
       };
     };
 
+    # Fuzzy finder
+    plugins.telescope = {
+      enable = true;
+      extensions.fzf-native.enable = true;
+    };
+
     # Keybinding guide
     plugins.which-key = {
       enable = true;
       settings.spec = [
         { __unkeyed-1 = "<leader>c"; group = "Competitest"; }
+        { __unkeyed-1 = "<leader>f"; group = "Find"; }
         { __unkeyed-1 = "<leader>r"; group = "LSP Rename"; }
       ];
     };
@@ -156,6 +163,12 @@
       { mode = "n"; key = "<leader>ca"; action = "<cmd>CompetiTest add_testcase<cr>"; options.desc = "Add testcase"; }
       { mode = "n"; key = "<leader>ce"; action = "<cmd>CompetiTest edit_testcase<cr>"; options.desc = "Edit testcase"; }
       { mode = "n"; key = "<leader>ct"; action = "<cmd>CompetiTest receive testcases<cr>"; options.desc = "Receive testcases"; }
+
+      # Telescope
+      { mode = "n"; key = "<leader>ff"; action = "<cmd>Telescope find_files<cr>"; options.desc = "Find files"; }
+      { mode = "n"; key = "<leader>fg"; action = "<cmd>Telescope live_grep<cr>"; options.desc = "Live grep"; }
+      { mode = "n"; key = "<leader>fb"; action = "<cmd>Telescope buffers<cr>"; options.desc = "Buffers"; }
+      { mode = "n"; key = "<leader>fh"; action = "<cmd>Telescope help_tags<cr>"; options.desc = "Help"; }
 
       # Quick save/quit
       { mode = "n"; key = "<leader>w"; action = "<cmd>w<cr>"; options.desc = "Save"; }
@@ -200,6 +213,7 @@
       pyright
       gcc
       python3
+      ripgrep  # telescope live_grep
     ];
   };
 }
