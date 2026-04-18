@@ -21,11 +21,11 @@ fi
 
 STATS_FILE="$CACHE_DIR/stats_${PRIMARY_USER}.json"
 
-# Fetch latest data at session start
-echo "データ取得中..."
+# Fetch latest data in background at session start
 FETCH_SCRIPT="$HOME/nixos-cp/dashboard/fetch_all.sh"
 if [[ -f "$FETCH_SCRIPT" ]]; then
-    nix-shell "$HOME/nixos-cp/dashboard/shell.nix" --run "bash $FETCH_SCRIPT" 2>/dev/null || true
+    nix-shell "$HOME/nixos-cp/dashboard/shell.nix" --run "bash $FETCH_SCRIPT" &>/dev/null &
+    disown
 fi
 
 if [[ ! -f "$STATS_FILE" ]]; then
