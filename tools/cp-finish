@@ -107,10 +107,10 @@ fi
 
 # --- Step 4: Tag + Insight (user decides) ---
 echo ""
-echo -n "Insight書く？ (y/N): "
+echo -n "Insight書く？ (Y/n): "
 read -r WRITE_INSIGHT
 
-if [[ "$WRITE_INSIGHT" == "y" || "$WRITE_INSIGHT" == "Y" ]]; then
+if [[ "$WRITE_INSIGHT" != "n" && "$WRITE_INSIGHT" != "N" ]]; then
     TAGS=(
         "全探索" "ソート" "貪欲法" "文字列" "Map/Set" "GCD/LCM" "実装力"
         "累積和" "二分探索" "基礎DP" "BFS/DFS" "尺取り法" "ビット演算"
