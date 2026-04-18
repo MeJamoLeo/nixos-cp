@@ -105,9 +105,16 @@ TAGS=(
     "わからない"
 )
 
+# Auto-suggest tag from problem source (cp-go writes .suggested_tag)
+FZF_QUERY=""
+if [[ -f "$PROB_DIR/.suggested_tag" ]]; then
+    SUGGESTED=$(cat "$PROB_DIR/.suggested_tag")
+    FZF_QUERY=$(echo "$SUGGESTED" | grep -oP 'スキル: \K.*|復習.*\s\K[^\s]+$' | head -1)
+fi
+
 echo ""
-echo "Select tag (judge is running, use this time):"
-SELECTED_TAG=$(printf '%s\n' "${TAGS[@]}" | fzf --prompt="tag> " --height=15)
+echo "Select tag (judge is running, Enter to confirm):"
+SELECTED_TAG=$(printf '%s\n' "${TAGS[@]}" | fzf --prompt="tag> " --height=15 --query="$FZF_QUERY")
 
 INSIGHT_FILE="$INSIGHTS_DIR/${PID}.md"
 if [[ ! -f "$INSIGHT_FILE" ]]; then

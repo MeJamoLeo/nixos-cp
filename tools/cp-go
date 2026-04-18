@@ -218,6 +218,9 @@ while true; do
         touch "$PROB_DIR/main.py"
     fi
 
+    # Save suggested tag for cp-finish auto-fill
+    echo "$MESSAGE" > "$PROB_DIR/.suggested_tag"
+
     local_label=""
     [[ "$MODE" == "warmup" ]] && local_label=" 🔥"
 
