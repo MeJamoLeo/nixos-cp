@@ -31,7 +31,6 @@
 # Tools
 !tools/
 !tools/cp-*
-!tools/open-terminal
 !tools/README.md
 
 # Dotfiles

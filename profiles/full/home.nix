@@ -4,12 +4,12 @@
   imports = [
     ../minimal/home.nix
     ../../home/starship.nix
+    ../../home/kitty.nix
     ../../modules/sway.nix
     ../../modules/nvim
   ];
 
   home.packages = with pkgs; [
-    kitty
     wofi
     wl-clipboard
   ];
