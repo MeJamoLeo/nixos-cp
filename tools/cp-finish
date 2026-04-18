@@ -112,12 +112,38 @@ read -r WRITE_INSIGHT
 
 if [[ "$WRITE_INSIGHT" != "n" && "$WRITE_INSIGHT" != "N" ]]; then
     TAGS=(
-        "全探索" "ソート" "貪欲法" "文字列" "Map/Set" "GCD/LCM" "実装力"
-        "累積和" "二分探索" "基礎DP" "BFS/DFS" "尺取り法" "ビット演算"
-        "素数/約数" "計算量" "Union-Find" "優先度Queue" "最短路"
-        "セグ木/BIT" "bitDP" "MST" "座標圧縮" "mod逆元" "imos法"
-        "桁DP" "木DP" "LCA" "強連結成分" "遅延セグ木" "文字列Hash"
-        "解説AC" "わからない"
+        "全探索 brute-force"
+        "ソート sort"
+        "貪欲法 greedy"
+        "文字列 string"
+        "Map/Set map-set"
+        "GCD/LCM gcd-lcm"
+        "実装力 implementation"
+        "累積和 prefix-sum"
+        "二分探索 binary-search"
+        "基礎DP basic-dp"
+        "BFS/DFS bfs-dfs graph"
+        "尺取り法 two-pointers"
+        "ビット演算 bit"
+        "素数/約数 prime divisor"
+        "計算量 complexity"
+        "Union-Find union-find dsu"
+        "優先度Queue priority-queue heap"
+        "最短路 shortest-path dijkstra"
+        "セグ木/BIT segment-tree bit-indexed"
+        "bitDP bitmask-dp"
+        "MST minimum-spanning-tree"
+        "座標圧縮 coordinate-compression"
+        "mod逆元 mod-inverse"
+        "imos法 imos"
+        "桁DP digit-dp"
+        "木DP tree-dp"
+        "LCA lowest-common-ancestor"
+        "強連結成分 scc strongly-connected"
+        "遅延セグ木 lazy-segment-tree"
+        "文字列Hash string-hash rolling-hash"
+        "解説AC editorial"
+        "わからない unknown"
     )
 
     # Auto-suggest tag from problem source
@@ -128,7 +154,8 @@ if [[ "$WRITE_INSIGHT" != "n" && "$WRITE_INSIGHT" != "N" ]]; then
     fi
 
     echo "Select tag:"
-    SELECTED_TAG=$(printf '%s\n' "${TAGS[@]}" | fzf --prompt="tag> " --height=15 --query="$FZF_QUERY")
+    SELECTED_RAW=$(printf '%s\n' "${TAGS[@]}" | fzf --prompt="tag> " --height=15 --query="$FZF_QUERY")
+    SELECTED_TAG=$(echo "$SELECTED_RAW" | awk '{print $1}')
 
     INSIGHT_FILE="$INSIGHTS_DIR/${PID}.md"
     if [[ ! -f "$INSIGHT_FILE" ]]; then
