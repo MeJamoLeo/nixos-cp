@@ -63,7 +63,7 @@ function renderStreakCalendar(d) {
 	const firstDow=cal.length?new Date(cal[0].date+'T00:00:00').getDay():0;
 	let g='';
 	for(let i=0;i<firstDow;i++)g+='<div class="streak-cell" style="opacity:0"></div>';
-	cal.forEach(c=>{const today=c.date===ts2?' streak-today':'';if(c.ac_count===0){g+='<div class="streak-cell streak-none'+today+'"></div>';}else if(c.max_difficulty>0){g+='<div class="streak-cell'+today+'" style="background:'+ratingColor(c.max_difficulty)+';opacity:0.9"></div>';}else{g+='<div class="streak-cell'+today+'" style="background:rgba(100,200,200,0.35)"></div>';}});
+	cal.forEach(c=>{const today=c.date===ts2?' streak-today':'';if(c.ac_count===0){g+='<div class="streak-cell streak-none'+today+'"></div>';}else if(c.max_difficulty>0){g+='<div class="streak-cell'+today+'" style="background:'+ratingColor(c.max_difficulty)+';opacity:0.9"></div>';}else{g+='<div class="streak-cell'+today+'" style="background:rgba(139,92,246,0.4)"></div>';}});
 	const totalCells=firstDow+cal.length;
 	const remainder=totalCells%7;
 	if(remainder>0)for(let i=0;i<7-remainder;i++)g+='<div class="streak-cell" style="opacity:0"></div>';
