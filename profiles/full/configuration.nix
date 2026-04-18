@@ -8,8 +8,6 @@
   users.users.treo.extraGroups = [ "wheel" "networkmanager" "video" "input" ];
 
   environment.systemPackages = with pkgs; [
-    kitty
-    wofi
     brightnessctl
     pulseaudio
   ];

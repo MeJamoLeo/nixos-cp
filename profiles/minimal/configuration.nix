@@ -17,14 +17,9 @@
   };
 
   environment.systemPackages = with pkgs; [
-    git
     vim
     wget
     curl
-    python3
-    online-judge-tools
-    fzf
-    wl-clipboard
   ];
 
   services.openssh.enable = true;

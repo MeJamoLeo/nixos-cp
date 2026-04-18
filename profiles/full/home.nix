@@ -7,4 +7,10 @@
     ../../modules/sway.nix
     ../../modules/nvim
   ];
+
+  home.packages = with pkgs; [
+    kitty
+    wofi
+    wl-clipboard
+  ];
 }
