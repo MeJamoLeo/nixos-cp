@@ -50,22 +50,25 @@ if result in ('AC', 'EAC'):
     entry['skip_count'] = 0
     if is_editorial:
         entry['editorial_ac'] = True
-    if entry['consecutive_ac'] >= 2 and not is_editorial:
+    ac_count = entry['consecutive_ac']
+    last_interval = INTERVALS[min(entry.get('interval_idx', 0), len(INTERVALS) - 1)]
+    if ac_count >= 3 and not is_editorial and last_interval >= 14:
         entry['graduated'] = True
         entry['next_review'] = None
-        print(f'  ✓ {pid} graduated! (2 consecutive ACs)')
+        print(f'  ✓ {pid} graduated! ({ac_count} ACs, last interval {last_interval}d)')
     else:
-        idx = min(entry.get('interval_idx', 0) + 1, len(INTERVALS) - 1)
-        entry['interval_idx'] = idx
-        days = INTERVALS[idx]
         if is_editorial:
-            days = max(1, days // 2)
+            days = 1
+        else:
+            idx = min(entry.get('interval_idx', 0) + 1, len(INTERVALS) - 1)
+            entry['interval_idx'] = idx
+            days = INTERVALS[idx]
         next_date = (datetime.date.today() + datetime.timedelta(days=days)).isoformat()
         entry['next_review'] = next_date
         label = '解説AC' if is_editorial else 'AC'
-        print(f'  → {pid} next review: {next_date} ({days} days) [{label}]')
+        print(f'  → {pid} next review: {next_date} ({days} days) [{label}] [{ac_count}/3]')
 else:
-    entry['consecutive_ac'] = 0
+    # Fail/skip: reset interval but keep AC count
     entry['interval_idx'] = 0
     skip_count = entry.get('skip_count', 0)
     if result in ('SKIP', 'skip'):
