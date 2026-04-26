@@ -21,7 +21,7 @@ A NixOS flake that turns your machine into a competitive programming workstation
 ### Prerequisites
 
 - NixOS with flakes enabled
-- Sway window manager (for full/x1carbon tiers)
+- Sway window manager (for full/x1nano tiers)
 
 ### 1. Clone and configure
 
@@ -45,8 +45,8 @@ sudo nixos-rebuild switch --flake .#minimal
 # Full GUI: minimal + Neovim + Firefox + Sway + fcitx5
 sudo nixos-rebuild switch --flake .#full
 
-# X1 Carbon: full + hardware config + fingerprint + TLP
-sudo nixos-rebuild switch --flake .#x1carbon
+# X1 Nano Gen2: full + nixos-hardware (TLP/thermald/microcode/fwupd) + fingerprint
+sudo nixos-rebuild switch --flake .#x1nano
 ```
 
 For `minimal` and `full`, you need to provide your own `hardware-configuration.nix`:
@@ -68,7 +68,7 @@ Open Firefox, log into AtCoder, copy `REVEL_SESSION` cookie from DevTools, paste
 
 ```bash
 cp-go
-# or press Super+G (full/x1carbon only)
+# or press Super+G (full/x1nano only)
 ```
 
 That's it. A problem is selected, browser opens the problem page, nvim opens with your solution file.
@@ -79,7 +79,7 @@ That's it. A problem is selected, browser opens the problem page, nvim opens wit
 |------|----------------|
 | **minimal** | Dashboard + CLI tools (cp-go, cp-submit, etc). No editor, no browser, no WM. |
 | **full** | minimal + Neovim (nixvim) + Firefox + Sway + fcitx5 + wofi + fonts |
-| **x1carbon** | full + X1 Carbon hardware config + fingerprint auth + TLP power management |
+| **x1nano** | full + nixos-hardware (X1 Nano Gen2) + fingerprint auth |
 
 ## Dashboard Panels
 
@@ -144,14 +144,14 @@ Super+`
 ## Project Structure
 
 ```
-├── flake.nix                   # NixOS flake (minimal/full/x1carbon)
+├── flake.nix                   # NixOS flake (minimal/full/x1nano)
 ├── profiles/
 │   ├── minimal/                # Base: CLI tools + dashboard
 │   └── full/                   # GUI: Sway + Neovim + Firefox + fcitx5
 ├── hosts/
 │   ├── minimal/                # Host wrapper for generic minimal deploy
 │   ├── full/                   # Host wrapper for generic full deploy
-│   └── x1carbon/               # X1 Carbon specific (hardware, fingerprint, TLP)
+│   └── x1nano/                # X1 Nano Gen2 specific (hardware-configuration, fingerprint)
 ├── modules/
 │   ├── sway.nix                # Sway WM config (keybindings, input, startup)
 │   └── nvim/                   # Neovim config (nixvim)
