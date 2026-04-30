@@ -19,7 +19,7 @@ NixOS flakeでマシンを競プロワークステーションに変える:
 ### 前提条件
 
 - flakes有効のNixOS
-- Sway WM (full/x1carbon構成の場合)
+- Sway WM (full/x1nano構成の場合)
 
 ### 1. クローンと設定
 
@@ -44,7 +44,7 @@ sudo nixos-rebuild switch --flake .#minimal
 sudo nixos-rebuild switch --flake .#full
 
 # X1 Carbon: full + ハードウェア設定 + 指紋認証 + TLP
-sudo nixos-rebuild switch --flake .#x1carbon
+sudo nixos-rebuild switch --flake .#x1nano
 ```
 
 `minimal` と `full` では自分のマシンの `hardware-configuration.nix` が必要:
@@ -66,7 +66,7 @@ Firefoxでatcoder.jpにログイン → DevToolsから `REVEL_SESSION` cookieを
 
 ```bash
 cp-go
-# または Super+G (full/x1carbon構成のみ)
+# または Super+G (full/x1nano構成のみ)
 ```
 
 これだけ。問題が自動選択され、ブラウザで問題ページが開き、nvimで解答ファイルが開く。
@@ -77,7 +77,7 @@ cp-go
 |--------|------|
 | **minimal** | ダッシュボード + CLIツール。エディタ・ブラウザ・WMなし。 |
 | **full** | minimal + Neovim (nixvim) + Firefox + Sway + fcitx5 + wofi + フォント |
-| **x1carbon** | full + X1 Carbonハードウェア設定 + 指紋認証 + TLP省電力 |
+| **x1nano** | full + X1 Carbonハードウェア設定 + 指紋認証 + TLP省電力 |
 
 ## ダッシュボードパネル
 
@@ -140,14 +140,14 @@ Super+`
 ## プロジェクト構成
 
 ```
-├── flake.nix                   # NixOS flake (minimal/full/x1carbon)
+├── flake.nix                   # NixOS flake (minimal/full/x1nano)
 ├── profiles/
 │   ├── minimal/                # ベース: CLIツール + ダッシュボード
 │   └── full/                   # GUI: Sway + Neovim + Firefox + fcitx5
 ├── hosts/
 │   ├── minimal/                # 汎用minimalデプロイ用ホストラッパー
 │   ├── full/                   # 汎用fullデプロイ用ホストラッパー
-│   └── x1carbon/               # X1 Carbon固有 (ハードウェア, 指紋認証, TLP)
+│   └── x1nano/               # X1 Carbon固有 (ハードウェア, 指紋認証, TLP)
 ├── modules/
 │   ├── sway.nix                # Sway WM設定 (キーバインド、入力、起動)
 │   └── nvim/                   # Neovim設定 (nixvim)

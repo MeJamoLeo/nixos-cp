@@ -6,7 +6,7 @@
     ./hardware-configuration.nix
   ];
 
-  networking.hostName = "x1carbon";
+  networking.hostName = "x1nano";
 
   # Fingerprint authentication
   services.fprintd.enable = true;

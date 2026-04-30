@@ -41,7 +41,7 @@ echo '["YourAtCoderUsername"]' > dashboard/watchlist.json
 |------|------|-------------|
 | `minimal` | 既存環境に追加 | CLIツール + ダッシュボード |
 | `full` | GUI付きフル環境 | minimal + Neovim + Firefox + Sway + fcitx5 |
-| `x1carbon` | X1 Carbon専用 | full + ハードウェア設定 + 指紋認証 + TLP |
+| `x1nano` | X1 Carbon専用 | full + ハードウェア設定 + 指紋認証 + TLP |
 
 ### 4. ハードウェア設定
 
@@ -71,7 +71,7 @@ sudo nixos-generate-config --show-hardware-config > hosts/minimal/hardware-confi
 # 選んだ構成でビルド
 sudo nixos-rebuild switch --flake ~/nixos-cp#minimal   # CLIのみ
 sudo nixos-rebuild switch --flake ~/nixos-cp#full      # GUI付き
-sudo nixos-rebuild switch --flake ~/nixos-cp#x1carbon  # X1 Carbon
+sudo nixos-rebuild switch --flake ~/nixos-cp#x1nano  # X1 Carbon
 ```
 
 ### 6. AtCoderログイン
@@ -101,7 +101,7 @@ nix-shell --run 'bash fetch_all.sh'
 
 ```bash
 cp-go
-# または Super+G (full/x1carbon)
+# または Super+G (full/x1nano)
 ```
 
 問題が自動選択され、ブラウザとnvimが開きます。
@@ -121,7 +121,7 @@ nvim内で:
 - `Space+cr` — テスト実行
 - `Space+cs` — 保存+提出
 
-### キーバインド (full/x1carbon)
+### キーバインド (full/x1nano)
 
 | キー | 動作 |
 |------|------|

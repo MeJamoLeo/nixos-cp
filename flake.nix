@@ -51,15 +51,15 @@
 			};
 
 			# full + X1 Carbon hardware, fingerprint, TLP, Claude Code
-			x1carbon = let system = "x86_64-linux"; in nixpkgs.lib.nixosSystem {
+			x1nano = let system = "x86_64-linux"; in nixpkgs.lib.nixosSystem {
 				inherit system;
 				modules = [
-					./hosts/x1carbon/configuration.nix
+					./hosts/x1nano/configuration.nix
 					home-manager.nixosModules.home-manager
 					{
 						home-manager.useGlobalPkgs = true;
 						home-manager.useUserPackages = true;
-						home-manager.users.treo = import ./hosts/x1carbon/home.nix;
+						home-manager.users.treo = import ./hosts/x1nano/home.nix;
 						home-manager.sharedModules = [
 							nixvim.homeManagerModules.nixvim
 						];
