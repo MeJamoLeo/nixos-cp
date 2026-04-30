@@ -15,12 +15,16 @@
   # Sway
   programs.sway.enable = true;
 
-  # Firefox with DuckDuckGo default
+  # Firefox: DuckDuckGo search, NoviSteps as homepage / startup page
   programs.firefox = {
     enable = true;
     policies = {
       SearchEngines = {
         Default = "DuckDuckGo";
+      };
+      Homepage = {
+        URL = "https://novisteps.app/";
+        StartPage = "homepage";
       };
     };
   };
