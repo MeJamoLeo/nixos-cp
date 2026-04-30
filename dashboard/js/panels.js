@@ -95,7 +95,7 @@ function renderSpeedBars(d) {
 	if(!sp.length)return '';
 	function fmt(s){const m=Math.floor(s/60),sec=String(s%60).padStart(2,'0');return m+':'+sec;}
 	let h='<div class="section-label">ラップタイム</div>';
-	sp.slice(-8).forEach(c=>{
+	sp.slice(-8).reverse().forEach(c=>{
 		const dur=c.duration_seconds||(c.contest.includes('ARC')?7200:6000);
 		const totalUsed=c.laps.length?c.laps[c.laps.length-1].cumulative:0;
 		const remaining=Math.max(dur-totalUsed,0);
@@ -199,7 +199,7 @@ function renderMarkdownWithMath(text) {
 		return '%%MATH' + idx + '%%';
 	});
 	// 2. Parse markdown
-	var html = (typeof marked !== 'undefined') ? marked.parse(src) : escHtml(src).replace(/\n/g, '<br>');
+	var html = (typeof marked !== 'undefined') ? marked.parse(src, {breaks: true}) : escHtml(src).replace(/\n/g, '<br>');
 	// 3. Restore LaTeX
 	for (var i = 0; i < placeholders.length; i++) {
 		html = html.replace('%%MATH' + i + '%%', placeholders[i]);
