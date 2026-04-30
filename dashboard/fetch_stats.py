@@ -23,6 +23,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+import problem_selector
+
 # Use system local timezone instead of hardcoded JST
 try:
     LOCAL_TZ = datetime.now().astimezone().tzinfo
@@ -1507,6 +1509,15 @@ def main() -> None:
         else ([], 0, 0)
     )
 
+    # Load SRS for queue preview
+    srs_path = Path.home() / "cp" / "srs.json"
+    srs_data: dict = {}
+    if srs_path.exists():
+        try:
+            srs_data = json.loads(srs_path.read_text())
+        except (json.JSONDecodeError, OSError):
+            srs_data = {}
+
     stats: dict[str, Any] = {
         "generated_at": datetime.now(LOCAL_TZ).isoformat(),
         "user": cfg.username,
@@ -1542,11 +1553,6 @@ def main() -> None:
         "contests": upcoming,
         "compare": build_compare(submissions) if has_submissions else {},
         "unreviewed_contests": build_unreviewed_contests(),
-        "warmup_candidates": (
-            build_warmup_candidates(submissions, difficulties, problems_list)
-            if has_submissions
-            else []
-        ),
         "language_stats": (
             build_language_stats(submissions) if has_submissions else []
         ),
@@ -1556,6 +1562,35 @@ def main() -> None:
             submissions, difficulties, problems_list, ratings
         ),
     }
+
+    # Queue preview: cp-go's next problems (SRS → WA → Skill)
+    today = datetime.now(LOCAL_TZ).date().isoformat()
+    if has_submissions:
+        stats["queue"] = problem_selector.build_queue(
+            srs=srs_data,
+            wa_queue=stats["wa_queue"],
+            skill_graph=stats["skill_graph"],
+            difficulties=difficulties,
+            today=today,
+            limit=6,
+        )
+
+        # Warmup pool for cp-go (session's first problem)
+        ac_map = _ac_problems(submissions)
+        ac_set = set(ac_map.keys())
+        problems_map = {p["id"]: p for p in problems_list}
+        current_rating = ratings[-1]["NewRating"] if ratings else 0
+        stats["warmup_pool"] = problem_selector.build_warmup_pool(
+            srs=srs_data,
+            difficulties=difficulties,
+            problems_map=problems_map,
+            ac_set=ac_set,
+            current_rating=current_rating,
+            limit=30,
+        )
+    else:
+        stats["queue"] = []
+        stats["warmup_pool"] = []
 
     # Atomic write
     tmp = cfg.output_path.with_suffix(".tmp")

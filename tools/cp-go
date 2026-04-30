@@ -105,7 +105,10 @@ select_problem() {
     local MODE="$1"  # "warmup" or "main"
     SKIP_LIST=$(IFS=,; echo "${SKIP_PIDS[*]:-}")
     SKIP="$SKIP_LIST" SRS_FILE="$HOME/cp/srs.json" PMODE="$MODE" STATS="$STATS_FILE" python3 << 'PYEOF'
-import json, random, sys, os, datetime
+import json, os, sys, datetime
+
+sys.path.insert(0, os.path.expanduser("~/nixos-cp/dashboard"))
+import problem_selector
 
 skip = set(os.environ.get("SKIP", "").split(",")) - {""}
 mode = os.environ.get("PMODE", "main")
@@ -127,60 +130,29 @@ with open(stats_path) as f:
 
 rating = data.get("difficulty_log", {}).get("current_rating", 0)
 
-def fmt(pid):
-    parts = pid.rsplit("_", 1)
-    contest = parts[0] if len(parts) == 2 else pid
-    problem = parts[1] if len(parts) == 2 else "a"
-    return contest, problem
 
-graduated = {pid for pid, e in srs.items() if e.get("graduated")}
+def emit(pick):
+    print(f"{pick['source']}|{pick['contest_id']}|{pick['problem']}|{pick['problem_id']}|{pick['message']}")
+
 
 if mode == "warmup":
-    # Warmup: pre-computed candidates from AC'd diff 25th percentile
-    warmups = data.get("warmup_candidates", [])
-    for w in warmups:
-        pid = w["problem_id"]
-        if pid in skip or pid in graduated:
-            continue
-        c, p = fmt(pid)
-        print(f"WARMUP|{c}|{p}|{pid}|ウォームアップ: diff{w['difficulty']}")
+    pick = problem_selector.pick_warmup(data.get("warmup_pool", []), skip)
+    if pick:
+        emit(pick)
         sys.exit(0)
-    print(f"NONE|||||ウォームアップ問題なし")
+    print("NONE|||||ウォームアップ問題なし")
     sys.exit(0)
 
-# Main mode: SRS → WA → Skill tree → Random
-# Priority 0: SRS review due
-for pid, entry in srs.items():
-    if entry.get("graduated") or pid in skip:
-        continue
-    nr = entry.get("next_review")
-    if nr and nr <= today:
-        c, p = fmt(pid)
-        streak = entry.get("consecutive_ac", 0)
-        skips = entry.get("skip_count", 0)
-        hint = " (📖解説読んでから)" if skips >= 2 else ""
-        print(f"SRS|{c}|{p}|{pid}|復習(SRS): {streak}/2 AC{hint}")
-        sys.exit(0)
-
-# Priority 1: WA Queue
-for pick in data.get("wa_queue", []):
-    pid = pick["problem_id"]
-    if pid in skip:
-        continue
-    c, p = fmt(pid)
-    print(f"WA|{c}|{p}|{pid}|復習: WA×{pick['wa_count']} diff{pick.get('difficulty','?')}")
+pick = problem_selector.pick_main_one(
+    srs=srs,
+    wa_queue=data.get("wa_queue", []),
+    skill_graph=data.get("skill_graph", {}),
+    skip=skip,
+    today=today,
+)
+if pick:
+    emit(pick)
     sys.exit(0)
-
-# Priority 2: Skill tree benchmarks (tier 2+)
-sg = data.get("skill_graph", {})
-for node in sg.get("nodes", []):
-    if node.get("tier", 0) < 2:
-        continue
-    for bm in node.get("benchmarks", []):
-        if not bm["ac"] and bm["id"] not in skip:
-            c, p = fmt(bm["id"])
-            print(f"SKILL|{c}|{p}|{bm['id']}|スキル: {node.get('label','')}")
-            sys.exit(0)
 
 print(f"NONE|||||おすすめ問題なし (rating={rating})")
 PYEOF
@@ -188,10 +160,8 @@ PYEOF
 
 # --- Main loop ---
 while true; do
-    # Determine mode: first problem = warmup, then 1 in 3 = warmup
+    # Warmup is the first problem of the session only — one easy AC to start.
     if [[ $SESSION_COUNT -eq 0 ]]; then
-        MODE="warmup"
-    elif (( SESSION_COUNT % 3 == 0 )); then
         MODE="warmup"
     else
         MODE="main"
@@ -280,10 +250,8 @@ while true; do
     SESSION_LOG+=("$PID  ${PROB_MINS}min  [$MESSAGE]")
     SKIP_PIDS+=("$PID")
 
-    # Peek at next problem for curiosity
-    NEXT_MODE="main"
-    (( (SESSION_COUNT) % 3 == 0 )) && NEXT_MODE="warmup"
-    NEXT_PEEK=$(select_problem "$NEXT_MODE" 2>/dev/null | head -1)
+    # Peek at next problem for curiosity (always main; warmup only runs at count 0)
+    NEXT_PEEK=$(select_problem "main" 2>/dev/null | head -1)
     NEXT_MSG=""
     if [[ -n "$NEXT_PEEK" && "$NEXT_PEEK" != NONE* ]]; then
         NEXT_MSG=$(echo "$NEXT_PEEK" | cut -d'|' -f5)

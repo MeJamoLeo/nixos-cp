@@ -129,20 +129,24 @@ function renderContestList(d) {
 	return h;
 }
 
-function renderRecommend(d) {
-	const rec = d.recommend || [];
-	let h = '<div class="section-label">おすすめ問題</div>';
-	if (!rec.length) {
-		h += '<div style="font-size:var(--fs-sm);color:var(--dim);padding:4px 0">データ取得中...</div>';
+function renderQueue(d) {
+	const q = d.queue || [];
+	let h = '<div class="section-label">次の問題 (cp-go)</div>';
+	if (!q.length) {
+		h += '<div style="font-size:var(--fs-sm);color:var(--dim);padding:4px 0">やるべきこと終了 🎉</div>';
 		return h;
 	}
-	rec.forEach(r => {
-		const url = r.url || '#';
+	const srcColor = {SRS:'var(--green)', WA:'var(--amber)', SKILL:'var(--cyan)'};
+	q.forEach(p => {
+		const url = p.url || '#';
+		const col = srcColor[p.source] || 'var(--dim)';
 		h += '<div class="wa-item">'
-			+ '<div class="wa-indicator" style="background:var(--cyan)"></div>'
-			+ '<a href="'+url+'" style="font-size:var(--fs-md);color:var(--cyan);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:none">'+r.problem_id+'</a>'
-			+ '<span class="wa-tag">'+r.tag+'</span>'
-			+ '<span class="wa-diff">'+r.difficulty+'</span></div>';
+			+ '<div class="wa-indicator" style="background:'+col+'"></div>'
+			+ '<span style="font-size:var(--fs-2xs);color:'+col+';min-width:34px">['+p.source+']</span>'
+			+ '<a href="'+url+'" style="font-size:var(--fs-md);color:'+col+';flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:none">'+p.problem_id+'</a>'
+			+ (p.tag ? '<span class="wa-tag">'+p.tag+'</span>' : '')
+			+ (p.difficulty ? '<span class="wa-diff">'+p.difficulty+'</span>' : '')
+			+ '</div>';
 	});
 	return h;
 }
