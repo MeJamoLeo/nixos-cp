@@ -46,7 +46,7 @@ echo "contest" > "$CONTEST_DIR/.contest_mode"
 
 echo ""
 echo "Created: $CONTEST_DIR"
-echo "Contest mode: insight is skipped until 'cp-review $CONTEST'"
+echo "Contest mode: insight is skipped during the contest (add later via cp-finish)"
 echo ""
 echo "cd $CONTEST_DIR/a && nvim main.py"
 echo "After :wq → auto test + submit (no insight prompt)"

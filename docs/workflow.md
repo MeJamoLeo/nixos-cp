@@ -50,15 +50,9 @@ flowchart TD
     SUB_B --> DOTS[...]
     
     DOTS --> END_CONTEST([コンテスト終了])
-    END_CONTEST --> REVIEW[cp-review abc453]
-    
-    REVIEW --> TAG_A[A: タグ + insight]
-    TAG_A --> TAG_B[B: タグ + insight]
-    TAG_B --> TAG_C[C: タグ + insight]
-    TAG_C --> DONE([レビュー完了])
-    
-    END_CONTEST -.->|未レビュー| DASH[ダッシュボードに警告表示]
-    DONE -.->|レビュー完了| DASH_CLEAR[警告消える]
+    END_CONTEST --> REVISIT[各問題ディレクトリで cp-finish 再実行]
+    REVISIT --> TAG[タグ + insight 記入]
+    TAG --> DONE([レビュー完了])
 ```
 
 ## データフロー

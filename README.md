@@ -99,13 +99,10 @@ Data updates every 2 minutes from AtCoder/kenkoooo APIs.
 ## CLI Tools
 
 ```bash
-cp-go              # Auto-select problem → browser + nvim → test → submit → insight
+cp-go              # Practice session: AtCoder Problems Recommendation → nvim → test → submit
 cp-new abc453      # Set up contest directory with all problems
 cp-submit main.py  # Copy to clipboard + open submit page (or auto-submit during contests)
 cp-finish main.py  # Test → submit → result → insight (called by cp-go)
-cp-review abc453   # Post-contest review: tag + insight per problem
-cp-srs             # Spaced repetition: review schedule, record results
-cp-demo            # Try the full workflow with a fixed easy problem
 cp-login           # Set AtCoder session cookie
 ```
 
@@ -113,10 +110,11 @@ cp-login           # Set AtCoder session cookie
 
 `cp-go` runs a continuous practice session:
 
-1. **Warmup** — an easy problem from your AC'd difficulty range (1st problem, then every 3rd)
-2. **Main** — selected by priority: SRS review due → WA retry → skill tree benchmark
+1. **Problem selection** — faithful port of AtCoder Problems Recommendation (Easy/Moderate/Difficult)
+   - Default: 1st problem = Easy, rest = Moderate
+   - `cp-go [easy|moderate|difficult]` pins one bucket for the whole session
+2. **Solve** — opens the problem in the browser + edits main.py / main.cpp in nvim
 3. **After solving** — test locally → submit → record result → write insight (optional)
-4. **SRS** — problems you skip or fail are scheduled for review (1→3→7→14→30 day intervals)
 
 ## Neovim Keybindings
 

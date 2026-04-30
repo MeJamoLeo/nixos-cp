@@ -97,13 +97,10 @@ AtCoder/kenkoooo APIから2分ごとにデータ更新。
 ## CLIツール
 
 ```bash
-cp-go              # 問題自動選択 → ブラウザ + nvim → テスト → 提出 → insight
+cp-go              # 練習セッション: AtCoder Problems Recommendation → nvim → テスト → 提出
 cp-new abc453      # コンテスト全問題のディレクトリ作成 + テストケースDL
 cp-submit main.py  # クリップボードにコピー + 提出ページを開く (コンテスト中は自動提出)
 cp-finish main.py  # テスト → 提出 → 結果記録 → insight (cp-goから呼ばれる)
-cp-review abc453   # コンテスト後の振り返り: タグ + insight
-cp-srs             # 忘却曲線復習: スケジュール確認、結果記録
-cp-demo            # 固定の簡単な問題でフルワークフロー体験
 cp-login           # AtCoderセッションcookie設定
 ```
 
@@ -111,10 +108,11 @@ cp-login           # AtCoderセッションcookie設定
 
 `cp-go` は連続精進セッションを実行:
 
-1. **ウォームアップ** — AC済みdiff分布の低い方から出題 (1問目、以降3問に1回)
-2. **メイン** — 優先度順に選択: SRS復習 → WA再挑戦 → スキルツリーベンチマーク
+1. **問題選択** — AtCoder Problems Recommendation を移植 (Easy/Moderate/Difficult)
+   - デフォルト: 1問目=Easy、以降=Moderate
+   - `cp-go [easy|moderate|difficult]` でセッション全体の難易度固定
+2. **解答** — ブラウザで問題を開く + nvim で main.py / main.cpp 編集
 3. **解答後** — ローカルテスト → 提出 → 結果記録 → insight記入 (任意)
-4. **SRS** — スキップ・不正解の問題は忘却曲線で復習スケジュール (1→3→7→14→30日)
 
 ## Neovimキーバインド
 

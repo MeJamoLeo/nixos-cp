@@ -77,7 +77,7 @@ fi
 # --- Contest mode: skip everything else ---
 if [[ -n "$SKIP_INSIGHT" ]]; then
     echo ""
-    echo "Contest mode: insight skipped. Run 'cp-review' after contest."
+    echo "Contest mode: insight skipped (re-run cp-finish after contest to add)."
     exit 0
 fi
 
