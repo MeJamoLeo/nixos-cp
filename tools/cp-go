@@ -1,18 +1,48 @@
 #!/usr/bin/env bash
-# cp-go — open NoviSteps and a Python scratch file.
-# Practice flow: solve in nvim using competitest (Space+cr / Space+cs).
+# cp-go — clipboard-aware practice launcher.
+#
+# With an AtCoder problem URL on the clipboard (or as $1):
+#   create ~/cp/contests/<contest>/<problem>, run `oj download`,
+#   then open main.py in nvim. The browser is assumed to be open already.
+#
+# Without a usable URL: open NoviSteps in a new Firefox tab.
 set -euo pipefail
 
-WATCHLIST="$HOME/nixos-cp/dashboard/watchlist.json"
-USER=$(python3 -c "import json; print(json.load(open('$WATCHLIST'))[0])" 2>/dev/null || echo "")
+CP_DIR="$HOME/cp"
+URL_RE='^https://atcoder\.jp/contests/[^/]+/tasks/[^/]+$'
 
-URL="https://novisteps.app/users/${USER:-}"
+read_clipboard() {
+    if command -v wl-paste &>/dev/null; then
+        wl-paste 2>/dev/null | tr -d '[:space:]' || true
+    elif command -v xclip &>/dev/null; then
+        xclip -selection clipboard -o 2>/dev/null | tr -d '[:space:]' || true
+    fi
+}
 
-if command -v firefox &>/dev/null; then
-    firefox --new-tab "$URL" &>/dev/null &
-    disown
+URL="${1:-$(read_clipboard)}"
+
+if [[ ! "$URL" =~ $URL_RE ]]; then
+    if command -v firefox &>/dev/null; then
+        firefox --new-tab "https://novisteps.app/" &>/dev/null &
+        disown
+    fi
+    exit 0
 fi
 
-mkdir -p "$HOME/cp/scratch"
-cd "$HOME/cp/scratch"
+CONTEST="${URL#https://atcoder.jp/contests/}"
+CONTEST="${CONTEST%%/*}"
+PID="${URL##*/tasks/}"
+PROBLEM="${PID##*_}"
+
+DIR="$CP_DIR/contests/$CONTEST/$PROBLEM"
+mkdir -p "$DIR"
+echo "$URL" > "$DIR/.problem_url"
+
+if [[ ! -d "$DIR/test" ]]; then
+    (cd "$DIR" && oj download "$URL")
+fi
+
+[[ ! -f "$DIR/main.py" ]] && touch "$DIR/main.py"
+
+cd "$DIR"
 exec nvim main.py
