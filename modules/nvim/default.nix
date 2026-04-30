@@ -190,9 +190,7 @@
     keymaps = [
       # Competitest
       { mode = "n"; key = "<leader>cr"; action = "<cmd>CompetiTest run<cr>"; options.desc = "Run testcases"; }
-      # NOTE: cp-submit was removed. Bind <leader>cs to oj submit or competitest's
-      # built-in submit when you decide on the new submit flow.
-      { mode = "n"; key = "<leader>cs"; action = "<cmd>w<cr><cmd>!oj submit -y \"$(cat .problem_url)\" %<cr>"; options.desc = "Save + oj submit"; }
+      { mode = "n"; key = "<leader>cs"; action = "<cmd>w<cr><cmd>!cp-submit %<cr>"; options.desc = "Save + submit"; }
       { mode = "n"; key = "<leader>ca"; action = "<cmd>CompetiTest add_testcase<cr>"; options.desc = "Add testcase"; }
       { mode = "n"; key = "<leader>ce"; action = "<cmd>CompetiTest edit_testcase<cr>"; options.desc = "Edit testcase"; }
       { mode = "n"; key = "<leader>ct"; action = "<cmd>CompetiTest receive testcases<cr>"; options.desc = "Receive testcases"; }

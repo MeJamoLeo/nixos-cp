@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+# cp-submit — submit solution to AtCoder
+# Contest mode: curl POST (fast, no browser)
+# Practice mode: clipboard + browser (bypasses Turnstile)
+set -euo pipefail
+
+SOLUTION="${1:-main.py}"
+COOKIE_FILE="$HOME/.local/share/online-judge-tools/cookie.jar"
+
+# Resolve to absolute path
+SOLUTION=$(realpath "$SOLUTION" 2>/dev/null || echo "$SOLUTION")
+
+if [[ ! -f "$SOLUTION" ]]; then
+    echo "Error: $SOLUTION not found" >&2
+    exit 1
+fi
+
+# Find .problem_url from solution file's directory
+PROB_DIR=$(dirname "$SOLUTION")
+if [[ -f "$PROB_DIR/.problem_url" ]]; then
+    URL=$(cat "$PROB_DIR/.problem_url")
+elif [[ -f ".problem_url" ]]; then
+    URL=$(cat .problem_url)
+else
+    echo -n "Problem URL: "
+    read -r URL
+fi
+
+PID=$(echo "$URL" | grep -oP '[^/]+$')
+CONTEST_ID=$(echo "$URL" | grep -oP 'contests/\K[^/]+')
+
+# Validate URL domain and IDs
+if [[ ! "$URL" =~ ^https://atcoder\.jp/ ]]; then
+    echo "Error: URL must be on atcoder.jp" >&2
+    exit 1
+fi
+if [[ ! "$CONTEST_ID" =~ ^[a-z0-9_-]+$ ]] || [[ ! "$PID" =~ ^[a-z0-9_]+$ ]]; then
+    echo "Error: invalid contest/problem ID" >&2
+    exit 1
+fi
+
+SUBMIT_URL="https://atcoder.jp/contests/$CONTEST_ID/submit"
+
+# --- Detect contest mode ---
+# Check if current time is within any active contest
+IN_CONTEST=$(python3 -c "
+import json, time, os, glob
+paths = glob.glob(os.path.expanduser('~/.cache/cp-dashboard/stats*.json'))
+now = time.time()
+for p in paths:
+    try:
+        with open(p) as f:
+            data = json.load(f)
+        for c in data.get('contests', []):
+            start = c.get('start_epoch', 0)
+            dur = c.get('duration_seconds', 0)
+            if start <= now <= start + dur:
+                print('yes')
+                exit()
+    except: pass
+print('no')
+" 2>/dev/null || echo "no")
+
+echo "=== cp-submit ==="
+echo "Problem:  $PID"
+echo "Contest:  $CONTEST_ID"
+echo "Mode:     $([ "$IN_CONTEST" = "yes" ] && echo "CONTEST (auto)" || echo "PRACTICE (browser)")"
+echo ""
+
+if [[ "$IN_CONTEST" == "yes" ]]; then
+    # --- Contest mode: curl POST ---
+    SESSION=$(grep 'REVEL_SESSION=' "$COOKIE_FILE" | head -1 | sed 's/.*REVEL_SESSION="//;s/".*//')
+    if [[ -z "$SESSION" ]]; then
+        echo "Error: No cookie. Run cp-login first." >&2
+        exit 1
+    fi
+
+    UA="Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0"
+    TMPJAR=$(mktemp)
+    TMPHTML=$(mktemp)
+    trap 'rm -f "$TMPJAR" "$TMPHTML"' EXIT
+
+    echo "Fetching CSRF token..."
+    SUBMIT_PAGE=$(curl -s -A "$UA" -b "REVEL_SESSION=$SESSION" -c "$TMPJAR" "$SUBMIT_URL")
+    CSRF=$(echo "$SUBMIT_PAGE" | grep 'var csrfToken' | sed 's/.*var csrfToken = "//;s/".*//' || echo "")
+
+    if [[ -z "$CSRF" ]]; then
+        echo "CSRF token failed. Falling back to browser..."
+        IN_CONTEST="no"
+    else
+        # Auto-detect language ID
+        _detect_lang() {
+            local PAGE="$1" EXT="$2"
+            case "$EXT" in
+                py)  echo "$PAGE" | grep 'option.*Python.*CPython' | head -1 | sed 's/.*value="//;s/".*//' ;;
+                cpp) echo "$PAGE" | grep 'option.*C++.*GCC' | head -1 | sed 's/.*value="//;s/".*//' ;;
+            esac
+        }
+        EXT="${SOLUTION##*.}"
+        LANG_ID=$(_detect_lang "$SUBMIT_PAGE" "$EXT")
+        LANG_ID="${LANG_ID:-6082}"
+
+        echo "Language: $LANG_ID"
+        echo "Submitting..."
+
+        SOURCE=$(cat "$SOLUTION")
+        RESPONSE=$(curl -s -w "%{http_code}" -o $TMPHTML \
+            -A "$UA" \
+            -b "$TMPJAR" \
+            -H "Referer: $SUBMIT_URL" \
+            --data-urlencode "data.TaskScreenName=$PID" \
+            --data-urlencode "data.LanguageId=$LANG_ID" \
+            --data-urlencode "sourceCode=$SOURCE" \
+            --data-urlencode "csrf_token=$CSRF" \
+            "$SUBMIT_URL")
+
+        if [[ "$RESPONSE" == "302" ]] || ! grep -q 'alert-danger' $TMPHTML 2>/dev/null; then
+            echo "Submitted!"
+            SUBMISSIONS_URL="https://atcoder.jp/contests/$CONTEST_ID/submissions/me"
+            if command -v firefox &>/dev/null; then
+                firefox --new-tab "$SUBMISSIONS_URL" &>/dev/null &
+                disown
+            fi
+            echo "Check result: $SUBMISSIONS_URL"
+            exit 0
+        else
+            echo "Auto-submit failed. Falling back to browser..."
+            IN_CONTEST="no"
+        fi
+    fi
+fi
+
+if [[ "$IN_CONTEST" != "yes" ]]; then
+    # --- Practice mode: clipboard + browser ---
+    if command -v wl-copy &>/dev/null; then
+        wl-copy < "$SOLUTION"
+        echo "Copied to clipboard!"
+    else
+        echo "Warning: wl-copy not found" >&2
+    fi
+
+    if command -v firefox &>/dev/null; then
+        firefox --new-tab "$SUBMIT_URL" &>/dev/null &
+        disown
+    fi
+
+    echo ""
+    echo "1. Ctrl+V to paste code"
+    echo "2. Select language"
+    echo "3. Click Submit"
+fi
