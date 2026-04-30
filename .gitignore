@@ -34,6 +34,11 @@
 !tools/cp-*
 !tools/README.md
 
+# CP snippets (LuaSnip, hot-loaded into nvim via home.file symlink)
+!snippets/
+!snippets/**/*.lua
+!snippets/.gitkeep
+
 # Dotfiles
 !dotfiles/
 !dotfiles/**/*
