@@ -7,7 +7,7 @@ function hydrate() {
 		+'<div class="col-left">'
 			+'<div style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden">'+renderPlayerStatus(d)+'</div>'
 			+'<div style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden">'+renderWAQueue(d)+'</div>'
-			+'<div class="panel accent-cyan" data-label="QUEUE" style="flex:1;background:var(--dbg-recommend);min-height:0;overflow:hidden"><div class="panel-inner">'+renderQueue(d)+'</div></div>'
+			+'<div class="panel accent-cyan" data-label="RECOMMEND" style="flex:1;background:var(--dbg-recommend);min-height:0;overflow:hidden"><div class="panel-inner">'+renderRecommend(d)+'</div></div>'
 			+'<div style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden">'+renderInsight(d)+'</div>'
 		+'</div>'
 		+'<div class="col-right">'

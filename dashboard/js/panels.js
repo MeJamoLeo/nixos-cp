@@ -129,25 +129,34 @@ function renderContestList(d) {
 	return h;
 }
 
-function renderQueue(d) {
-	const q = d.queue || [];
-	let h = '<div class="section-label">次の問題 (cp-go)</div>';
-	if (!q.length) {
-		h += '<div style="font-size:var(--fs-sm);color:var(--dim);padding:4px 0">やるべきこと終了 🎉</div>';
-		return h;
-	}
-	const srcColor = {SRS:'var(--green)', WA:'var(--amber)', SKILL:'var(--cyan)'};
-	q.forEach(p => {
-		const url = p.url || '#';
-		const col = srcColor[p.source] || 'var(--dim)';
-		h += '<div class="wa-item">'
-			+ '<div class="wa-indicator" style="background:'+col+'"></div>'
-			+ '<span style="font-size:var(--fs-2xs);color:'+col+';min-width:34px">['+p.source+']</span>'
-			+ '<a href="'+url+'" style="font-size:var(--fs-md);color:'+col+';flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:none">'+p.problem_id+'</a>'
-			+ (p.tag ? '<span class="wa-tag">'+p.tag+'</span>' : '')
-			+ (p.difficulty ? '<span class="wa-diff">'+p.difficulty+'</span>' : '')
-			+ '</div>';
+function renderRecommend(d) {
+	const recs = d.recommendations || {easy:[], moderate:[], difficult:[]};
+	const ir = d.internal_rating;
+	const irLabel = (ir != null) ? ' (内部'+ir+')' : '';
+	let h = '<div class="section-label">AtCoder Problems Recommendation'+irLabel+'</div>';
+	const buckets = [
+		{key:'easy',      label:'Easy',      col:'var(--green)'},
+		{key:'moderate',  label:'Moderate',  col:'var(--cyan)'},
+		{key:'difficult', label:'Difficult', col:'var(--amber)'},
+	];
+	buckets.forEach(b => {
+		const list = (recs[b.key] || []).slice(0, 3);
+		if (!list.length) return;
+		h += '<div style="font-size:var(--fs-2xs);color:'+b.col+';margin-top:2px">'+b.label+'</div>';
+		list.forEach(p => {
+			const url = p.url || '#';
+			const prob = (p.predicted_probability != null) ? (Math.round(p.predicted_probability*100)+'%') : '';
+			h += '<div class="wa-item">'
+				+ '<div class="wa-indicator" style="background:'+b.col+'"></div>'
+				+ '<a href="'+url+'" style="font-size:var(--fs-md);color:'+b.col+';flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:none">'+p.problem_id+'</a>'
+				+ '<span class="wa-tag">'+prob+'</span>'
+				+ '<span class="wa-diff">'+p.difficulty+'</span>'
+				+ '</div>';
+		});
 	});
+	if (h.indexOf('wa-item') === -1) {
+		h += '<div style="font-size:var(--fs-sm);color:var(--dim);padding:4px 0">候補なし</div>';
+	}
 	return h;
 }
 

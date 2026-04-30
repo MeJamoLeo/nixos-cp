@@ -20,6 +20,7 @@
 !dashboard/dashboard.html
 !dashboard/dashboard.py
 !dashboard/fetch_stats.py
+!dashboard/recommender.py
 !dashboard/shell.nix
 !dashboard/switch_user.sh
 !dashboard/watchlist.json

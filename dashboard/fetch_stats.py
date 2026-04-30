@@ -23,7 +23,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-import problem_selector
+import recommender
 
 # Use system local timezone instead of hardcoded JST
 try:
@@ -1509,15 +1509,6 @@ def main() -> None:
         else ([], 0, 0)
     )
 
-    # Load SRS for queue preview
-    srs_path = Path.home() / "cp" / "srs.json"
-    srs_data: dict = {}
-    if srs_path.exists():
-        try:
-            srs_data = json.loads(srs_path.read_text())
-        except (json.JSONDecodeError, OSError):
-            srs_data = {}
-
     stats: dict[str, Any] = {
         "generated_at": datetime.now(LOCAL_TZ).isoformat(),
         "user": cfg.username,
@@ -1563,34 +1554,28 @@ def main() -> None:
         ),
     }
 
-    # Queue preview: cp-go's next problems (SRS → WA → Skill)
-    today = datetime.now(LOCAL_TZ).date().isoformat()
-    if has_submissions:
-        stats["queue"] = problem_selector.build_queue(
-            srs=srs_data,
-            wa_queue=stats["wa_queue"],
-            skill_graph=stats["skill_graph"],
-            difficulties=difficulties,
-            today=today,
-            limit=6,
+    # AtCoder Problems Recommendation (faithful port)
+    if has_submissions and ratings:
+        latest_rating = ratings[-1]["NewRating"]
+        participations = recommender.participation_count_from_history(ratings)
+        internal_rating = recommender.compute_internal_rating(
+            latest_rating, participations
         )
-
-        # Warmup pool for cp-go (session's first problem)
-        ac_map = _ac_problems(submissions)
-        ac_set = set(ac_map.keys())
-        problems_map = {p["id"]: p for p in problems_list}
-        current_rating = ratings[-1]["NewRating"] if ratings else 0
-        stats["warmup_pool"] = problem_selector.build_warmup_pool(
-            srs=srs_data,
-            difficulties=difficulties,
-            problems_map=problems_map,
-            ac_set=ac_set,
-            current_rating=current_rating,
-            limit=30,
+        submitted_ids = {s["problem_id"] for s in submissions}
+        stats["recommendations"] = recommender.recommend_all(
+            problems=problems_list,
+            problem_models=difficulties,
+            submitted_ids=submitted_ids,
+            internal_rating=internal_rating,
+            num=10,
+            include_experimental=True,
+        )
+        stats["internal_rating"] = (
+            round(internal_rating) if internal_rating is not None else None
         )
     else:
-        stats["queue"] = []
-        stats["warmup_pool"] = []
+        stats["recommendations"] = {"easy": [], "moderate": [], "difficult": []}
+        stats["internal_rating"] = None
 
     # Atomic write
     tmp = cfg.output_path.with_suffix(".tmp")

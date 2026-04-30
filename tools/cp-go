@@ -100,82 +100,67 @@ else:
     fi
 fi
 
+# --- Difficulty option (AtCoder Problems Recommendation) ---
+# Usage: cp-go [easy|moderate|difficult]
+# Default: easy for the first problem of the session, moderate afterwards.
+FIXED_OPTION="${1:-}"
+if [[ -n "$FIXED_OPTION" && "$FIXED_OPTION" != "easy" && "$FIXED_OPTION" != "moderate" && "$FIXED_OPTION" != "difficult" ]]; then
+    echo "Usage: cp-go [easy|moderate|difficult]" >&2
+    exit 1
+fi
+
 # --- Problem selector ---
 select_problem() {
-    local MODE="$1"  # "warmup" or "main"
+    local OPT="$1"  # easy | moderate | difficult
     SKIP_LIST=$(IFS=,; echo "${SKIP_PIDS[*]:-}")
-    SKIP="$SKIP_LIST" SRS_FILE="$HOME/cp/srs.json" PMODE="$MODE" STATS="$STATS_FILE" python3 << 'PYEOF'
-import json, os, sys, datetime
-
-sys.path.insert(0, os.path.expanduser("~/nixos-cp/dashboard"))
-import problem_selector
+    SKIP="$SKIP_LIST" OPT="$OPT" STATS="$STATS_FILE" python3 << 'PYEOF'
+import json, os, sys, random
 
 skip = set(os.environ.get("SKIP", "").split(",")) - {""}
-mode = os.environ.get("PMODE", "main")
-today = datetime.date.today().isoformat()
-
-srs = {}
-srs_file = os.environ.get("SRS_FILE", "")
-if srs_file and os.path.exists(srs_file):
-    with open(srs_file) as f:
-        srs = json.load(f)
+opt = os.environ.get("OPT", "moderate")
 
 stats_path = os.environ.get("STATS", "")
 if not stats_path or not os.path.exists(stats_path):
-    print("NONE|||||データなし")
+    print(f"NONE|||||{opt}: データなし")
     sys.exit(0)
 
 with open(stats_path) as f:
     data = json.load(f)
 
-rating = data.get("difficulty_log", {}).get("current_rating", 0)
-
-
-def emit(pick):
-    print(f"{pick['source']}|{pick['contest_id']}|{pick['problem']}|{pick['problem_id']}|{pick['message']}")
-
-
-if mode == "warmup":
-    pick = problem_selector.pick_warmup(data.get("warmup_pool", []), skip)
-    if pick:
-        emit(pick)
-        sys.exit(0)
-    print("NONE|||||ウォームアップ問題なし")
+recs = (data.get("recommendations") or {}).get(opt, [])
+recs = [r for r in recs if r["problem_id"] not in skip]
+if not recs:
+    print(f"NONE|||||{opt}: 候補なし (内部レート={data.get('internal_rating')})")
     sys.exit(0)
 
-pick = problem_selector.pick_main_one(
-    srs=srs,
-    wa_queue=data.get("wa_queue", []),
-    skill_graph=data.get("skill_graph", {}),
-    skip=skip,
-    today=today,
-)
-if pick:
-    emit(pick)
-    sys.exit(0)
-
-print(f"NONE|||||おすすめ問題なし (rating={rating})")
+# Frontend display order is hardest-first; pick from the top half so the
+# user gets a challenging-but-not-too-painful choice each turn.
+top = recs[: max(1, len(recs) // 2 + 1)]
+pick = random.choice(top)
+pid = pick["problem_id"]
+cid = pick["contest_id"]
+prob = pick.get("predicted_probability", 0.0)
+diff = pick.get("difficulty", 0)
+parts = pid.rsplit("_", 1)
+problem = parts[1] if len(parts) == 2 else "a"
+msg = f"{opt} diff{diff} (P={prob:.2f})"
+print(f"{opt.upper()}|{cid}|{problem}|{pid}|{msg}")
 PYEOF
 }
 
 # --- Main loop ---
 while true; do
-    # Warmup is the first problem of the session only — one easy AC to start.
-    if [[ $SESSION_COUNT -eq 0 ]]; then
-        MODE="warmup"
+    if [[ -n "$FIXED_OPTION" ]]; then
+        OPT="$FIXED_OPTION"
+    elif [[ $SESSION_COUNT -eq 0 ]]; then
+        OPT="easy"
     else
-        MODE="main"
+        OPT="moderate"
     fi
 
-    PROBLEM_DATA=$(select_problem "$MODE")
+    PROBLEM_DATA=$(select_problem "$OPT")
 
     IFS='|' read -r TYPE CONTEST PROBLEM PID MESSAGE <<< "$PROBLEM_DATA"
-
-    # If warmup has nothing, try main
-    if [[ "$TYPE" == "NONE" && "$MODE" == "warmup" ]]; then
-        PROBLEM_DATA=$(select_problem "main")
-        IFS='|' read -r TYPE CONTEST PROBLEM PID MESSAGE <<< "$PROBLEM_DATA"
-    fi
 
     if [[ "$TYPE" == "NONE" ]]; then
         echo ""
@@ -217,11 +202,8 @@ while true; do
     # Save suggested tag for cp-finish auto-fill
     echo "$MESSAGE" > "$PROB_DIR/.suggested_tag"
 
-    local_label=""
-    [[ "$MODE" == "warmup" ]] && local_label=" 🔥"
-
     echo ""
-    echo "── Problem $((SESSION_COUNT + 1))${local_label} ──────────────────────"
+    echo "── Problem $((SESSION_COUNT + 1)) [$OPT] ──────────────────────"
     echo "  $PID"
     echo "  $MESSAGE"
     echo "──────────────────────────────────────────"
@@ -250,8 +232,9 @@ while true; do
     SESSION_LOG+=("$PID  ${PROB_MINS}min  [$MESSAGE]")
     SKIP_PIDS+=("$PID")
 
-    # Peek at next problem for curiosity (always main; warmup only runs at count 0)
-    NEXT_PEEK=$(select_problem "main" 2>/dev/null | head -1)
+    # Peek at next problem for curiosity (uses the next iteration's option)
+    NEXT_OPT="${FIXED_OPTION:-moderate}"
+    NEXT_PEEK=$(select_problem "$NEXT_OPT" 2>/dev/null | head -1)
     NEXT_MSG=""
     if [[ -n "$NEXT_PEEK" && "$NEXT_PEEK" != NONE* ]]; then
         NEXT_MSG=$(echo "$NEXT_PEEK" | cut -d'|' -f5)
