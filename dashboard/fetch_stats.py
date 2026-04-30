@@ -23,7 +23,6 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
-import recommender
 
 # Use system local timezone instead of hardcoded JST
 try:
@@ -1517,65 +1516,18 @@ def main() -> None:
         "player_status": build_player_status(
             submissions, ratings, difficulties, streak_days, max_streak
         ),
-        "wa_queue": (
-            build_wa_queue(
-                submissions, difficulties, problems_list, tag_overrides,
-                current_rating=ratings[-1]["NewRating"] if ratings else 0,
-            )
-            if has_submissions
-            else []
-        ),
         "difficulty_log": (
             build_difficulty_log(submissions, difficulties, ratings)
             if has_submissions
             else {"points": [], "seven_day_avg": [], "current_rating": 0}
         ),
-        "tag_ac_rate": (
-            build_tag_ac_rate(
-                submissions, problems_list, difficulties, tag_overrides
-            )
-            if has_submissions
-            else []
-        ),
         "streak_calendar": calendar,
-        "speed": (
-            build_speed(submissions, ratings) if has_submissions else []
-        ),
         "contests": upcoming,
-        "compare": build_compare(submissions) if has_submissions else {},
-        "unreviewed_contests": build_unreviewed_contests(),
-        "language_stats": (
-            build_language_stats(submissions) if has_submissions else []
-        ),
-        "insight": build_latest_insight(),
         "rating_history": build_rating_log(ratings),
         "skill_graph": build_skill_graph(
             submissions, difficulties, problems_list, ratings
         ),
     }
-
-    # AtCoder Problems Recommendation (faithful port)
-    if has_submissions and ratings:
-        latest_rating = ratings[-1]["NewRating"]
-        participations = recommender.participation_count_from_history(ratings)
-        internal_rating = recommender.compute_internal_rating(
-            latest_rating, participations
-        )
-        submitted_ids = {s["problem_id"] for s in submissions}
-        stats["recommendations"] = recommender.recommend_all(
-            problems=problems_list,
-            problem_models=difficulties,
-            submitted_ids=submitted_ids,
-            internal_rating=internal_rating,
-            num=10,
-            include_experimental=True,
-        )
-        stats["internal_rating"] = (
-            round(internal_rating) if internal_rating is not None else None
-        )
-    else:
-        stats["recommendations"] = {"easy": [], "moderate": [], "difficult": []}
-        stats["internal_rating"] = None
 
     # Atomic write
     tmp = cfg.output_path.with_suffix(".tmp")
