@@ -18,6 +18,7 @@
   home.packages = with pkgs; [
     htop
     git
+    gh
     python3
     fzf
     online-judge-tools
