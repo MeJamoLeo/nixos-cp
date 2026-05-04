@@ -23,6 +23,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
 
+
 # Use system local timezone instead of hardcoded JST
 try:
     LOCAL_TZ = datetime.now().astimezone().tzinfo
@@ -1515,42 +1516,13 @@ def main() -> None:
         "player_status": build_player_status(
             submissions, ratings, difficulties, streak_days, max_streak
         ),
-        "wa_queue": (
-            build_wa_queue(
-                submissions, difficulties, problems_list, tag_overrides,
-                current_rating=ratings[-1]["NewRating"] if ratings else 0,
-            )
-            if has_submissions
-            else []
-        ),
         "difficulty_log": (
             build_difficulty_log(submissions, difficulties, ratings)
             if has_submissions
             else {"points": [], "seven_day_avg": [], "current_rating": 0}
         ),
-        "tag_ac_rate": (
-            build_tag_ac_rate(
-                submissions, problems_list, difficulties, tag_overrides
-            )
-            if has_submissions
-            else []
-        ),
         "streak_calendar": calendar,
-        "speed": (
-            build_speed(submissions, ratings) if has_submissions else []
-        ),
         "contests": upcoming,
-        "compare": build_compare(submissions) if has_submissions else {},
-        "unreviewed_contests": build_unreviewed_contests(),
-        "warmup_candidates": (
-            build_warmup_candidates(submissions, difficulties, problems_list)
-            if has_submissions
-            else []
-        ),
-        "language_stats": (
-            build_language_stats(submissions) if has_submissions else []
-        ),
-        "insight": build_latest_insight(),
         "rating_history": build_rating_log(ratings),
         "skill_graph": build_skill_graph(
             submissions, difficulties, problems_list, ratings

@@ -206,12 +206,18 @@
       { mode = "n"; key = "<leader>q"; action = "<cmd>q<cr>"; options.desc = "Quit"; }
     ];
 
-    # LaTeX snippets for markdown insight files
+    # CP snippets: load .lua files from ~/cp/snippets/<filetype>.lua
+    # so the user can `vim ~/cp/snippets/python.lua`, save, restart nvim,
+    # and the new snippet is immediately available without rebuild.
     extraConfigLua = ''
       local ls = require("luasnip")
       local s = ls.snippet
       local t = ls.text_node
       local i = ls.insert_node
+
+      require("luasnip.loaders.from_lua").lazy_load({
+        paths = vim.fn.expand("~/cp/snippets"),
+      })
 
       ls.add_snippets("markdown", {
         -- Inline math

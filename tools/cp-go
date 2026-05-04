@@ -1,310 +1,48 @@
 #!/usr/bin/env bash
-# cp-go — continuous practice session with warmup/main mix
-# Flow: warmup → main → main → (1 in 3 warmup) → main → ...
+# cp-go — clipboard-aware practice launcher.
+#
+# With an AtCoder problem URL on the clipboard (or as $1):
+#   create ~/cp/contests/<contest>/<problem>, run `oj download`,
+#   then open main.py in nvim. The browser is assumed to be open already.
+#
+# Without a usable URL: open NoviSteps in a new Firefox tab.
 set -euo pipefail
 
-# Ensure tools are in PATH
-export PATH="$PATH:$HOME/nixos-cp/tools"
-
 CP_DIR="$HOME/cp"
-CACHE_DIR="$HOME/.cache/cp-dashboard"
-SESSION_FILE="$CACHE_DIR/session.json"
-WATCHLIST="$HOME/nixos-cp/dashboard/watchlist.json"
+URL_RE='^https://atcoder\.jp/contests/[^/]+/tasks/[^/]+$'
 
-mkdir -p "$CACHE_DIR"
-
-PRIMARY_USER=$(python3 -c "import json; print(json.load(open('$WATCHLIST'))[0])" 2>/dev/null || echo "")
-if [[ -z "$PRIMARY_USER" ]]; then
-    echo "Error: Set your username in dashboard/watchlist.json" >&2
-    exit 1
-fi
-
-STATS_FILE="$CACHE_DIR/stats_${PRIMARY_USER}.json"
-
-# Fetch latest data in background at session start
-FETCH_SCRIPT="$HOME/nixos-cp/dashboard/fetch_all.sh"
-if [[ -f "$FETCH_SCRIPT" ]]; then
-    nix-shell "$HOME/nixos-cp/dashboard/shell.nix" --run "bash $FETCH_SCRIPT" &>/dev/null &
-    disown
-fi
-
-if [[ ! -f "$STATS_FILE" ]]; then
-    STATS_FILE="$CACHE_DIR/stats.json"
-fi
-if [[ ! -f "$STATS_FILE" ]]; then
-    echo "Error: stats not found." >&2
-    exit 1
-fi
-
-# --- Session tracking ---
-SESSION_COUNT=0
-SESSION_AC=0
-SESSION_START=$(date +%s)
-SESSION_LOG=()
-SKIP_PIDS=()
-
-save_session_state() {
-    python3 -c "
-import json
-json.dump({'status': '$1', 'pid': '${CURRENT_PID:-}', 'count': $SESSION_COUNT}, open('$SESSION_FILE', 'w'))
-" 2>/dev/null
+read_clipboard() {
+    if command -v wl-paste &>/dev/null; then
+        wl-paste 2>/dev/null | tr -d '[:space:]' || true
+    elif command -v xclip &>/dev/null; then
+        xclip -selection clipboard -o 2>/dev/null | tr -d '[:space:]' || true
+    fi
 }
 
-trap 'save_session_state "interrupted"; echo ""; echo "Session interrupted."; show_summary; exit 130' INT
+URL="${1:-$(read_clipboard)}"
 
-show_summary() {
-    if [[ $SESSION_COUNT -eq 0 ]]; then return; fi
-    local elapsed=$(( $(date +%s) - SESSION_START ))
-    local mins=$(( elapsed / 60 ))
-    echo ""
-    echo "── Session Complete ──────────────────────"
-    echo "  Problems: $SESSION_COUNT  (AC: $SESSION_AC)"
-    echo "  Time:     ${mins} min"
-    echo ""
-    for entry in "${SESSION_LOG[@]}"; do
-        echo "  $entry"
-    done
-    echo "──────────────────────────────────────────"
-}
-
-# --- Check for interrupted session ---
-if [[ -f "$SESSION_FILE" ]]; then
-    PREV=$(python3 -c "
-import json, os
-s = json.load(open('$SESSION_FILE'))
-if s.get('status') == 'interrupted' and s.get('pid'):
-    print(s['pid'])
-else:
-    print('')
-" 2>/dev/null)
-    if [[ -n "$PREV" ]]; then
-        echo "前回中断: $PREV"
-        echo -n "再開する？ (Y/n): "
-        read -r RESUME
-        if [[ "$RESUME" != "n" && "$RESUME" != "N" ]]; then
-            PARTS_C="${PREV%_*}"
-            PARTS_P="${PREV##*_}"
-            PROB_DIR="$CP_DIR/contests/$PARTS_C/$PARTS_P"
-            if [[ -d "$PROB_DIR" ]]; then
-                cd "$PROB_DIR"
-                RESUME_SOL="main.py"
-                [[ -f main.cpp ]] && RESUME_SOL="main.cpp"
-                nvim "$RESUME_SOL"
-                cp-finish "$RESUME_SOL" || true
-                SESSION_COUNT=1
-                SESSION_LOG+=("$PREV  (resumed)")
-                SKIP_PIDS+=("$PREV")
-            fi
-        fi
-        rm -f "$SESSION_FILE"
-    fi
-fi
-
-# --- Problem selector ---
-select_problem() {
-    local MODE="$1"  # "warmup" or "main"
-    SKIP_LIST=$(IFS=,; echo "${SKIP_PIDS[*]:-}")
-    SKIP="$SKIP_LIST" SRS_FILE="$HOME/cp/srs.json" PMODE="$MODE" STATS="$STATS_FILE" python3 << 'PYEOF'
-import json, random, sys, os, datetime
-
-skip = set(os.environ.get("SKIP", "").split(",")) - {""}
-mode = os.environ.get("PMODE", "main")
-today = datetime.date.today().isoformat()
-
-srs = {}
-srs_file = os.environ.get("SRS_FILE", "")
-if srs_file and os.path.exists(srs_file):
-    with open(srs_file) as f:
-        srs = json.load(f)
-
-stats_path = os.environ.get("STATS", "")
-if not stats_path or not os.path.exists(stats_path):
-    print("NONE|||||データなし")
-    sys.exit(0)
-
-with open(stats_path) as f:
-    data = json.load(f)
-
-rating = data.get("difficulty_log", {}).get("current_rating", 0)
-
-def fmt(pid):
-    parts = pid.rsplit("_", 1)
-    contest = parts[0] if len(parts) == 2 else pid
-    problem = parts[1] if len(parts) == 2 else "a"
-    return contest, problem
-
-graduated = {pid for pid, e in srs.items() if e.get("graduated")}
-
-if mode == "warmup":
-    # Warmup: pre-computed candidates from AC'd diff 25th percentile
-    warmups = data.get("warmup_candidates", [])
-    for w in warmups:
-        pid = w["problem_id"]
-        if pid in skip or pid in graduated:
-            continue
-        c, p = fmt(pid)
-        print(f"WARMUP|{c}|{p}|{pid}|ウォームアップ: diff{w['difficulty']}")
-        sys.exit(0)
-    print(f"NONE|||||ウォームアップ問題なし")
-    sys.exit(0)
-
-# Main mode: SRS → WA → Skill tree → Random
-# Priority 0: SRS review due
-for pid, entry in srs.items():
-    if entry.get("graduated") or pid in skip:
-        continue
-    nr = entry.get("next_review")
-    if nr and nr <= today:
-        c, p = fmt(pid)
-        streak = entry.get("consecutive_ac", 0)
-        skips = entry.get("skip_count", 0)
-        hint = " (📖解説読んでから)" if skips >= 2 else ""
-        print(f"SRS|{c}|{p}|{pid}|復習(SRS): {streak}/2 AC{hint}")
-        sys.exit(0)
-
-# Priority 1: WA Queue
-for pick in data.get("wa_queue", []):
-    pid = pick["problem_id"]
-    if pid in skip:
-        continue
-    c, p = fmt(pid)
-    print(f"WA|{c}|{p}|{pid}|復習: WA×{pick['wa_count']} diff{pick.get('difficulty','?')}")
-    sys.exit(0)
-
-# Priority 2: Skill tree benchmarks (tier 2+)
-sg = data.get("skill_graph", {})
-for node in sg.get("nodes", []):
-    if node.get("tier", 0) < 2:
-        continue
-    for bm in node.get("benchmarks", []):
-        if not bm["ac"] and bm["id"] not in skip:
-            c, p = fmt(bm["id"])
-            print(f"SKILL|{c}|{p}|{bm['id']}|スキル: {node.get('label','')}")
-            sys.exit(0)
-
-print(f"NONE|||||おすすめ問題なし (rating={rating})")
-PYEOF
-}
-
-# --- Main loop ---
-while true; do
-    # Determine mode: first problem = warmup, then 1 in 3 = warmup
-    if [[ $SESSION_COUNT -eq 0 ]]; then
-        MODE="warmup"
-    elif (( SESSION_COUNT % 3 == 0 )); then
-        MODE="warmup"
-    else
-        MODE="main"
-    fi
-
-    PROBLEM_DATA=$(select_problem "$MODE")
-
-    IFS='|' read -r TYPE CONTEST PROBLEM PID MESSAGE <<< "$PROBLEM_DATA"
-
-    # If warmup has nothing, try main
-    if [[ "$TYPE" == "NONE" && "$MODE" == "warmup" ]]; then
-        PROBLEM_DATA=$(select_problem "main")
-        IFS='|' read -r TYPE CONTEST PROBLEM PID MESSAGE <<< "$PROBLEM_DATA"
-    fi
-
-    if [[ "$TYPE" == "NONE" ]]; then
-        echo ""
-        echo "$MESSAGE"
-        echo "https://kenkoooo.com/atcoder/#/table/"
-        break
-    fi
-
-    CURRENT_PID="$PID"
-    PROB_DIR="$CP_DIR/contests/$CONTEST/$PROBLEM"
-    URL="https://atcoder.jp/contests/$CONTEST/tasks/$PID"
-
-    # Setup
-    if [[ ! -d "$PROB_DIR" ]]; then
-        mkdir -p "$PROB_DIR"
-        echo "$URL" > "$PROB_DIR/.problem_url"
-        (cd "$PROB_DIR" && oj download "$URL" 2>/dev/null) || true
-    fi
-
-    # Detect solution file (main.py or main.cpp)
-    SOL_FILE=""
-    for f in main.py main.cpp; do
-        if [[ -f "$PROB_DIR/$f" ]]; then
-            SOL_FILE="$f"
-            break
-        fi
-    done
-    SOL_FILE="${SOL_FILE:-main.py}"
-    [[ ! -f "$PROB_DIR/$SOL_FILE" ]] && touch "$PROB_DIR/$SOL_FILE"
-
-    # Archive previous solution and start fresh
-    if [[ -s "$PROB_DIR/$SOL_FILE" ]]; then
-        ARCHIVE="$PROB_DIR/.$(date +%Y%m%d%H%M).$SOL_FILE"
-        cp "$PROB_DIR/$SOL_FILE" "$ARCHIVE"
-        > "$PROB_DIR/$SOL_FILE"
-        echo "  (前回の解答を退避)"
-    fi
-
-    # Save suggested tag for cp-finish auto-fill
-    echo "$MESSAGE" > "$PROB_DIR/.suggested_tag"
-
-    local_label=""
-    [[ "$MODE" == "warmup" ]] && local_label=" 🔥"
-
-    echo ""
-    echo "── Problem $((SESSION_COUNT + 1))${local_label} ──────────────────────"
-    echo "  $PID"
-    echo "  $MESSAGE"
-    echo "──────────────────────────────────────────"
-    echo ""
-
-    save_session_state "solving"
-
-    # Browser
+if [[ ! "$URL" =~ $URL_RE ]]; then
     if command -v firefox &>/dev/null; then
-        firefox --new-tab "$URL" &>/dev/null &
+        firefox --new-tab "https://novisteps.app/" &>/dev/null &
         disown
     fi
+    exit 0
+fi
 
-    # Solve
-    PROB_START=$(date +%s)
-    cd "$PROB_DIR"
-    nvim "$SOL_FILE"
+CONTEST="${URL#https://atcoder.jp/contests/}"
+CONTEST="${CONTEST%%/*}"
+PID="${URL##*/tasks/}"
+PROBLEM="${PID##*_}"
 
-    # Post-solve (same flow for warmup and main)
-    cp-finish "$SOL_FILE" || echo "  (cp-finish had an error, continuing)"
+DIR="$CP_DIR/contests/$CONTEST/$PROBLEM"
+mkdir -p "$DIR"
+echo "$URL" > "$DIR/.problem_url"
 
-    PROB_ELAPSED=$(( $(date +%s) - PROB_START ))
-    PROB_MINS=$(( PROB_ELAPSED / 60 ))
+if [[ ! -d "$DIR/test" ]]; then
+    (cd "$DIR" && oj download "$URL")
+fi
 
-    SESSION_COUNT=$((SESSION_COUNT + 1))
-    SESSION_LOG+=("$PID  ${PROB_MINS}min  [$MESSAGE]")
-    SKIP_PIDS+=("$PID")
+[[ ! -f "$DIR/main.py" ]] && touch "$DIR/main.py"
 
-    # Peek at next problem for curiosity
-    NEXT_MODE="main"
-    (( (SESSION_COUNT) % 3 == 0 )) && NEXT_MODE="warmup"
-    NEXT_PEEK=$(select_problem "$NEXT_MODE" 2>/dev/null | head -1)
-    NEXT_MSG=""
-    if [[ -n "$NEXT_PEEK" && "$NEXT_PEEK" != NONE* ]]; then
-        NEXT_MSG=$(echo "$NEXT_PEEK" | cut -d'|' -f5)
-    fi
-
-    # Transition
-    echo ""
-    echo "  ✓ $PID  ${PROB_MINS}min"
-    if [[ -n "$NEXT_MSG" ]]; then
-        echo "  次: $NEXT_MSG"
-    fi
-    echo ""
-    echo -n "  Session: ${SESSION_COUNT} solved. Next? (Y/n): "
-    read -r NEXT
-    if [[ "$NEXT" == "n" || "$NEXT" == "N" || "$NEXT" == "q" ]]; then
-        break
-    fi
-done
-
-# Session end
-rm -f "$SESSION_FILE"
-show_summary
-sleep 3
-exit 0
+cd "$DIR"
+exec nvim main.py

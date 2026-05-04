@@ -20,6 +20,7 @@
 !dashboard/dashboard.html
 !dashboard/dashboard.py
 !dashboard/fetch_stats.py
+!dashboard/recommender.py
 !dashboard/shell.nix
 !dashboard/switch_user.sh
 !dashboard/watchlist.json
@@ -32,6 +33,11 @@
 !tools/
 !tools/cp-*
 !tools/README.md
+
+# CP snippets (LuaSnip, hot-loaded into nvim via home.file symlink)
+!snippets/
+!snippets/**/*.lua
+!snippets/.gitkeep
 
 # Dotfiles
 !dotfiles/

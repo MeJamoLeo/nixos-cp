@@ -41,7 +41,7 @@ echo '["YourAtCoderUsername"]' > dashboard/watchlist.json
 |------|------|-------------|
 | `minimal` | 既存環境に追加 | CLIツール + ダッシュボード |
 | `full` | GUI付きフル環境 | minimal + Neovim + Firefox + Sway + fcitx5 |
-| `x1nano` | X1 Nano Gen2 専用 | full + nixos-hardware + 指紋認証 |
+| `x1nano` | X1 Carbon専用 | full + ハードウェア設定 + 指紋認証 + TLP |
 
 ### 4. ハードウェア設定
 
@@ -71,7 +71,7 @@ sudo nixos-generate-config --show-hardware-config > hosts/minimal/hardware-confi
 # 選んだ構成でビルド
 sudo nixos-rebuild switch --flake ~/nixos-cp#minimal   # CLIのみ
 sudo nixos-rebuild switch --flake ~/nixos-cp#full      # GUI付き
-sudo nixos-rebuild switch --flake ~/nixos-cp#x1nano  # X1 Nano Gen2
+sudo nixos-rebuild switch --flake ~/nixos-cp#x1nano  # X1 Carbon
 ```
 
 ### 6. AtCoderログイン

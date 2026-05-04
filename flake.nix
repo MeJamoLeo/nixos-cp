@@ -3,7 +3,6 @@
 
 	inputs = {
 		nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
-		nixos-hardware.url = "github:NixOS/nixos-hardware/master";
 		home-manager = {
 			url = "github:nix-community/home-manager/release-24.11";
 			inputs.nixpkgs.follows = "nixpkgs";
@@ -18,7 +17,7 @@
 		};
 	};
 
-	outputs = { self, nixpkgs, nixos-hardware, home-manager, nixvim, claude-code, ... }: {
+	outputs = { self, nixpkgs, home-manager, nixvim, claude-code, ... }: {
 		nixosConfigurations = {
 			# Dashboard + CLI tools only. Bring your own editor/browser.
 			minimal = nixpkgs.lib.nixosSystem {
@@ -51,11 +50,10 @@
 				];
 			};
 
-			# full + X1 Nano Gen2 hardware (nixos-hardware), fingerprint, Claude Code
+			# full + X1 Carbon hardware, fingerprint, TLP, Claude Code
 			x1nano = let system = "x86_64-linux"; in nixpkgs.lib.nixosSystem {
 				inherit system;
 				modules = [
-					nixos-hardware.nixosModules.lenovo-thinkpad-x1-nano
 					./hosts/x1nano/configuration.nix
 					home-manager.nixosModules.home-manager
 					{

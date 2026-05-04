@@ -69,7 +69,7 @@
 				"${mod}+shift+q" = "exit";
 
 				# CP practice session (idempotent: focus or create)
-				"${mod}+g" = "exec ~/nixos-cp/tools/cp-session";
+				"${mod}+g" = "exec sh -c 'swaymsg \"[title=cp-session]\" focus 2>/dev/null || exec kitty --title cp-session -e cp-go'";
 
 				# Dashboard: cycle watchlist users
 				"${mod}+grave" = "exec ~/nixos-cp/dashboard/switch_user.sh next";
@@ -78,7 +78,7 @@
 			input = {
 				"type:keyboard" = {
 					xkb_options = "ctrl:swapcaps";
-					repeat_delay = "200";
+					repeat_delay = "150";
 					repeat_rate = "50";
 				};
 				"type:touchpad" = {

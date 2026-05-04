@@ -5,6 +5,7 @@
     ../minimal/home.nix
     ../../home/starship.nix
     ../../home/kitty.nix
+    ../../home/dashboard.nix
     ../../modules/sway.nix
     ../../modules/nvim
   ];
