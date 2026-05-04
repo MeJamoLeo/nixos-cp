@@ -24,6 +24,18 @@
 				# Send focused window to the next output (multi-monitor)
 				"${mod}+shift+Tab" = "move container to output next";
 
+				# Move window to a specific output (display)
+				"${mod}+ctrl+shift+h" = "move container to output left";
+				"${mod}+ctrl+shift+j" = "move container to output down";
+				"${mod}+ctrl+shift+k" = "move container to output up";
+				"${mod}+ctrl+shift+l" = "move container to output right";
+
+				# Move whole workspace to another output
+				"${mod}+ctrl+h" = "move workspace to output left";
+				"${mod}+ctrl+j" = "move workspace to output down";
+				"${mod}+ctrl+k" = "move workspace to output up";
+				"${mod}+ctrl+l" = "move workspace to output right";
+
 				# Window
 				"${mod}+q" = "kill";
 				"${mod}+f" = "fullscreen toggle";
