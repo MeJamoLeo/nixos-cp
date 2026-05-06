@@ -33,4 +33,6 @@
 		}
 		];
 	};
+
+	programs.lazygit.enable = true;
 }
