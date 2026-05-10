@@ -392,6 +392,24 @@ def _ac_problems(submissions: list[dict]) -> dict[str, dict]:
     return ac_map
 
 
+def _color_label(diff: int) -> str:
+    if diff < 400:
+        return "灰"
+    if diff < 800:
+        return "茶"
+    if diff < 1200:
+        return "緑"
+    if diff < 1600:
+        return "水"
+    if diff < 2000:
+        return "青"
+    if diff < 2400:
+        return "黄"
+    if diff < 2800:
+        return "橙"
+    return "赤"
+
+
 def _guess_tag(problem_id: str, contest_id: str, difficulty: float) -> str:
     pid = problem_id.lower()
     cid = contest_id.lower()
@@ -537,6 +555,60 @@ def build_player_status(
         "max_streak": max_streak,
         "today_acs": today_acs,
     }
+
+
+def build_daily_volume(
+    submissions: list[dict],
+    difficulties: dict[str, Any],
+    days: int = 30,
+) -> dict:
+    today_str = _today_jst()
+    today_dt = datetime.strptime(today_str, "%Y-%m-%d").replace(tzinfo=LOCAL_TZ)
+    cutoff = (today_dt - timedelta(days=days - 1)).strftime("%Y-%m-%d")
+
+    by_day: dict[str, dict[str, float]] = {}
+    for s in submissions:
+        if s.get("result") != "AC":
+            continue
+        date = _epoch_to_jst_date(s.get("epoch_second", 0))
+        if date < cutoff:
+            continue
+        pid = s.get("problem_id", "")
+        if not pid:
+            continue
+        model = difficulties.get(pid)
+        if not model or model.get("difficulty") is None:
+            continue
+        bucket = by_day.setdefault(date, {})
+        if pid not in bucket:
+            bucket[pid] = float(model["difficulty"])
+
+    result: list[dict] = []
+    for i in range(days):
+        date = (today_dt - timedelta(days=days - 1 - i)).strftime("%Y-%m-%d")
+        raws = list(by_day.get(date, {}).values())
+        clamped = [max(0, int(round(r))) for r in raws]
+        clamped_sorted = sorted(clamped, reverse=True)
+        sum_xp = sum(max(c, 100) for c in clamped) if clamped else 0
+        max_diff = clamped_sorted[0] if clamped_sorted else 0
+        top3_sum = sum(clamped_sorted[:3])
+        # perf uses raw diff (negative allowed) so easy problems aren't overweighted
+        perf = round(sum(2 ** (r / 400) for r in raws), 1) if raws else 0.0
+        by_color: dict[str, int] = {
+            c: 0 for c in ["灰", "茶", "緑", "水", "青", "黄", "橙", "赤"]
+        }
+        for c in clamped:
+            by_color[_color_label(c)] += 1
+        result.append({
+            "date": date,
+            "count": len(raws),
+            "sum_xp": sum_xp,
+            "max_diff": max_diff,
+            "top3_sum": top3_sum,
+            "perf": perf,
+            "by_color": by_color,
+        })
+    return {"days": result}
 
 
 def build_wa_queue(
@@ -1526,6 +1598,11 @@ def main() -> None:
         "rating_history": build_rating_log(ratings),
         "skill_graph": build_skill_graph(
             submissions, difficulties, problems_list, ratings
+        ),
+        "daily_volume": (
+            build_daily_volume(submissions, difficulties)
+            if has_submissions
+            else {"days": []}
         ),
     }
 

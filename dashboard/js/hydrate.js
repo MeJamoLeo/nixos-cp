@@ -6,7 +6,7 @@ function hydrate() {
 		+'<div class="main">'
 		+'<div class="col-left">'
 			+'<div style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden">'+renderPlayerStatus(d)+'</div>'
-			+'<div class="panel" style="flex:1;min-height:0"></div>'
+			+'<div style="flex:1;min-height:0;display:flex;flex-direction:column">'+renderTodayVolume(d)+'</div>'
 			+'<div class="panel" style="flex:1;min-height:0"></div>'
 			+'<div class="panel" style="flex:1;min-height:0"></div>'
 		+'</div>'
@@ -16,10 +16,10 @@ function hydrate() {
 				+'<div class="panel" data-label="SKILL GRAPH" style="overflow:hidden;background:var(--dbg-skillgraph)"><div class="panel-inner" style="display:flex;flex:1;min-height:0">'+renderSkillGraph(d)+'</div></div>'
 			+'</div>'
 			+'<div class="col-right-bottom">'
-				+'<div class="panel"></div>'
-				+'<div class="panel"></div>'
+				+renderVolumeHistory(d,'sum_xp','VOL · SUM_XP','var(--amber)')
+				+renderVolumeHistory(d,'top3_sum','VOL · TOP3','var(--cyan)')
+				+renderVolumeHistory(d,'perf','VOL · PERF','var(--green)')
 				+'<div class="panel accent-amber" data-label="STREAK" style="background:var(--dbg-streak)"><div class="panel-inner">'+renderStreakCalendar(d)+'</div></div>'
-				+'<div class="panel"></div>'
 				+'<div class="panel accent-cyan" data-label="CONTEST" style="background:var(--dbg-speed)"><div class="panel-inner">'+renderContestList(d)+'</div></div>'
 			+'</div>'
 		+'</div>'

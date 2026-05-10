@@ -52,6 +52,78 @@ function renderPlayerStatus(d) {
 		+'</div></div>';
 }
 
+const VOLUME_COLOR_MAP={灰:'#8a8a8a',茶:'#804000',緑:'#008000',水:'#00c0c0',青:'#0000ff',黄:'#c0c000',橙:'#ff8000',赤:'#ff0000'};
+const VOLUME_COLOR_ORDER=['灰','茶','緑','水','青','黄','橙','赤'];
+
+function _todayVolume(d){const days=(d.daily_volume&&d.daily_volume.days)||[];return days.length?days[days.length-1]:{};}
+
+function renderTodayVolume(d){
+	const t=_todayVolume(d);
+	const bc=t.by_color||{};
+	const total=VOLUME_COLOR_ORDER.reduce((a,c)=>a+(bc[c]||0),0);
+	let bar='<div class="quality-bar" style="height:10px">';
+	if(total>0){
+		VOLUME_COLOR_ORDER.forEach(c=>{const n=bc[c]||0;if(!n)return;bar+='<div class="quality-seg" style="background:'+VOLUME_COLOR_MAP[c]+';opacity:.75;width:'+(n/total*100).toFixed(1)+'%" title="'+c+':'+n+'"></div>';});
+	}else{bar+='<div class="quality-seg" style="background:var(--muted);width:100%;opacity:.3"></div>';}
+	bar+='</div>';
+	let chips='<div style="display:flex;gap:4px;flex-wrap:wrap;font-size:var(--fs-2xs)">';
+	VOLUME_COLOR_ORDER.forEach(c=>{const n=bc[c]||0;if(!n)return;chips+='<span style="color:'+VOLUME_COLOR_MAP[c]+'">'+c+n+'</span>';});
+	chips+='</div>';
+	function cell(label,val,color){return '<div><div style="font-size:var(--fs-xs);color:var(--muted)">'+label+'</div><div style="font-size:var(--fs-lg);color:'+color+';line-height:1.1">'+val+'</div></div>';}
+	return '<div class="panel" data-label="TODAY VOLUME"><div class="panel-inner" style="padding:28px 10px 8px">'
+		+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 8px">'
+		+cell('COUNT',(t.count||0)+'問','var(--green)')
+		+cell('MAX DIFF',t.max_diff||0,'var(--cyan)')
+		+cell('SUM XP',t.sum_xp||0,'var(--amber)')
+		+cell('TOP3',t.top3_sum||0,'var(--cyan)')
+		+'<div style="grid-column:1/3">'+cell('PERF Σ2^(d/400)',(t.perf||0).toFixed(1),'var(--green)')+'</div>'
+		+'</div>'
+		+bar
+		+chips
+		+'</div></div>';
+}
+
+function renderVolumeHistory(d,metric,label,color){
+	const days=((d.daily_volume&&d.daily_volume.days)||[]).slice(-14);
+	const vals=days.map(x=>Number(x[metric]||0));
+	const max=Math.max(1,...vals);
+	const today=vals.length?vals[vals.length-1]:0;
+	const avg=vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length):0;
+	const fmt=v=>metric==='perf'?(Math.round(v*10)/10).toFixed(1):Math.round(v);
+	const fmtShort=v=>{const n=Number(v);if(metric==='perf')return n.toFixed(1);if(n>=1000)return(n/1000).toFixed(n>=10000?0:1)+'k';return Math.round(n);};
+	const streakDays=Math.max(0,Math.min(days.length,Number((d.hud||{}).streak_days||0)));
+	const streakVals=streakDays>0?vals.slice(-streakDays):[];
+	const streakMax=streakVals.length?Math.max(...streakVals):0;
+	const BAR_SCALE=0.78;
+	let bars='<div style="position:relative;flex:1;min-height:0;display:flex;align-items:flex-end;gap:1px">';
+	days.forEach((x,i)=>{
+		const v=vals[i],h=v>0?Math.max(2,(v/max)*100*BAR_SCALE):0,isToday=i===days.length-1;
+		const dow=new Date(x.date+'T00:00:00').getDay(),isSun=dow===0;
+		const inStreak=streakDays>0&&i>=days.length-streakDays;
+		const op=isToday?1:(inStreak?.8:(isSun?.35:.5));
+		const lbl=v>0?fmtShort(v):'';
+		bars+='<div style="flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:0" title="'+x.date+': '+fmt(v)+'">'
+			+'<div style="font-size:9px;line-height:1;color:'+(isToday?color:'var(--dim)')+';margin-bottom:1px;white-space:nowrap;overflow:hidden">'+lbl+'</div>'
+			+'<div style="width:100%;height:'+h.toFixed(1)+'%;background:'+color+';opacity:'+op+';min-height:'+(v>0?'1px':'0')+'"></div>'
+		+'</div>';
+	});
+	if(streakMax>0){
+		const linePct=(streakMax/max)*100*BAR_SCALE;
+		bars+='<div style="position:absolute;left:0;right:0;bottom:'+linePct.toFixed(1)+'%;border-top:1px dashed '+color+';opacity:.7;pointer-events:none"></div>';
+		bars+='<div style="position:absolute;right:1px;bottom:calc('+linePct.toFixed(1)+'% + 1px);font-size:8px;color:'+color+';opacity:.85;pointer-events:none;line-height:1">🔥'+fmtShort(streakMax)+'</div>';
+	}
+	bars+='</div>';
+	const dateLabels='<div style="display:flex;justify-content:space-between;font-size:var(--fs-2xs);color:var(--dim);margin-top:2px"><span>'+(days[0]?days[0].date.slice(5):'')+'</span><span>'+(days.length?days[days.length-1].date.slice(5):'')+'</span></div>';
+	return '<div class="panel" data-label="'+label+'"><div class="panel-inner" style="padding:24px 8px 6px;gap:4px">'
+		+'<div style="display:flex;justify-content:space-between;align-items:flex-end">'
+		+'<div><div style="font-size:var(--fs-2xs);color:var(--muted)">TODAY</div><div style="font-size:var(--fs-lg);color:'+color+';line-height:1">'+fmt(today)+'</div></div>'
+		+'<div style="text-align:right"><div style="font-size:var(--fs-2xs);color:var(--muted)">14d avg</div><div style="font-size:var(--fs-sm);color:var(--text)">'+fmt(avg)+'</div></div>'
+		+'</div>'
+		+bars
+		+dateLabels
+		+'</div></div>';
+}
+
 function renderContestList(d) {
 	const days=['日','月','火','水','木','金','土'];
 	let h='<div class="section-label">コンテスト</div>';
