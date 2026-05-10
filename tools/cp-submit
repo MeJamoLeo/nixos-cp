@@ -41,6 +41,12 @@ fi
 
 SUBMIT_URL="https://atcoder.jp/contests/$CONTEST_ID/submit"
 
+# Trigger a delayed dashboard refresh so AC is reflected after kenkoooo ingests it.
+schedule_dashboard_refresh() {
+    (sleep 120 && systemctl --user start fetch-stats.service) &>/dev/null &
+    disown
+}
+
 # --- Detect contest mode ---
 # Check if current time is within any active contest
 IN_CONTEST=$(python3 -c "
@@ -122,6 +128,7 @@ if [[ "$IN_CONTEST" == "yes" ]]; then
                 disown
             fi
             echo "Check result: $SUBMISSIONS_URL"
+            schedule_dashboard_refresh
             exit 0
         else
             echo "Auto-submit failed. Falling back to browser..."
@@ -148,4 +155,5 @@ if [[ "$IN_CONTEST" != "yes" ]]; then
     echo "1. Ctrl+V to paste code"
     echo "2. Select language"
     echo "3. Click Submit"
+    schedule_dashboard_refresh
 fi
