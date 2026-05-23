@@ -78,7 +78,7 @@
 			input = {
 				"type:keyboard" = {
 					xkb_options = "ctrl:swapcaps";
-					repeat_delay = "150";
+					repeat_delay = "300";
 					repeat_rate = "50";
 				};
 				"type:touchpad" = {
