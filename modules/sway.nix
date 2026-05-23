@@ -56,7 +56,7 @@
 				# Apps
 				"${mod}+Return" = "exec kitty";
 				"${mod}+d" = "exec wofi --show drun";
-				"${mod}+b" = "exec firefox";
+				"${mod}+b" = "exec sh -c 'gtk-launch $(xdg-settings get default-web-browser)'";
 
 				# Media keys
 				"XF86AudioRaiseVolume" = "exec pactl set-sink-volume @DEFAULT_SINK@ +5%";
@@ -98,7 +98,10 @@
 
 			bars = [];
 
-			window.border = 2;
+			window.border = 0;
+			window.titlebar = false;
+			floating.border = 0;
+			floating.titlebar = false;
 			colors.focused = {
 				border = "#6d28d9";
 				background = "#6d28d9";
