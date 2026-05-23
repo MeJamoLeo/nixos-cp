@@ -1,4 +1,4 @@
-{ config, pkgs, lib, claude-code-pkg, ... }:
+{ config, pkgs, lib, claude-code-pkg, zen-browser-pkg, ... }:
 
 {
   imports = [
@@ -7,6 +7,7 @@
 
   home.packages = [
     claude-code-pkg
+    zen-browser-pkg
   ];
 
   # CP snippets: symlink ~/cp/snippets → ~/nixos-cp/snippets so editing

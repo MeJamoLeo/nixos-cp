@@ -15,9 +15,13 @@
 			url = "github:sadjow/claude-code-nix";
 			inputs.nixpkgs.follows = "nixpkgs";
 		};
+		zen-browser = {
+			url = "github:0xc000022070/zen-browser-flake";
+			inputs.nixpkgs.follows = "nixpkgs";
+		};
 	};
 
-	outputs = { self, nixpkgs, home-manager, nixvim, claude-code, ... }: {
+	outputs = { self, nixpkgs, home-manager, nixvim, claude-code, zen-browser, ... }: {
 		nixosConfigurations = {
 			# Dashboard + CLI tools only. Bring your own editor/browser.
 			minimal = nixpkgs.lib.nixosSystem {
@@ -65,6 +69,7 @@
 						];
 						home-manager.extraSpecialArgs = {
 							claude-code-pkg = claude-code.packages.${system}.default;
+							zen-browser-pkg = zen-browser.packages.${system}.default;
 						};
 					}
 				];
