@@ -98,16 +98,16 @@
 
 			bars = [];
 
-			window.border = 0;
+			window.border = 2;
 			window.titlebar = false;
-			floating.border = 0;
+			floating.border = 2;
 			floating.titlebar = false;
 			colors.focused = {
-				border = "#6d28d9";
-				background = "#6d28d9";
+				border = "#f59e0b";
+				background = "#f59e0b";
 				text = "#ffffff";
-				indicator = "#6d28d9";
-				childBorder = "#6d28d9";
+				indicator = "#f59e0b";
+				childBorder = "#f59e0b";
 			};
 
 			window.commands = [
