@@ -36,6 +36,7 @@ DASHBOARD_HTML = os.path.join(DASHBOARD_DIR, 'dashboard.html')
 WATCHLIST_JSON = os.path.join(DASHBOARD_DIR, 'watchlist.json')
 CACHE_DIR = os.path.expanduser('~/.cache/cp-dashboard')
 SWITCH_FILE = os.path.join(CACHE_DIR, 'switch_user')
+NOVISTEPS_PATH = os.path.join(CACHE_DIR, 'novisteps.json')
 
 # ---------------------------------------------------------------------------
 # Watchlist & user data cache
@@ -44,6 +45,50 @@ SWITCH_FILE = os.path.join(CACHE_DIR, 'switch_user')
 _user_data: dict[str, str] = {}  # username -> JSON string
 _current_user: str = ''
 _watchlist: list[str] = []
+_novi_data: str = ''  # NoviSteps JSON string (single user)
+_novi_cookie_warned: bool = False  # mirrored from cookie_expired field in JSON
+_novi_watch_interval: float = 5.0  # seconds between mtime checks
+
+
+def _load_novi() -> None:
+    """Read novisteps.json into memory and mirror cookie_expired flag."""
+    global _novi_data, _novi_cookie_warned
+    if not os.path.exists(NOVISTEPS_PATH):
+        return
+    try:
+        with open(NOVISTEPS_PATH) as f:
+            _novi_data = f.read()
+    except OSError:
+        return
+    try:
+        _novi_cookie_warned = bool(json.loads(_novi_data).get('cookie_expired', False))
+    except json.JSONDecodeError:
+        pass
+
+
+def _novi_watch_start(webview: 'WebKit.WebView') -> None:
+    """Reload novisteps.json + re-inject whenever the file changes on disk."""
+    import time
+
+    def _loop():
+        try:
+            last_mtime = os.path.getmtime(NOVISTEPS_PATH)
+        except OSError:
+            last_mtime = 0.0
+        while True:
+            time.sleep(_novi_watch_interval)
+            try:
+                mtime = os.path.getmtime(NOVISTEPS_PATH)
+            except OSError:
+                continue
+            if mtime == last_mtime:
+                continue
+            last_mtime = mtime
+            _load_novi()
+            GLib.idle_add(lambda: (_inject(webview) or False))
+            print('[dashboard] novi: reloaded from disk')
+
+    threading.Thread(target=_loop, daemon=True).start()
 
 
 def _load_watchlist() -> list[str]:
@@ -126,10 +171,15 @@ def _inject(webview: WebKit.WebView, username: str | None = None) -> None:
     w = webview.get_width()
     h = webview.get_height()
 
+    novi_js = (
+        f'window.__NOVI_DATA = {json.dumps(json.loads(_novi_data))};'
+        if _novi_data else 'window.__NOVI_DATA = null;'
+    ) + f'window.__NOVI_COOKIE_EXPIRED = {str(_novi_cookie_warned).lower()};'
     js = (
         'try {'
         f'window.__VP = {{w:{w}, h:{h}}};'
         f'window.__CP_DATA = {json.dumps(json.loads(data))};'
+        f'{novi_js}'
         'hydrate();'
         '} catch(e) {}'
     )
@@ -245,6 +295,7 @@ def on_activate(app: Gtk.Application) -> None:
     webview.connect('load-changed', _on_load_changed)
     GLib.timeout_add_seconds(10, _watch_stats, webview)
     GLib.timeout_add(500, _check_switch, webview)  # check switch every 500ms
+    _novi_watch_start(webview)
 
     win.set_child(webview)
     win.present()
@@ -254,6 +305,7 @@ def main() -> None:
     global _watchlist
     os.makedirs(CACHE_DIR, exist_ok=True)
     _watchlist = _load_watchlist()
+    _load_novi()
     print(f'[dashboard] watchlist: {_watchlist}')
     _prefetch_all()
 

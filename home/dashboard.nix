@@ -34,6 +34,26 @@ in
     Install.WantedBy = [ "timers.target" ];
   };
 
+  systemd.user.services.fetch-novisteps = {
+    Unit.Description = "Fetch one NoviSteps workbook";
+    Service = {
+      Type = "oneshot";
+      WorkingDirectory = dashDir;
+      Environment = "PATH=${fetchPath}";
+      ExecStart = "${pkgs.python3}/bin/python3 ${dashDir}/fetch_novisteps.py --one";
+    };
+  };
+
+  systemd.user.timers.fetch-novisteps = {
+    Unit.Description = "Fetch one NoviSteps workbook every minute";
+    Timer = {
+      OnBootSec = "2min";
+      OnUnitActiveSec = "1min";
+      Unit = "fetch-novisteps.service";
+    };
+    Install.WantedBy = [ "timers.target" ];
+  };
+
   systemd.user.services.cp-dashboard = {
     Unit = {
       Description = "CP dashboard background renderer";

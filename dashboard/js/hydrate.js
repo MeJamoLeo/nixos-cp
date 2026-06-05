@@ -1,24 +1,26 @@
 function hydrate() {
 	const d = window.__CP_DATA;
 	if (!d) return;
+	const novi = window.__NOVI_DATA || null;
 	const vp = window.__VP || {w:1080, h:675};
 	document.body.innerHTML = renderHUD(d)
 		+'<div class="main">'
 		+'<div class="col-left">'
 			+'<div style="flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden">'+renderPlayerStatus(d)+'</div>'
 			+'<div style="flex:1;min-height:0;display:flex;flex-direction:column">'+renderTodayVolume(d)+'</div>'
-			+'<div class="panel" style="flex:1;min-height:0"></div>'
-			+'<div class="panel" style="flex:1;min-height:0"></div>'
+			+'<div style="flex:2;min-height:0;display:flex;flex-direction:column;gap:6px">'
+				+renderVolumeHistory(d,'sum_xp','VOL · SUM_XP','var(--amber)')
+				+renderVolumeHistory(d,'top3_sum','VOL · TOP3','var(--cyan)')
+				+renderVolumeHistory(d,'perf','VOL · PERF','var(--green)')
+			+'</div>'
 		+'</div>'
 		+'<div class="col-right">'
 			+'<div class="col-right-top">'
 				+renderDifficultyLog(d)
 				+'<div class="panel" data-label="SKILL GRAPH" style="overflow:hidden;background:var(--dbg-skillgraph)"><div class="panel-inner" style="display:flex;flex:1;min-height:0">'+renderSkillGraph(d)+'</div></div>'
 			+'</div>'
-			+'<div class="col-right-bottom">'
-				+renderVolumeHistory(d,'sum_xp','VOL · SUM_XP','var(--amber)')
-				+renderVolumeHistory(d,'top3_sum','VOL · TOP3','var(--cyan)')
-				+renderVolumeHistory(d,'perf','VOL · PERF','var(--green)')
+			+'<div class="col-right-bottom" style="grid-template-columns:3fr 1fr 1fr">'
+				+'<div class="panel" data-label="NOVISTEPS" style="overflow:hidden">'+renderNoviSteps(novi)+'</div>'
 				+'<div class="panel accent-amber" data-label="STREAK" style="background:var(--dbg-streak)"><div class="panel-inner">'+renderStreakCalendar(d)+'</div></div>'
 				+'<div class="panel accent-cyan" data-label="CONTEST" style="background:var(--dbg-speed)"><div class="panel-inner">'+renderContestList(d)+'</div></div>'
 			+'</div>'

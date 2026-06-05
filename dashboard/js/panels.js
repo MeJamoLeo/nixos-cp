@@ -48,6 +48,7 @@ function renderPlayerStatus(d) {
 		+'<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%;background:var(--amber)"></div></div>'
 		+'<div style="display:flex;justify-content:space-between;font-size:var(--fs-sm);color:var(--muted)"><span>'+(ps.rating_min||0)+'</span><span style="color:var(--amber)">'+(ps.rating||0)+'</span><span style="color:var(--green)">'+(ps.rating_max||0)+'</span></div>'
 		+'<div class="ps-box-green"><div style="font-size:var(--fs-sm);color:#3a8a5a">TODAY AC</div><div><span class="ps-xp">'+todayAc+'</span> <span style="font-size:var(--fs-sm);color:#1a5a1a">問</span></div></div>'
+		+'<div style="flex:1;min-height:0"></div>'
 		+'<div class="ps-box-amber"><span style="font-size:var(--fs-lg)">🔥</span><div><span class="ps-streak">'+(ps.streak_days||0)+'</span> <span style="font-size:var(--fs-sm);color:#6a3a00">日連続</span><div style="font-size:var(--fs-sm);color:#5a3a00">最長: '+(ps.max_streak||0)+'日</div></div></div>'
 		+'</div></div>';
 }
@@ -92,35 +93,29 @@ function renderVolumeHistory(d,metric,label,color){
 	const fmt=v=>metric==='perf'?(Math.round(v*10)/10).toFixed(1):Math.round(v);
 	const fmtShort=v=>{const n=Number(v);if(metric==='perf')return n.toFixed(1);if(n>=1000)return(n/1000).toFixed(n>=10000?0:1)+'k';return Math.round(n);};
 	const streakDays=Math.max(0,Math.min(days.length,Number((d.hud||{}).streak_days||0)));
-	const streakVals=streakDays>0?vals.slice(-streakDays):[];
-	const streakMax=streakVals.length?Math.max(...streakVals):0;
-	const BAR_SCALE=0.78;
-	let bars='<div style="position:relative;flex:1;min-height:0;display:flex;align-items:flex-end;gap:1px">';
-	days.forEach((x,i)=>{
-		const v=vals[i],h=v>0?Math.max(2,(v/max)*100*BAR_SCALE):0,isToday=i===days.length-1;
-		const dow=new Date(x.date+'T00:00:00').getDay(),isSun=dow===0;
-		const inStreak=streakDays>0&&i>=days.length-streakDays;
-		const op=isToday?1:(inStreak?.8:(isSun?.35:.5));
-		const lbl=v>0?fmtShort(v):'';
-		bars+='<div style="flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:0" title="'+x.date+': '+fmt(v)+'">'
-			+'<div style="font-size:9px;line-height:1;color:'+(isToday?color:'var(--dim)')+';margin-bottom:1px;white-space:nowrap;overflow:hidden">'+lbl+'</div>'
-			+'<div style="width:100%;height:'+h.toFixed(1)+'%;background:'+color+';opacity:'+op+';min-height:'+(v>0?'1px':'0')+'"></div>'
+	// Display most-recent first (top → bottom)
+	const ordered = days.map((x,i)=>({x, i, v:vals[i], isToday:i===days.length-1, inStreak:streakDays>0&&i>=days.length-streakDays})).reverse();
+	let rows='<div style="flex:1;min-height:0;display:flex;flex-direction:column;gap:1px;overflow:hidden">';
+	ordered.forEach(o=>{
+		const w=o.v>0?Math.max(2,(o.v/max)*100):0;
+		const op=o.isToday?1:(o.inStreak?.85:.45);
+		const md=o.x.date.slice(5).replace('-','/');
+		const dateColor=o.isToday?color:(o.inStreak?'var(--text)':'var(--dim)');
+		rows+='<div style="display:flex;align-items:center;gap:3px;flex:1;min-height:0" title="'+o.x.date+': '+fmt(o.v)+'">'
+			+'<div style="font-size:9px;color:'+dateColor+';width:24px;flex-shrink:0;line-height:1">'+md+'</div>'
+			+'<div style="flex:1;height:80%;background:#0a1010;position:relative;min-width:0">'
+				+(o.v>0?'<div style="height:100%;width:'+w.toFixed(1)+'%;background:'+color+';opacity:'+op+'"></div>':'')
+			+'</div>'
+			+'<div style="font-size:9px;color:'+(o.v>0?(o.isToday?color:'var(--text)'):'var(--muted)')+';width:24px;text-align:right;line-height:1;flex-shrink:0">'+(o.v>0?fmtShort(o.v):'')+'</div>'
 		+'</div>';
 	});
-	if(streakMax>0){
-		const linePct=(streakMax/max)*100*BAR_SCALE;
-		bars+='<div style="position:absolute;left:0;right:0;bottom:'+linePct.toFixed(1)+'%;border-top:1px dashed '+color+';opacity:.7;pointer-events:none"></div>';
-		bars+='<div style="position:absolute;right:1px;bottom:calc('+linePct.toFixed(1)+'% + 1px);font-size:8px;color:'+color+';opacity:.85;pointer-events:none;line-height:1">🔥'+fmtShort(streakMax)+'</div>';
-	}
-	bars+='</div>';
-	const dateLabels='<div style="display:flex;justify-content:space-between;font-size:var(--fs-2xs);color:var(--dim);margin-top:2px"><span>'+(days[0]?days[0].date.slice(5):'')+'</span><span>'+(days.length?days[days.length-1].date.slice(5):'')+'</span></div>';
-	return '<div class="panel" data-label="'+label+'"><div class="panel-inner" style="padding:24px 8px 6px;gap:4px">'
-		+'<div style="display:flex;justify-content:space-between;align-items:flex-end">'
-		+'<div><div style="font-size:var(--fs-2xs);color:var(--muted)">TODAY</div><div style="font-size:var(--fs-lg);color:'+color+';line-height:1">'+fmt(today)+'</div></div>'
-		+'<div style="text-align:right"><div style="font-size:var(--fs-2xs);color:var(--muted)">14d avg</div><div style="font-size:var(--fs-sm);color:var(--text)">'+fmt(avg)+'</div></div>'
+	rows+='</div>';
+	return '<div class="panel" data-label="'+label+'" style="flex:1;min-height:0;overflow:hidden"><div class="panel-inner" style="padding:18px 6px 4px;gap:2px;height:100%">'
+		+'<div style="display:flex;justify-content:space-between;align-items:baseline;flex-shrink:0">'
+		+'<div style="font-size:var(--fs-lg);color:'+color+';line-height:1;font-weight:500">'+fmt(today)+'</div>'
+		+'<div style="font-size:var(--fs-2xs);color:var(--muted)">avg '+fmt(avg)+'</div>'
 		+'</div>'
-		+bars
-		+dateLabels
+		+rows
 		+'</div></div>';
 }
 
