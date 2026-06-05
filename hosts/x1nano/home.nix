@@ -1,4 +1,4 @@
-{ config, pkgs, lib, claude-code-pkg, zen-browser-pkg, ... }:
+{ config, pkgs, lib, claude-code-pkg, zen-browser-pkg, wayvibes-soundpack, ... }:
 
 {
   imports = [
@@ -9,6 +9,12 @@
     claude-code-pkg
     zen-browser-pkg
   ];
+
+  services.wayvibes = {
+    enable = true;
+    soundpack = wayvibes-soundpack;
+    volume = 3;
+  };
 
   # CP snippets: symlink ~/cp/snippets → ~/nixos-cp/snippets so editing
   # the file in the repo is immediately picked up by LuaSnip without

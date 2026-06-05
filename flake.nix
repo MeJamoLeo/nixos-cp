@@ -19,9 +19,13 @@
 			url = "github:0xc000022070/zen-browser-flake";
 			inputs.nixpkgs.follows = "nixpkgs";
 		};
+		wayvibes = {
+			url = "github:sahaj-b/wayvibes";
+			inputs.nixpkgs.follows = "nixpkgs";
+		};
 	};
 
-	outputs = { self, nixpkgs, home-manager, nixvim, claude-code, zen-browser, ... }: {
+	outputs = { self, nixpkgs, home-manager, nixvim, claude-code, zen-browser, wayvibes, ... }: {
 		nixosConfigurations = {
 			# Dashboard + CLI tools only. Bring your own editor/browser.
 			minimal = nixpkgs.lib.nixosSystem {
@@ -66,10 +70,12 @@
 						home-manager.users.treo = import ./hosts/x1nano/home.nix;
 						home-manager.sharedModules = [
 							nixvim.homeManagerModules.nixvim
+							wayvibes.nixosModules.default
 						];
 						home-manager.extraSpecialArgs = {
 							claude-code-pkg = claude-code.packages.${system}.default;
 							zen-browser-pkg = zen-browser.packages.${system}.default;
+							wayvibes-soundpack = "${wayvibes}/soundpacks/nk-cream";
 						};
 					}
 				];

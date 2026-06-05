@@ -349,6 +349,7 @@
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
         "nixvim": "nixvim",
+        "wayvibes": "wayvibes",
         "zen-browser": "zen-browser"
       }
     },
@@ -400,6 +401,26 @@
       "original": {
         "owner": "numtide",
         "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
+    "wayvibes": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1776756796,
+        "narHash": "sha256-5Gv6VsoqyNb+jit2qUJlzR+3PBgzKlUMBRS61Mrojgg=",
+        "owner": "sahaj-b",
+        "repo": "wayvibes",
+        "rev": "0c94f0ce7a84437b5e4204cc2c7a89a775b22b80",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sahaj-b",
+        "repo": "wayvibes",
         "type": "github"
       }
     },
