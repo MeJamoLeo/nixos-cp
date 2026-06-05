@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# cp-go-launch — open cp-go in a kitty tab on the current sway workspace.
+#
+# If a kitty window is present on the focused workspace, spawn cp-go as a new
+# tab inside it (via kitty remote control). Otherwise launch a fresh kitty.
+set -euo pipefail
+
+ws=$(swaymsg -t get_workspaces -r | jq -r '.[] | select(.focused) | .name')
+
+pid=$(swaymsg -t get_tree -r | jq -r --arg ws "$ws" '
+    [ .. | objects | select(.type=="workspace" and .name==$ws)
+      | .. | objects | select(.app_id=="kitty") | .pid ]
+    | .[0] // empty
+')
+
+if [[ -n "$pid" && -S "/tmp/kitty-$pid" ]]; then
+    exec kitty @ --to "unix:/tmp/kitty-$pid" launch --type=tab --cwd=current cp-go
+else
+    exec kitty -e cp-go
+fi

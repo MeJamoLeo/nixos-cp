@@ -68,8 +68,8 @@
 				# Session
 				"${mod}+shift+q" = "exit";
 
-				# CP practice session (idempotent: focus or create)
-				"${mod}+g" = "exec sh -c 'swaymsg \"[title=cp-session]\" focus 2>/dev/null || exec kitty --title cp-session -e cp-go'";
+				# CP practice: new kitty tab on current workspace, else launch kitty
+				"${mod}+g" = "exec ~/nixos-cp/tools/cp-go-launch";
 
 				# Dashboard: cycle watchlist users
 				"${mod}+grave" = "exec ~/nixos-cp/dashboard/switch_user.sh next";

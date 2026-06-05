@@ -8,6 +8,9 @@
       font_size = 12;
       background_opacity = "0.85";
       confirm_os_window_close = 0;
+      enable_audio_bell = "no";
+      allow_remote_control = "yes";
+      listen_on = "unix:/tmp/kitty-{kitty_pid}";
     };
     keybindings = {
       "ctrl+shift+t" = "new_tab_with_cwd";
