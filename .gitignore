@@ -21,6 +21,7 @@
 !dashboard/dashboard.py
 !dashboard/fetch_stats.py
 !dashboard/fetch_novisteps.py
+!dashboard/print_atcoder.py
 !dashboard/recommender.py
 !dashboard/shell.nix
 !dashboard/switch_user.sh

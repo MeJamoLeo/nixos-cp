@@ -3,7 +3,10 @@
 {
   imports = [
     ../minimal/configuration.nix
+    ../../modules/cp-print.nix
   ];
+
+  services.cp-print.enable = true;
 
   users.users.treo.extraGroups = [ "wheel" "networkmanager" "video" "input" ];
 
@@ -63,6 +66,15 @@
   };
 
   services.xserver.desktopManager.runXdgAutostartIfNone = true;
+
+  # Suspend on lid close. Still suspend even when an external monitor is
+  # attached — the dashboard is meant to be passive, not a reason to keep
+  # the lid open. Power button stays on its default ("poweroff").
+  services.logind = {
+    lidSwitch = "suspend";
+    lidSwitchExternalPower = "suspend";
+    lidSwitchDocked = "suspend";
+  };
 
   # Display manager
   services.greetd = {

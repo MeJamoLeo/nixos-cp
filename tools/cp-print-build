@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# cp-print-build — build printable AtCoder problem PDFs from NoviSteps.
+# Wraps dashboard/print_atcoder.py with proper interpreter resolution.
+set -euo pipefail
+
+HERE="$(cd "$(dirname "$0")" && pwd)"
+REPO="$(cd "$HERE/.." && pwd)"
+
+# Use the system-level python (installed by modules/cp-print.nix) so we get
+# the bs4-bundled interpreter rather than the user-profile python3.
+exec /run/current-system/sw/bin/python3 "$REPO/dashboard/print_atcoder.py" "$@"
