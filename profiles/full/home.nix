@@ -14,5 +14,6 @@
     wofi
     wl-clipboard
     jq
+    zed-editor
   ];
 }
