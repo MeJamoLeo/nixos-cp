@@ -48,7 +48,7 @@ function renderPlayerStatus(d) {
 		+'<div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%;background:var(--amber)"></div></div>'
 		+'<div style="display:flex;justify-content:space-between;font-size:var(--fs-sm);color:var(--muted)"><span>'+(ps.rating_min||0)+'</span><span style="color:var(--amber)">'+(ps.rating||0)+'</span><span style="color:var(--green)">'+(ps.rating_max||0)+'</span></div>'
 		+'<div class="ps-box-green"><div style="font-size:var(--fs-sm);color:#3a8a5a">TODAY AC</div><div><span class="ps-xp">'+todayAc+'</span> <span style="font-size:var(--fs-sm);color:#1a5a1a">問</span></div></div>'
-		+'<div style="flex:1;min-height:0"></div>'
+		+'<div style="flex:1 1 0;min-height:0;position:relative;overflow:hidden"><div style="position:absolute;inset:0;display:flex;align-items:stretch;justify-content:center">'+renderSkillGraph(d)+'</div></div>'
 		+'<div class="ps-box-amber"><span style="font-size:var(--fs-lg)">🔥</span><div><span class="ps-streak">'+(ps.streak_days||0)+'</span> <span style="font-size:var(--fs-sm);color:#6a3a00">日連続</span><div style="font-size:var(--fs-sm);color:#5a3a00">最長: '+(ps.max_streak||0)+'日</div></div></div>'
 		+'</div></div>';
 }

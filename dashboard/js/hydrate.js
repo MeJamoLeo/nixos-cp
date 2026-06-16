@@ -17,7 +17,7 @@ function hydrate() {
 		+'<div class="col-right">'
 			+'<div class="col-right-top">'
 				+renderDifficultyLog(d)
-				+'<div class="panel" data-label="SKILL GRAPH" style="overflow:hidden;background:var(--dbg-skillgraph)"><div class="panel-inner" style="display:flex;flex:1;min-height:0">'+renderSkillGraph(d)+'</div></div>'
+				+'<div class="panel" data-label="NOVI ETA" style="overflow:hidden">'+renderNoviTrend(novi)+'</div>'
 			+'</div>'
 			+'<div class="col-right-bottom" style="grid-template-columns:3fr 1fr 1fr">'
 				+'<div class="panel" data-label="NOVISTEPS" style="overflow:hidden">'+renderNoviSteps(novi)+'</div>'
