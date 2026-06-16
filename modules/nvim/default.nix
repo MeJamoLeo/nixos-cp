@@ -1,5 +1,19 @@
 { pkgs, ... }:
 
+let
+  pythonWithDebugpy = pkgs.python3.withPackages (ps: [ ps.debugpy ]);
+
+  # Wrapper used by the "CP debug" DAP config: opens test/sample-N.in as stdin
+  # then runs the user's source file under debugpy so breakpoints fire normally.
+  cpDebugRunner = pkgs.writeText "cp-debug-runner.py" ''
+    import os, sys, runpy
+    script, input_file = sys.argv[1], sys.argv[2]
+    sys.stdin = open(input_file, "r")
+    os.chdir(os.path.dirname(os.path.abspath(script)))
+    sys.argv = [script]
+    runpy.run_path(script, run_name="__main__")
+  '';
+in
 {
   programs.nixvim = {
     enable = true;
@@ -63,13 +77,24 @@
           "gr" = "references";
           "K" = "hover";
           "<leader>rn" = "rename";
-          "<leader>ca" = "code_action";
+          "<leader>la" = "code_action";
         };
         diagnostic = {
           "[d" = "goto_prev";
           "]d" = "goto_next";
         };
       };
+    };
+
+    # DAP (debugger)
+    plugins.dap = {
+      enable = true;
+      extensions.dap-ui.enable = true;
+      extensions.dap-python = {
+        enable = true;
+        adapterPythonPath = "${pythonWithDebugpy}/bin/python";
+      };
+      extensions.dap-virtual-text.enable = true;
     };
 
     # Snippets
@@ -154,7 +179,9 @@
       enable = true;
       settings.spec = [
         { __unkeyed-1 = "<leader>c"; group = "Competitest"; }
+        { __unkeyed-1 = "<leader>d"; group = "Debug"; }
         { __unkeyed-1 = "<leader>f"; group = "Find"; }
+        { __unkeyed-1 = "<leader>l"; group = "LSP"; }
         { __unkeyed-1 = "<leader>r"; group = "LSP Rename"; }
       ];
     };
@@ -194,6 +221,7 @@
       { mode = "n"; key = "<leader>ca"; action = "<cmd>CompetiTest add_testcase<cr>"; options.desc = "Add testcase"; }
       { mode = "n"; key = "<leader>ce"; action = "<cmd>CompetiTest edit_testcase<cr>"; options.desc = "Edit testcase"; }
       { mode = "n"; key = "<leader>ct"; action = "<cmd>CompetiTest receive testcases<cr>"; options.desc = "Receive testcases"; }
+      { mode = "n"; key = "<leader>cd"; action = ''<cmd>lua require('dap').run(_G.cp_debug_config())<cr>''; options.desc = "CP debug (stdin = test/sample-N.in)"; }
 
       # Telescope
       { mode = "n"; key = "<leader>ff"; action = "<cmd>Telescope find_files<cr>"; options.desc = "Find files"; }
@@ -204,6 +232,19 @@
       # Quick save/quit
       { mode = "n"; key = "<leader>w"; action = "<cmd>w<cr>"; options.desc = "Save"; }
       { mode = "n"; key = "<leader>q"; action = "<cmd>q<cr>"; options.desc = "Quit"; }
+
+      # Debug (DAP) — all leader-based (no F-keys; laptop multimedia takes priority)
+      { mode = "n"; key = "<leader>dc"; action = "<cmd>DapContinue<cr>"; options.desc = "Continue / start"; }
+      { mode = "n"; key = "<leader>do"; action = "<cmd>DapStepOver<cr>"; options.desc = "Step over"; }
+      { mode = "n"; key = "<leader>di"; action = "<cmd>DapStepInto<cr>"; options.desc = "Step into"; }
+      { mode = "n"; key = "<leader>dO"; action = "<cmd>DapStepOut<cr>"; options.desc = "Step out"; }
+      { mode = "n"; key = "<leader>db"; action = "<cmd>DapToggleBreakpoint<cr>"; options.desc = "Toggle breakpoint"; }
+      { mode = "n"; key = "<leader>dB"; action = ''<cmd>lua require('dap').set_breakpoint(vim.fn.input('Condition: '))<cr>''; options.desc = "Conditional breakpoint"; }
+      { mode = "n"; key = "<leader>dr"; action = "<cmd>DapToggleRepl<cr>"; options.desc = "Toggle REPL"; }
+      { mode = "n"; key = "<leader>dx"; action = "<cmd>DapTerminate<cr>"; options.desc = "Terminate"; }
+      { mode = "n"; key = "<leader>du"; action = ''<cmd>lua require('dapui').toggle()<cr>''; options.desc = "Toggle DAP UI"; }
+      { mode = "n"; key = "<leader>dt"; action = ''<cmd>lua require('dap-python').test_method()<cr>''; options.desc = "Debug nearest test (Python)"; }
+      { mode = "v"; key = "<leader>dn"; action = ''<cmd>lua require('dap-python').debug_selection()<cr>''; options.desc = "Debug selection (Python)"; }
     ];
 
     # CP snippets: load .lua files from ~/cp/snippets/<filetype>.lua
@@ -242,6 +283,30 @@
         s("arr", { t("$a_"), i(1, "i"), t("$") }),
         s("dp", { t("$dp["), i(1), t("]"), t("$") }),
       })
+
+      -- CP debug: build a DAP config that runs the current file under debugpy
+      -- with test/sample-N.in piped to stdin (same testcase layout competitest uses).
+      _G.cp_debug_config = function()
+        local file = vim.fn.expand("%:p")
+        local dir = vim.fn.expand("%:p:h")
+        local tc = vim.fn.input("Testcase number: ", "1")
+        if tc == "" then tc = "1" end
+        local input_file = dir .. "/test/sample-" .. tc .. ".in"
+        if vim.fn.filereadable(input_file) == 0 then
+          vim.notify("Input file not found: " .. input_file, vim.log.levels.ERROR)
+          return nil
+        end
+        return {
+          type = "python",
+          request = "launch",
+          name = "CP: " .. vim.fn.fnamemodify(file, ":t") .. " < sample-" .. tc .. ".in",
+          program = "${cpDebugRunner}",
+          args = { file, input_file },
+          cwd = dir,
+          console = "integratedTerminal",
+          justMyCode = false,
+        }
+      end
     '';
 
     # C++ / Python tooling
@@ -249,7 +314,7 @@
       clang-tools  # clangd
       pyright
       gcc
-      python3
+      pythonWithDebugpy  # python3 + debugpy (DAP)
       ripgrep  # telescope live_grep
     ];
   };
