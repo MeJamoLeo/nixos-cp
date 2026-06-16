@@ -48,6 +48,7 @@ _watchlist: list[str] = []
 _novi_data: str = ''  # NoviSteps JSON string (single user)
 _novi_cookie_warned: bool = False  # mirrored from cookie_expired field in JSON
 _novi_watch_interval: float = 5.0  # seconds between mtime checks
+_webviews: list = []  # one WebView per attached monitor
 
 
 def _load_novi() -> None:
@@ -66,7 +67,7 @@ def _load_novi() -> None:
         pass
 
 
-def _novi_watch_start(webview: 'WebKit.WebView') -> None:
+def _novi_watch_start() -> None:
     """Reload novisteps.json + re-inject whenever the file changes on disk."""
     import time
 
@@ -85,7 +86,7 @@ def _novi_watch_start(webview: 'WebKit.WebView') -> None:
                 continue
             last_mtime = mtime
             _load_novi()
-            GLib.idle_add(lambda: (_inject(webview) or False))
+            GLib.idle_add(lambda: (_inject_all() or False))
             print('[dashboard] novi: reloaded from disk')
 
     threading.Thread(target=_loop, daemon=True).start()
@@ -186,11 +187,16 @@ def _inject(webview: WebKit.WebView, username: str | None = None) -> None:
     webview.evaluate_javascript(js, -1, None, None, None, None, None)
 
 
+def _inject_all(username: str | None = None) -> None:
+    for wv in _webviews:
+        _inject(wv, username)
+
+
 # ---------------------------------------------------------------------------
 # Switch user detection
 # ---------------------------------------------------------------------------
 
-def _check_switch(webview: WebKit.WebView) -> bool:
+def _check_switch() -> bool:
     """Check if a user switch was requested via SWITCH_FILE."""
     global _current_user
     if not os.path.exists(SWITCH_FILE):
@@ -208,7 +214,7 @@ def _check_switch(webview: WebKit.WebView) -> bool:
             if requested in _user_data:
                 _current_user = requested
                 print(f'[dashboard] switching to {requested}')
-                _inject(webview, requested)
+                _inject_all(requested)
             elif requested == 'next':
                 # Cycle to next user
                 idx = _watchlist.index(_current_user) if _current_user in _watchlist else -1
@@ -216,7 +222,7 @@ def _check_switch(webview: WebKit.WebView) -> bool:
                 if next_user in _user_data:
                     _current_user = next_user
                     print(f'[dashboard] cycling to {next_user}')
-                    _inject(webview, next_user)
+                    _inject_all(next_user)
     except (OSError, ValueError):
         pass
     return True
@@ -229,7 +235,7 @@ def _check_switch(webview: WebKit.WebView) -> bool:
 _last_mtime: float = 0.0
 
 
-def _watch_stats(webview: WebKit.WebView) -> bool:
+def _watch_stats() -> bool:
     """Watch primary user's stats file for changes."""
     global _last_mtime
     primary = _watchlist[0] if _watchlist else ''
@@ -248,7 +254,7 @@ def _watch_stats(webview: WebKit.WebView) -> bool:
                     _user_data[primary] = f.read()
                 if _current_user == primary:
                     print(f'[dashboard] stats updated, refreshing')
-                    _inject(webview, primary)
+                    _inject_all(primary)
             except OSError:
                 pass
         _last_mtime = mtime
@@ -259,20 +265,50 @@ def _watch_stats(webview: WebKit.WebView) -> bool:
 # GTK setup
 # ---------------------------------------------------------------------------
 
+def _adjust_zoom(webview: WebKit.WebView) -> None:
+    """Measure the CSS viewport vs the GTK widget size and compensate via
+    set_zoom_level. Some monitors trigger an implicit DPI scale in WebKit even
+    when the GTK scale factor is 1, halving the CSS viewport — that breaks
+    layout assumptions. After this runs, CSS px ≈ device px on every monitor.
+    """
+    widget_w = webview.get_width()
+    if widget_w <= 0:
+        GLib.timeout_add(200, lambda: _inject(webview) or False)
+        return
+
+    def cb(wv, result):
+        try:
+            value = wv.evaluate_javascript_finish(result)
+            inner_w = int(value.to_double()) if value is not None else 0
+        except Exception:
+            inner_w = 0
+        if inner_w > 0:
+            ratio = widget_w / inner_w
+            if ratio > 1.05 or ratio < 0.95:
+                target = max(0.25, min(1.0, 1.0 / ratio))
+                wv.set_zoom_level(target)
+        _inject(wv)
+
+    webview.evaluate_javascript('window.innerWidth', -1, None, None, None, cb)
+
+
 def _on_load_changed(
     webview: WebKit.WebView,
     event: WebKit.LoadEvent,
 ) -> None:
     if event == WebKit.LoadEvent.FINISHED:
-        GLib.timeout_add(200, lambda: _inject(webview) or False)
+        GLib.timeout_add(200, lambda: _adjust_zoom(webview) or False)
 
 
-def on_activate(app: Gtk.Application) -> None:
+def _create_dashboard_window(app: Gtk.Application, monitor) -> WebKit.WebView:
+    """Build one dashboard window pinned to `monitor` (or compositor-picked if None)."""
     win = Gtk.Window(application=app)
     win.set_title("dashboard")
 
     Gtk4LayerShell.init_for_window(win)
     Gtk4LayerShell.set_layer(win, Gtk4LayerShell.Layer.BACKGROUND)
+    if monitor is not None:
+        Gtk4LayerShell.set_monitor(win, monitor)
     Gtk4LayerShell.set_anchor(win, Gtk4LayerShell.Edge.TOP,    True)
     Gtk4LayerShell.set_anchor(win, Gtk4LayerShell.Edge.BOTTOM, True)
     Gtk4LayerShell.set_anchor(win, Gtk4LayerShell.Edge.LEFT,   True)
@@ -280,7 +316,6 @@ def on_activate(app: Gtk.Application) -> None:
     Gtk4LayerShell.set_exclusive_zone(win, -1)
 
     webview = WebKit.WebView()
-
     settings = webview.get_settings()
     settings.set_property('hardware-acceleration-policy',
                           WebKit.HardwareAccelerationPolicy.NEVER)
@@ -293,12 +328,30 @@ def on_activate(app: Gtk.Application) -> None:
     webview.set_background_color(bg)
 
     webview.connect('load-changed', _on_load_changed)
-    GLib.timeout_add_seconds(10, _watch_stats, webview)
-    GLib.timeout_add(500, _check_switch, webview)  # check switch every 500ms
-    _novi_watch_start(webview)
 
     win.set_child(webview)
     win.present()
+    return webview
+
+
+def on_activate(app: Gtk.Application) -> None:
+    display = Gdk.Display.get_default()
+    monitors = display.get_monitors() if display is not None else None
+    n = monitors.get_n_items() if monitors is not None else 0
+
+    if n == 0:
+        # No monitors enumerated — fall back to compositor-picked placement.
+        _webviews.append(_create_dashboard_window(app, None))
+    else:
+        for i in range(n):
+            m = monitors.get_item(i)
+            connector = m.get_connector() if hasattr(m, 'get_connector') else '?'
+            print(f'[dashboard] mirroring to monitor {i}: {connector}')
+            _webviews.append(_create_dashboard_window(app, m))
+
+    GLib.timeout_add_seconds(10, _watch_stats)
+    GLib.timeout_add(500, _check_switch)
+    _novi_watch_start()
 
 
 def main() -> None:

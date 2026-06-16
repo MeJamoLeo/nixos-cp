@@ -21,6 +21,9 @@
 				"${mod}+shift+k" = "move up";
 				"${mod}+shift+l" = "move right";
 
+				# Send focused window to the next output (multi-monitor)
+				"${mod}+shift+Tab" = "move container to output next";
+
 				# Window
 				"${mod}+q" = "kill";
 				"${mod}+f" = "fullscreen toggle";
