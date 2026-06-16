@@ -12,34 +12,39 @@ if [[ -d "$CONTEST_DIR" ]]; then
     exit 1
 fi
 
-# Determine number of problems (ABC=6, ARC=4, AGC=6)
-case "$CONTEST" in
-    abc*) PROBLEMS=(a b c d e f) ;;
-    arc*) PROBLEMS=(a b c d) ;;
-    agc*) PROBLEMS=(a b c d e f) ;;
-    *)    PROBLEMS=(a b c d e f) ;;
-esac
-
 BASE_URL="https://atcoder.jp/contests/$CONTEST/tasks"
 
 echo "=== cp-new $CONTEST ==="
 
-for p in "${PROBLEMS[@]}"; do
+# Fetch task_ids from the contest's tasks page. This handles ABC/ARC simultaneous
+# contests where C/D problems carry the paired ARC's task_id (e.g. abc072's C is
+# arc082_a, not abc072_c).
+TASK_IDS=$(curl -s "$BASE_URL" \
+    | grep -oP "/contests/$CONTEST/tasks/\K[a-z0-9_]+" \
+    | awk '!seen[$0]++')
+
+if [[ -z "$TASK_IDS" ]]; then
+    echo "Error: no tasks found at $BASE_URL (contest not started or doesn't exist?)" >&2
+    exit 1
+fi
+
+LETTERS=(a b c d e f g h)
+i=0
+while IFS= read -r task_id; do
+    p="${LETTERS[$i]:-x$i}"
     PROB_DIR="$CONTEST_DIR/$p"
     mkdir -p "$PROB_DIR"
 
-    URL="$BASE_URL/${CONTEST}_${p}"
+    URL="$BASE_URL/$task_id"
     echo "Downloading: $p ($URL)"
 
-    # Save URL for nvim/oj auto-detection
     echo "$URL" > "$PROB_DIR/.problem_url"
 
-    # Download test cases
     (cd "$PROB_DIR" && oj download "$URL" 2>/dev/null) || echo "  (download failed, skipping)"
 
-    # Create empty solution file
     touch "$PROB_DIR/main.py"
-done
+    ((i++))
+done <<< "$TASK_IDS"
 
 echo ""
 echo "Created: $CONTEST_DIR"

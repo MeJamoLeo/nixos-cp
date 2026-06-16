@@ -221,6 +221,58 @@ def run_one(args, cookie: str) -> None:
     )
 
 
+def run_task(args, cookie: str) -> None:
+    output_path = Path(args.output)
+    existing: dict = {}
+    if output_path.exists():
+        try:
+            existing = json.loads(output_path.read_text())
+        except (json.JSONDecodeError, OSError):
+            existing = {}
+    workbooks_data: dict = existing.get("workbooks", {}) or {}
+
+    if not workbooks_data:
+        print("[novisteps] no local mapping; falling back to full fetch", file=sys.stderr)
+        run_all(args, cookie)
+        return
+
+    targets = set(args.task)
+    slugs = [
+        slug for slug, wb in workbooks_data.items()
+        if any(t.get("task_id") in targets for t in wb.get("tasks", []))
+    ]
+
+    if not slugs:
+        print(
+            f"[novisteps] {sorted(targets)} not in any tracked workbook; skip",
+            file=sys.stderr,
+        )
+        return
+
+    print(f"[novisteps] refreshing {len(slugs)} workbook(s): {slugs}", file=sys.stderr)
+
+    for i, slug in enumerate(slugs, 1):
+        if i > 1:
+            time.sleep(args.delay)
+        try:
+            tasks = fetch_workbook(slug, cookie)
+        except CookieExpired as e:
+            handle_cookie_expired(output_path, args.cookie, e)
+        workbooks_data[slug] = {
+            "title": workbooks_data[slug].get("title", ""),
+            "tasks": tasks,
+            "fetched_at": datetime.now(LOCAL_TZ).isoformat(),
+        }
+
+    out = {
+        "fetched_at": datetime.now(LOCAL_TZ).isoformat(),
+        "user": existing.get("user", ""),
+        "cookie_expired": False,
+        "workbooks": workbooks_data,
+    }
+    write_output(output_path, out)
+
+
 def run_all(args, cookie: str) -> None:
     output_path = Path(args.output)
     try:
@@ -284,10 +336,18 @@ def main() -> None:
         "--one", action="store_true",
         help="fetch only the least-recently-updated workbook (plus index)",
     )
+    parser.add_argument(
+        "--task", action="append", default=None, metavar="TASK_ID",
+        help="refresh only workbooks containing this task_id "
+             "(repeatable). Falls back to full fetch when the local "
+             "mapping is empty.",
+    )
     args = parser.parse_args()
 
     cookie = load_cookie(Path(args.cookie))
-    if args.one:
+    if args.task:
+        run_task(args, cookie)
+    elif args.one:
         run_one(args, cookie)
     else:
         run_all(args, cookie)

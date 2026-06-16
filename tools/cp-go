@@ -29,10 +29,23 @@ if [[ ! "$URL" =~ $URL_RE ]]; then
     exit 0
 fi
 
-CONTEST="${URL#https://atcoder.jp/contests/}"
-CONTEST="${CONTEST%%/*}"
+URL_CONTEST="${URL#https://atcoder.jp/contests/}"
+URL_CONTEST="${URL_CONTEST%%/*}"
 PID="${URL##*/tasks/}"
 PROBLEM="${PID##*_}"
+
+# ABC/ARC同時開催回 (e.g. abc072/tasks/arc082_a は ABC072のC問題かつ ARC082のA問題)
+# は task_id の prefix を canonical contest とみなし、ホスト側コンテストの
+# 実問題とディレクトリ衝突しないようにする。
+PID_CONTEST="${PID%_*}"
+if [[ "$URL_CONTEST" =~ ^(abc|arc|agc)[0-9]+$ ]] \
+    && [[ "$PID_CONTEST" =~ ^(abc|arc|agc)[0-9]+$ ]] \
+    && [[ "$PID_CONTEST" != "$URL_CONTEST" ]]; then
+    CONTEST="$PID_CONTEST"
+    URL="https://atcoder.jp/contests/$CONTEST/tasks/$PID"
+else
+    CONTEST="$URL_CONTEST"
+fi
 
 DIR="$CP_DIR/contests/$CONTEST/$PROBLEM"
 mkdir -p "$DIR"
@@ -43,6 +56,12 @@ if [[ ! -d "$DIR/test" ]]; then
 fi
 
 [[ ! -f "$DIR/main.py" ]] && touch "$DIR/main.py"
+
+# 直前に解いた問題のACがkenkoooo / NoviSteps に反映された頃に再取得。
+(sleep 120 && systemctl --user start fetch-stats.service) &>/dev/null &
+disown
+(sleep 120 && python3 "$HOME/nixos-cp/dashboard/fetch_novisteps.py" --task "$PID") &>/dev/null &
+disown
 
 cd "$DIR"
 exec nvim main.py

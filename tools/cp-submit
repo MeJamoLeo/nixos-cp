@@ -45,6 +45,8 @@ SUBMIT_URL="https://atcoder.jp/contests/$CONTEST_ID/submit"
 schedule_dashboard_refresh() {
     (sleep 120 && systemctl --user start fetch-stats.service) &>/dev/null &
     disown
+    (sleep 120 && python3 "$HOME/nixos-cp/dashboard/fetch_novisteps.py" --task "$PID") &>/dev/null &
+    disown
 }
 
 # --- Detect contest mode ---

@@ -24,16 +24,6 @@ in
     };
   };
 
-  systemd.user.timers.fetch-stats = {
-    Unit.Description = "Fetch AtCoder stats every 2 minutes";
-    Timer = {
-      OnBootSec = "1min";
-      OnUnitActiveSec = "2min";
-      Unit = "fetch-stats.service";
-    };
-    Install.WantedBy = [ "timers.target" ];
-  };
-
   systemd.user.services.fetch-novisteps = {
     Unit.Description = "Fetch one NoviSteps workbook";
     Service = {
@@ -42,16 +32,6 @@ in
       Environment = "PATH=${fetchPath}";
       ExecStart = "${pkgs.python3}/bin/python3 ${dashDir}/fetch_novisteps.py --one";
     };
-  };
-
-  systemd.user.timers.fetch-novisteps = {
-    Unit.Description = "Fetch one NoviSteps workbook every minute";
-    Timer = {
-      OnBootSec = "2min";
-      OnUnitActiveSec = "1min";
-      Unit = "fetch-novisteps.service";
-    };
-    Install.WantedBy = [ "timers.target" ];
   };
 
   systemd.user.services.cp-dashboard = {
