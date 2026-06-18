@@ -7,6 +7,7 @@
     ../../home/kitty.nix
     ../../home/dashboard.nix
     ../../modules/sway.nix
+    ../../modules/kanshi.nix
     ../../modules/nvim
   ];
 
