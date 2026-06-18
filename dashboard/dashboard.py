@@ -48,7 +48,7 @@ _watchlist: list[str] = []
 _novi_data: str = ''  # NoviSteps JSON string (single user)
 _novi_cookie_warned: bool = False  # mirrored from cookie_expired field in JSON
 _novi_watch_interval: float = 5.0  # seconds between mtime checks
-_webviews: list = []  # one WebView per attached monitor
+_windows: dict = {}  # connector name -> (Gtk.Window, WebKit.WebView)
 
 
 def _load_novi() -> None:
@@ -188,7 +188,7 @@ def _inject(webview: WebKit.WebView, username: str | None = None) -> None:
 
 
 def _inject_all(username: str | None = None) -> None:
-    for wv in _webviews:
+    for _win, wv in _windows.values():
         _inject(wv, username)
 
 
@@ -300,8 +300,9 @@ def _on_load_changed(
         GLib.timeout_add(200, lambda: _adjust_zoom(webview) or False)
 
 
-def _create_dashboard_window(app: Gtk.Application, monitor) -> WebKit.WebView:
-    """Build one dashboard window pinned to `monitor` (or compositor-picked if None)."""
+def _create_dashboard_window(app: Gtk.Application, monitor) -> tuple:
+    """Build one dashboard window pinned to `monitor` (or compositor-picked if None).
+    Returns (window, webview)."""
     win = Gtk.Window(application=app)
     win.set_title("dashboard")
 
@@ -331,23 +332,52 @@ def _create_dashboard_window(app: Gtk.Application, monitor) -> WebKit.WebView:
 
     win.set_child(webview)
     win.present()
-    return webview
+    return win, webview
+
+
+def _monitor_key(monitor, idx: int) -> str:
+    if monitor is not None and hasattr(monitor, 'get_connector'):
+        connector = monitor.get_connector()
+        if connector:
+            return connector
+    return f'_idx{idx}'
+
+
+def _reconcile_monitors(app: Gtk.Application, monitors) -> None:
+    """Sync `_windows` with the current monitor list. Adds windows for newly
+    attached outputs and tears down windows for outputs that disappeared."""
+    n = monitors.get_n_items()
+    current: dict = {}
+    for i in range(n):
+        m = monitors.get_item(i)
+        current[_monitor_key(m, i)] = m
+
+    for key in list(_windows.keys()):
+        if key not in current:
+            win, _wv = _windows.pop(key)
+            print(f'[dashboard] removing window for {key}')
+            win.close()
+
+    for key, m in current.items():
+        if key not in _windows:
+            print(f'[dashboard] adding window for {key}')
+            _windows[key] = _create_dashboard_window(app, m)
 
 
 def on_activate(app: Gtk.Application) -> None:
     display = Gdk.Display.get_default()
     monitors = display.get_monitors() if display is not None else None
-    n = monitors.get_n_items() if monitors is not None else 0
 
-    if n == 0:
-        # No monitors enumerated — fall back to compositor-picked placement.
-        _webviews.append(_create_dashboard_window(app, None))
+    if monitors is None:
+        _windows['_fallback'] = _create_dashboard_window(app, None)
     else:
-        for i in range(n):
-            m = monitors.get_item(i)
-            connector = m.get_connector() if hasattr(m, 'get_connector') else '?'
-            print(f'[dashboard] mirroring to monitor {i}: {connector}')
-            _webviews.append(_create_dashboard_window(app, m))
+        monitors.connect('items-changed',
+                         lambda *_a: _reconcile_monitors(app, monitors))
+        _reconcile_monitors(app, monitors)
+        if not _windows:
+            # No outputs enumerated yet — let the compositor place one window;
+            # items-changed will add per-monitor windows once they appear.
+            _windows['_fallback'] = _create_dashboard_window(app, None)
 
     GLib.timeout_add_seconds(10, _watch_stats)
     GLib.timeout_add(500, _check_switch)
