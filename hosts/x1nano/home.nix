@@ -13,7 +13,7 @@
   services.wayvibes = {
     enable = true;
     soundpack = wayvibes-soundpack;
-    volume = 3;
+    volume = 5;
   };
 
   # CP snippets: symlink ~/cp/snippets → ~/nixos-cp/snippets so editing

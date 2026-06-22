@@ -15,6 +15,19 @@
     pulseaudio
   ];
 
+  # Auto-switch audio profile/port on jack events (headphones ↔ built-in speaker).
+  # Without this, unplugging headphones leaves the card stuck on the Headphones
+  # profile and Speaker sink disappears entirely.
+  services.pipewire.wireplumber.extraConfig."51-alsa-autoswitch" = {
+    "monitor.alsa.rules" = [{
+      matches = [{ "device.name" = "~alsa_card.*"; }];
+      actions.update-props = {
+        "api.acp.auto-profile" = true;
+        "api.acp.auto-port" = true;
+      };
+    }];
+  };
+
   # Sway
   programs.sway.enable = true;
 
