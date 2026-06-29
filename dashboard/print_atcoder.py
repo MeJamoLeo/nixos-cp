@@ -168,6 +168,11 @@ LATEX_SPECIAL = {
     "_": r"\_", "{": r"\{", "}": r"\}",
     "~": r"\textasciitilde{}", "^": r"\textasciicircum{}",
     "\\": r"\textbackslash{}",
+    # Decorative glyphs neither IPAex nor DejaVu carry — typical90 titles
+    # use ★ as a difficulty marker.
+    "★": r"$\bigstar$", "☆": r"$\star$",
+    "◆": r"$\blacklozenge$", "◇": r"$\lozenge$",
+    "●": r"$\bullet$", "○": r"$\circ$",
 }
 
 
@@ -204,6 +209,25 @@ def html_to_latex(html_str: str) -> str:
             + html_lib.unescape(m.group(1)) + "</script>"
         )
 
+    # Old AtCoder pages put bare Unicode comparators inside <var>...</var>
+    # (e.g. abc061: ``<var>2≦N,M≦50</var>``). Once the <var> is wrapped in a
+    # math script, IPAex can't render the glyph. Replace them inline first.
+    UNICODE_MATH = {
+        "≤": r"\le ", "≥": r"\ge ", "≦": r"\leqq ", "≧": r"\geqq ",
+        "≠": r"\ne ", "≈": r"\approx ", "≡": r"\equiv ",
+        "≪": r"\ll ", "≫": r"\gg ",
+    }
+
+    def fix_var_unicode(m: re.Match) -> str:
+        body = m.group(1)
+        for ch, cmd in UNICODE_MATH.items():
+            body = body.replace(ch, cmd)
+        return f"<var>{body}</var>"
+
+    html_str = re.sub(
+        r"<var\b[^>]*>(.*?)</var>", fix_var_unicode,
+        html_str, flags=re.DOTALL,
+    )
     html_str = re.sub(
         r"<var\b[^>]*>(.*?)</var>", to_inline_math,
         html_str, flags=re.DOTALL,
@@ -215,6 +239,27 @@ def html_to_latex(html_str: str) -> str:
     html_str = re.sub(
         r"\\\((.+?)\\\)", to_inline_math,
         html_str, flags=re.DOTALL,
+    )
+    # Now handle prose-level Unicode comparators (outside any math script).
+    # Stash existing math scripts so nested substitutions don't corrupt them.
+    stash: list[str] = []
+
+    def hide(m: re.Match) -> str:
+        stash.append(m.group(0))
+        return f"\x00MATH{len(stash) - 1}\x00"
+
+    html_str = re.sub(
+        r'<script\b[^>]*type="math/tex[^"]*"[^>]*>.*?</script>',
+        hide, html_str, flags=re.DOTALL,
+    )
+    for ch, cmd in UNICODE_MATH.items():
+        html_str = html_str.replace(
+            ch, f'<script type="math/tex">{cmd}</script>',
+        )
+    html_str = re.sub(
+        r"\x00MATH(\d+)\x00",
+        lambda m: stash[int(m.group(1))],
+        html_str,
     )
     proc = subprocess.run(
         ["pandoc", "-f", "html", "-t", "latex", "--wrap=none"],
@@ -245,11 +290,53 @@ def download_images(node, image_dir: Path) -> None:
                 img.decompose()
                 continue
         img["src"] = str(local)
+        # Drop AtCoder-supplied sizing so the preamble's \setkeys{Gin}{...}
+        # clamps every figure to the column width.
+        for attr in ("width", "height", "style"):
+            if attr in img.attrs:
+                del img[attr]
+
+
+def _render_pre_with_math(pre_node) -> str:
+    r"""Render a ``<pre>`` whose lines may carry MathJax (\(...\), <var>, etc.).
+
+    Plain Verbatim is wrong here — math like ``\mathrm{query}_1`` would print
+    literally. Each line is sent through ``html_to_latex`` individually so the
+    existing MathJax-aware preprocessing kicks in, then the result is wrapped
+    in a framed minipage that mimics the verbatim look.
+    """
+    raw = "".join(str(c) for c in pre_node.contents)
+    lines = raw.split("\n")
+    while lines and not lines[-1].strip():
+        lines.pop()
+    rendered: list[str] = []
+    for ln in lines:
+        if ln.strip() == "":
+            rendered.append("~")
+            continue
+        rendered.append(html_to_latex(ln) or "~")
+    body = " \\\\\n".join(rendered)
+    return (
+        "\\begin{center}"
+        "\\fbox{\\begin{minipage}{0.96\\linewidth}\\ttfamily\\scriptsize\n"
+        + body +
+        "\n\\end{minipage}}\\end{center}"
+    )
+
+
+def _has_math(pre_node) -> bool:
+    raw = "".join(str(c) for c in pre_node.contents)
+    return bool(
+        "\\(" in raw or "\\[" in raw
+        or re.search(r"<var\b", raw)
+        or re.search(r"\\[a-zA-Z]+", raw)
+    )
 
 
 def section_to_latex(section: dict, image_dir: Path) -> str:
     node = section["node"]
     heading = section["heading"]
+    download_images(node, image_dir)
     is_sample = ("入力例" in heading) or ("出力例" in heading) or ("サンプル" in heading)
     if is_sample:
         parts: list[str] = []
@@ -265,14 +352,31 @@ def section_to_latex(section: dict, image_dir: Path) -> str:
             else:
                 parts.append(html_to_latex(str(child)))
         return "\n\n".join(parts) if parts else html_to_latex(str(node))
-    download_images(node, image_dir)
-    return html_to_latex(str(node))
+
+    # Non-sample: render children sequentially so we can intercept
+    # math-bearing <pre> (input/output format specs).
+    children = list(node.find_all(True, recursive=False))
+    if not children:
+        return html_to_latex(str(node))
+    parts: list[str] = []
+    for child in children:
+        if child.name == "pre" and _has_math(child):
+            parts.append(_render_pre_with_math(child))
+        else:
+            parts.append(html_to_latex(str(child)))
+    return "\n\n".join(p for p in parts if p)
 
 
 def parse_problem(html_text: str, task_id: str) -> dict:
     soup = BeautifulSoup(html_text, "html.parser")
     title_node = soup.select_one("span.h2") or soup.select_one("h2")
-    title = title_node.get_text(strip=True) if title_node else task_id
+    if title_node:
+        # AtCoder appends an "解説" (editorial) link inside the title node.
+        for a in title_node.find_all("a"):
+            a.decompose()
+        title = title_node.get_text(strip=True)
+    else:
+        title = task_id
 
     ja = soup.select_one("span.lang-ja") or soup.select_one("#task-statement")
     if not ja:
@@ -329,6 +433,14 @@ LATEX_PREAMBLE = r"""\documentclass[a4paper]{article}
 % pandoc emits \tightlist; define it so xelatex doesn't choke.
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+% MathJax extensions used by AtCoder statements but absent from amsmath.
+\providecommand{\lt}{<}
+\providecommand{\gt}{>}
+
+% Clamp figures to column width so a tall AtCoder diagram doesn't bleed out
+% of its 3-column slot.
+\setkeys{Gin}{width=\linewidth, keepaspectratio}
 
 % Light 5mm grid covering the writable area on every page.
 \AddToShipoutPictureBG{%
@@ -388,8 +500,11 @@ def build_problem_tex(
     def render(sections_iter) -> str:
         out: list[str] = []
         for sec in sections_iter:
+            # \nopagebreak so multicols can't strand the heading at the
+            # bottom of a column with its body in the next column.
             out.append(
-                f"\\par\\smallskip\\textbf{{{tex_escape(sec['heading'])}}}\\par"
+                f"\\par\\smallskip\\textbf{{{tex_escape(sec['heading'])}}}"
+                f"\\nopagebreak\\par\\nopagebreak"
             )
             out.append(section_to_latex(sec, image_dir))
         return "\n".join(out)
@@ -399,34 +514,18 @@ def build_problem_tex(
         if parsed.get("title") else ""
     )
 
-    # Fixed 3-column layout:
-    #   left   = 問題文
-    #   middle = 制約 / 入力 / 出力 (+ sample 1 when there are 2+ samples)
-    #   right  = sample 1 alone (single-sample case) or sample 2..N
-    problem_sections = [s for s in left_sections if s["heading"] == "問題文"]
-    spec_sections = [s for s in left_sections if s["heading"] != "問題文"]
-
-    left_body = title_tex + render(problem_sections)
-    mid_body = render(spec_sections)
-    if len(sample_pairs) == 1:
-        right_body = render(sample_pairs[0])
-    else:
-        if sample_pairs:
-            first = render(sample_pairs[0])
-            mid_body = (mid_body + "\n" + first) if mid_body else first
-        right_body = render(s for pair in sample_pairs[1:] for s in pair)
+    # multicols flows naturally across columns and breaks at the page
+    # bottom — fixed minipages can't, so long problems were burning a blank
+    # cover page (header on p1, atomic 3-col block forced to p2).
+    ordered = [s for s in left_sections if s["heading"] == "問題文"]
+    ordered += [s for s in left_sections if s["heading"] != "問題文"]
+    ordered += [s for pair in sample_pairs for s in pair]
+    body = title_tex + render(ordered)
 
     cols = (
-        r"\noindent"
-        r"\begin{minipage}[t]{0.32\textwidth}" + "\n"
-        + left_body + "\n"
-        + r"\end{minipage}\hfill" + "\n"
-        + r"\begin{minipage}[t]{0.32\textwidth}" + "\n"
-        + mid_body + "\n"
-        + r"\end{minipage}\hfill" + "\n"
-        + r"\begin{minipage}[t]{0.32\textwidth}" + "\n"
-        + right_body + "\n"
-        + r"\end{minipage}"
+        r"\begin{multicols}{3}" + "\n"
+        + body + "\n"
+        + r"\end{multicols}"
     )
 
     body_parts: list[str] = ["\n".join(header_parts), cols]
