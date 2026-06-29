@@ -108,6 +108,12 @@
   environment.sessionVariables = {
     WLR_NO_HARDWARE_CURSORS = "1";
     NIXOS_OZONE_WL = "1";
+    TERMINAL = "kitty";  # single swap point if the terminal ever changes
+    # Single source of truth for tmux's secure socket, so shells (via zsh init)
+    # AND sway-spawned scripts (cp-go-launch etc.) hit the same server.
+    # Without this, shells use $XDG_RUNTIME_DIR but scripts fall back to /tmp,
+    # silently splitting into two parallel tmux universes.
+    TMUX_TMPDIR = "$XDG_RUNTIME_DIR";
   };
 
   fonts.packages = with pkgs; [

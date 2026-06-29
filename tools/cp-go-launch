@@ -1,20 +1,36 @@
 #!/usr/bin/env bash
-# cp-go-launch — open cp-go in a kitty tab on the current sway workspace.
+# cp-go-launch — drop a fresh cp-go window into the `cp` tmux session,
+# OR focus an existing window if this problem is already open.
 #
-# If a kitty window is present on the focused workspace, spawn cp-go as a new
-# tab inside it (via kitty remote control). Otherwise launch a fresh kitty.
+# Window naming convention: cp-go renames its window to the task ID (e.g.
+# abc263_c). On entry we peek at the clipboard URL, derive the same task ID,
+# and if that window already exists in `cp` we just select it — no duplicate
+# window, no re-running oj download, nvim state preserved.
+#
+# Cross-machine: `ssh x1nano -t tmux attach -t cp` shares the same session.
 set -euo pipefail
 
-ws=$(swaymsg -t get_workspaces -r | jq -r '.[] | select(.focused) | .name')
+URL="$(wl-paste 2>/dev/null | tr -d '[:space:]' || true)"
 
-pid=$(swaymsg -t get_tree -r | jq -r --arg ws "$ws" '
-    [ .. | objects | select(.type=="workspace" and .name==$ws)
-      | .. | objects | select(.app_id=="kitty") | .pid ]
-    | .[0] // empty
-')
-
-if [[ -n "$pid" && -S "/tmp/kitty-$pid" ]]; then
-    exec kitty @ --to "unix:/tmp/kitty-$pid" launch --type=tab --cwd=current cp-go
-else
-    exec kitty -e cp-go
+# Try to short-circuit on an already-open problem
+if [[ "$URL" =~ ^https://atcoder\.jp/contests/[^/]+/tasks/[^/]+$ ]]; then
+    PID="${URL##*/tasks/}"
+    if tmux has-session -t cp 2>/dev/null \
+        && tmux list-windows -t cp -F '#W' 2>/dev/null | grep -qx "$PID"; then
+        tmux select-window -t "cp:$PID"
+        swaymsg '[app_id="cp"] focus' 2>/dev/null \
+            || exec kitty --class cp -e tmux attach -t cp
+        exit 0
+    fi
 fi
+
+# Otherwise: spawn a fresh cp-go window (cp-go itself handles NoviSteps
+# fallback when the clipboard URL is missing / non-AtCoder).
+if tmux has-session -t cp 2>/dev/null; then
+    tmux new-window -t cp cp-go
+else
+    tmux new-session -d -s cp cp-go
+fi
+
+swaymsg '[app_id="cp"] focus' 2>/dev/null \
+    || exec kitty --class cp -e tmux attach -t cp

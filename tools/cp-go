@@ -64,4 +64,11 @@ disown
 disown
 
 cd "$DIR"
+
+# Inside tmux: name the window after the task ID (e.g. abc263_c) so window
+# lists show "which problem" instead of "nvim" for every entry.
+if [[ -n "${TMUX:-}" ]]; then
+    tmux rename-window "$PID"
+fi
+
 exec nvim main.py

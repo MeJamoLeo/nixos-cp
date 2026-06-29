@@ -116,6 +116,7 @@
 			window.commands = [
 				{ criteria = { app_id = "firefox"; }; command = "opacity 0.85"; }
 				{ criteria = { app_id = "kitty"; }; command = "opacity 0.85"; }
+				{ criteria = { app_id = "cp"; }; command = "opacity 0.85"; }
 			];
 
 			startup = [
