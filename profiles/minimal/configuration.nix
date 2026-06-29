@@ -23,6 +23,8 @@
   ];
 
   services.openssh.enable = true;
+  services.openssh.settings.PasswordAuthentication = false;  # key-only (global IPv6 exposure)
+  services.openssh.settings.KbdInteractiveAuthentication = false;  # close PAM keyboard-interactive path too
 
   console.useXkbConfig = true;
   services.xserver.xkb.options = "ctrl:swapcaps";
