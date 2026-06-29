@@ -183,8 +183,12 @@ in
         { __unkeyed-1 = "<leader>f"; group = "Find"; }
         { __unkeyed-1 = "<leader>l"; group = "LSP"; }
         { __unkeyed-1 = "<leader>r"; group = "LSP Rename"; }
+        { __unkeyed-1 = "<leader>n"; group = "Nabla (LaTeX)"; }
       ];
     };
+
+    # Nabla: render inline LaTeX ($...$) as ASCII art in a popup / virt text
+    extraPlugins = [ pkgs.vimPlugins.nabla-nvim ];
 
     # Competitest (compile + run + test in nvim)
     plugins.competitest = {
@@ -232,6 +236,10 @@ in
       # Quick save/quit
       { mode = "n"; key = "<leader>w"; action = "<cmd>w<cr>"; options.desc = "Save"; }
       { mode = "n"; key = "<leader>q"; action = "<cmd>q<cr>"; options.desc = "Quit"; }
+
+      # Nabla (LaTeX render)
+      { mode = "n"; key = "<leader>np"; action = ''<cmd>lua require('nabla').popup()<cr>''; options.desc = "Popup math under cursor"; }
+      { mode = "n"; key = "<leader>nt"; action = ''<cmd>lua require('nabla').toggle_virt({autogen=true})<cr>''; options.desc = "Toggle inline virt-text math"; }
 
       # Debug (DAP) — all leader-based (no F-keys; laptop multimedia takes priority)
       { mode = "n"; key = "<leader>dc"; action = "<cmd>DapContinue<cr>"; options.desc = "Continue / start"; }
