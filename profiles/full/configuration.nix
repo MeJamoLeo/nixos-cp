@@ -31,6 +31,11 @@
   # Sway
   programs.sway.enable = true;
 
+  # File manager (Thunar). gvfs gives trash + remote mounts; tumbler thumbnails.
+  programs.thunar.enable = true;
+  services.gvfs.enable = true;
+  services.tumbler.enable = true;
+
   # Firefox: DuckDuckGo search, NoviSteps as homepage / startup page
   programs.firefox = {
     enable = true;
