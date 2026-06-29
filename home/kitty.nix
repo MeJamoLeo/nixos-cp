@@ -17,4 +17,10 @@
       "ctrl+shift+n" = "new_os_window_with_cwd";
     };
   };
+
+  xdg.configFile."kitty/ssh.conf".text = ''
+    hostname *
+    env LANG=ja_JP.UTF-8
+    env LC_ALL=ja_JP.UTF-8
+  '';
 }
