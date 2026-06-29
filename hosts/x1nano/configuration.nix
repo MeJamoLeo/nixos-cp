@@ -8,6 +8,9 @@
 
   networking.hostName = "x1nano";
 
+  nixpkgs.config.allowUnfreePredicate = pkg:
+    builtins.elem (pkgs.lib.getName pkg) [ "obsidian" ];
+
   # Fingerprint authentication
   services.fprintd.enable = true;
   security.pam.services.login.fprintAuth = true;

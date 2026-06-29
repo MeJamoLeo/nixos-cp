@@ -8,6 +8,7 @@
   home.packages = [
     claude-code-pkg
     zen-browser-pkg
+    pkgs.obsidian
   ];
 
   services.wayvibes = {
