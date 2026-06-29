@@ -6,6 +6,7 @@
     ../../home/starship.nix
     ../../home/kitty.nix
     ../../home/dashboard.nix
+    ../../home/claude.nix
     ../../modules/sway.nix
     ../../modules/kanshi.nix
     ../../modules/nvim
