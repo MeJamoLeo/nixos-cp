@@ -41,7 +41,7 @@ in
       texEnv
       py
       pkgs.pandoc
-      pkgs.poppler_utils
+      pkgs.poppler-utils
       pkgs.qpdf
     ];
 
