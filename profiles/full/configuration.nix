@@ -85,14 +85,17 @@
 
   services.xserver.desktopManager.runXdgAutostartIfNone = true;
 
-  # Suspend on lid close. Still suspend even when an external monitor is
-  # attached — the dashboard is meant to be passive, not a reason to keep
-  # the lid open. Power button stays on its default ("poweroff").
+  # Lid close: suspend on battery (portable), but STAY ON when on AC or docked
+  # so x1nano works as an always-on ssh box (no need to re-open the laptop).
+  # Power button stays on its default ("poweroff").
   services.logind = {
     lidSwitch = "suspend";
-    lidSwitchExternalPower = "suspend";
-    lidSwitchDocked = "suspend";
+    lidSwitchExternalPower = "ignore";
+    lidSwitchDocked = "ignore";
   };
+
+  # Keep WiFi alive when the lid is closed so ssh stays reachable.
+  networking.networkmanager.wifi.powersave = false;
 
   # Display manager
   services.greetd = {
