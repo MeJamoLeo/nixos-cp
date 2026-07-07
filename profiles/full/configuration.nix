@@ -30,6 +30,8 @@
 
   # Sway
   programs.sway.enable = true;
+    # base desktop (build check): COSMIC alongside sway; greeter picks the compositor
+    services.desktopManager.cosmic.enable = true;
 
   # File manager (Thunar). gvfs gives trash + remote mounts; tumbler thumbnails.
   programs.thunar.enable = true;
