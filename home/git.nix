@@ -8,7 +8,7 @@
 	programs.git = {
 		enable = true;
 		lfs.enable = true;
-		extraConfig = {
+		settings = {
 			user = {
 				name = "MeJamoLeo";
 				email = "55238651+MeJamoLeo@users.noreply.github.com";
@@ -16,15 +16,15 @@
 			init.defaultBranch = "main";
 			push.autoSetupRemote = true;
 			pull.rebase = true;
-		};
-		aliases = {
-			br = "branch";
-			co = "checkout";
-			st = "status";
-			cm = "commit -m";
-			ca = "commit -am";
-			dc = "diff --cached";
-			amend = "commit --amend -m";
+			alias = {
+				br = "branch";
+				co = "checkout";
+				st = "status";
+				cm = "commit -m";
+				ca = "commit -am";
+				dc = "diff --cached";
+				amend = "commit --amend -m";
+			};
 		};
 		includes = [
 		{

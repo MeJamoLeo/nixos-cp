@@ -52,7 +52,7 @@
 						home-manager.useUserPackages = true;
 						home-manager.users.treo = import ./profiles/full/home.nix;
 						home-manager.sharedModules = [
-							nixvim.homeManagerModules.nixvim
+							nixvim.homeModules.nixvim
 						];
 					}
 				];
@@ -69,7 +69,7 @@
 						home-manager.useUserPackages = true;
 						home-manager.users.treo = import ./hosts/x1nano/home.nix;
 						home-manager.sharedModules = [
-							nixvim.homeManagerModules.nixvim
+							nixvim.homeModules.nixvim
 							wayvibes.nixosModules.default
 						];
 						home-manager.extraSpecialArgs = {

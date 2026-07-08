@@ -87,15 +87,13 @@ in
     };
 
     # DAP (debugger)
-    plugins.dap = {
+    plugins.dap.enable = true;
+    plugins.dap-ui.enable = true;
+    plugins.dap-python = {
       enable = true;
-      extensions.dap-ui.enable = true;
-      extensions.dap-python = {
-        enable = true;
-        adapterPythonPath = "${pythonWithDebugpy}/bin/python";
-      };
-      extensions.dap-virtual-text.enable = true;
+      adapterPythonPath = "${pythonWithDebugpy}/bin/python";
     };
+    plugins.dap-virtual-text.enable = true;
 
     # Snippets
     plugins.luasnip = {

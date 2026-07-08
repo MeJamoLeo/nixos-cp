@@ -90,10 +90,10 @@
   # Lid close: suspend on battery (portable), but STAY ON when on AC or docked
   # so x1nano works as an always-on ssh box (no need to re-open the laptop).
   # Power button stays on its default ("poweroff").
-  services.logind = {
-    lidSwitch = "suspend";
-    lidSwitchExternalPower = "ignore";
-    lidSwitchDocked = "ignore";
+  services.logind.settings.Login = {
+    HandleLidSwitch = "suspend";
+    HandleLidSwitchExternalPower = "ignore";
+    HandleLidSwitchDocked = "ignore";
   };
 
   # Keep WiFi alive when the lid is closed so ssh stays reachable.
@@ -104,7 +104,7 @@
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --cmd sway";
+        command = "${pkgs.tuigreet}/bin/tuigreet --cmd sway";
         user = "treo";
       };
     };
