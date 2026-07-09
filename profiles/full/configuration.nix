@@ -87,13 +87,24 @@
 
   services.xserver.desktopManager.runXdgAutostartIfNone = true;
 
-  # Lid close: suspend on battery (portable), but STAY ON when on AC or docked
-  # so x1nano works as an always-on ssh box (no need to re-open the laptop).
+  # Always-on ssh box: never auto-suspend so x1nano stays reachable over ssh
+  # even at the greeter (logged out) or with the lid closed on battery. A suspended
+  # machine can't answer ssh (no reliable WoL over wifi), so we don't sleep at all.
   # Power button stays on its default ("poweroff").
   services.logind.settings.Login = {
-    HandleLidSwitch = "suspend";
+    HandleLidSwitch = "ignore";
     HandleLidSwitchExternalPower = "ignore";
     HandleLidSwitchDocked = "ignore";
+    IdleAction = "ignore";
+  };
+
+  # Hard-disable every sleep path so nothing (COSMIC / logind / systemd) can
+  # suspend the machine and drop the ssh connection.
+  systemd.targets = {
+    sleep.enable = false;
+    suspend.enable = false;
+    hibernate.enable = false;
+    hybrid-sleep.enable = false;
   };
 
   # Keep WiFi alive when the lid is closed so ssh stays reachable.
