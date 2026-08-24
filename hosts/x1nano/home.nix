@@ -3,6 +3,10 @@
 {
   imports = [
     ../../profiles/full/home.nix
+    # Third session alongside sway and COSMIC, selectable from tuigreet.
+    # Scoped to this host while it is being evaluated; promote to
+    # profiles/full if it sticks.
+    ../../modules/niri
   ];
 
   home.packages = [

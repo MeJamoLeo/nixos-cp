@@ -11,6 +11,12 @@
   nixpkgs.config.allowUnfreePredicate = pkg:
     builtins.elem (pkgs.lib.getName pkg) [ "obsidian" ];
 
+  # niri: a third session next to sway and COSMIC. The nixpkgs module registers
+  # the session in services.displayManager.sessionPackages, so it shows up in
+  # tuigreet's session picker on its own. The config itself lives in
+  # modules/niri (home-manager side).
+  programs.niri.enable = true;
+
   # Fingerprint authentication
   services.fprintd.enable = true;
   security.pam.services.login.fprintAuth = true;
