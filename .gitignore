@@ -15,8 +15,8 @@
 # and git never descends into it (same reason "!hosts/**/" exists below).
 !modules/**/
 !modules/**/*.nix
-# niri reads a single KDL file; it is kept as real KDL rather than a Nix string
-# so that `niri validate -c` can be run against it directly.
+# Room for hand-written KDL next to a module. niri's config is generated from
+# Nix now, but keep the rule: a checked-in .kdl can be validated directly.
 !modules/**/*.kdl
 !home/
 !home/**/*.nix

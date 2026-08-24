@@ -23,9 +23,16 @@
 			url = "github:sahaj-b/wayvibes";
 			inputs.nixpkgs.follows = "nixpkgs";
 		};
+		# Config-only: the niri binary still comes from nixpkgs (26.04). This
+		# input supplies programs.niri.settings, the Nix-native config surface,
+		# plus a build-time `niri validate`.
+		niri = {
+			url = "github:sodiboo/niri-flake";
+			inputs.nixpkgs.follows = "nixpkgs";
+		};
 	};
 
-	outputs = { self, nixpkgs, home-manager, nixvim, claude-code, zen-browser, wayvibes, ... }: {
+	outputs = { self, nixpkgs, home-manager, nixvim, claude-code, zen-browser, wayvibes, niri, ... }: {
 		nixosConfigurations = {
 			# Dashboard + CLI tools only. Bring your own editor/browser.
 			minimal = nixpkgs.lib.nixosSystem {
@@ -75,6 +82,9 @@
 							# bare package, so that policies — extensions above all —
 							# become declarative. The module installs the package itself.
 							zen-browser.homeModules.beta
+							# niri: config only. programs.niri.enable lives on the NixOS
+							# side (nixpkgs module); this supplies the settings surface.
+							niri.homeModules.config
 						];
 						home-manager.extraSpecialArgs = {
 							claude-code-pkg = claude-code.packages.${system}.default;
