@@ -33,4 +33,28 @@
 
   # Re-apply the cap after resume (suspend can reset it).
   powerManagement.resumeCommands = "echo 80 > /sys/class/power_supply/BAT0/charge_control_end_threshold";
+
+  # --- CS4371 security lab -------------------------------------------------
+  # VirtualBox hosts the five-VM sandbox (pfSense / Ubuntu / WinXP / Kali /
+  # Win95) that CS4371 Project-1 asks for. The Extension Pack is deliberately
+  # left out: USB passthrough and VRDP are not needed here, and it is unfree
+  # plus a long local build.
+  virtualisation.virtualbox.host.enable = true;
+
+  # Non-root packet capture: gives dumpcap capabilities and creates the group.
+  programs.wireshark.enable = true;
+
+  users.users.treo.extraGroups = [ "vboxusers" "wireshark" ];
+
+  # VirtualBox keeps its machines under ~/vm-draft on the internal disk. These
+  # are throwaway prototypes: the graded build is assembled clean on the
+  # portable SSD (ukishima) instead, so this host never needs to know that the
+  # SSD exists. Mount it by hand on the rare occasion you want to look:
+  #   sudo mount /dev/disk/by-label/vmstore /mnt
+
+  # --- Remote access -------------------------------------------------------
+  # DHCP hands this box a fresh address whenever the network changes, so
+  # `ssh <ip>` keeps going stale. Tailscale gives it a stable name instead.
+  services.tailscale.enable = true;
+  networking.firewall.trustedInterfaces = [ "tailscale0" ];
 }
