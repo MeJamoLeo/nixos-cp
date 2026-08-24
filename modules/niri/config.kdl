@@ -106,6 +106,20 @@ input {
     position x=1280 y=0
 }
 
+// --- Local divergence from the upstream default -----------------------------
+// First deliberate change to niri's shipped config. Everything above and below
+// is upstream verbatim, so `git diff` against the initial commit is exactly the
+// list of personal preferences.
+//
+// The panel is 2160x1350 across 280x170 mm — about 196 PPI — so niri's
+// automatic scale selection picks 1.5 (logical 1440x900). The sway config sets
+// this same output to scale 1, and that is the size these eyes are trained on;
+// 1.5 reads as too large. Mode, transform and position are left to niri: this
+// is a single built-in display with one usable mode.
+output "eDP-1" {
+    scale 1
+}
+
 // Settings that influence how windows are positioned and sized.
 // Find more information on the wiki:
 // https://niri-wm.github.io/niri/Configuration:-Layout
