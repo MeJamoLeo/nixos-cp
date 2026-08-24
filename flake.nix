@@ -71,10 +71,13 @@
 						home-manager.sharedModules = [
 							nixvim.homeModules.nixvim
 							wayvibes.nixosModules.default
+							# Zen: import the home-manager module rather than passing the
+							# bare package, so that policies — extensions above all —
+							# become declarative. The module installs the package itself.
+							zen-browser.homeModules.beta
 						];
 						home-manager.extraSpecialArgs = {
 							claude-code-pkg = claude-code.packages.${system}.default;
-							zen-browser-pkg = zen-browser.packages.${system}.default;
 							wayvibes-soundpack = "${wayvibes}/soundpacks/nk-cream";
 						};
 					}
