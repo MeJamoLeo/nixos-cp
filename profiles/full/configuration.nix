@@ -1,5 +1,12 @@
 { config, pkgs, ... }:
 
+let
+  # Which session tuigreet starts when you just hit enter. Follows whatever
+  # compositor the host enables: hosts that turn on niri get niri, everything
+  # else falls back to sway. Every session in --sessions is still reachable
+  # from the picker (F3); this only decides the pre-filled one.
+  defaultSessionCommand = if config.programs.niri.enable then "niri-session" else "sway";
+in
 {
   imports = [
     ../minimal/configuration.nix
@@ -121,7 +128,12 @@
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-session --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions";
+        # --remember keeps the last username. --remember-session is deliberately
+        # NOT used: it caches the last manual pick under /var/cache/tuigreet and
+        # that cache overrides --cmd, so the declared default would lose to
+        # whatever was clicked last. Dropping it keeps the default in the config
+        # instead of in mutable state.
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --remember --cmd ${defaultSessionCommand} --sessions ${config.services.displayManager.sessionData.desktops}/share/wayland-sessions";
         user = "treo";
       };
     };
